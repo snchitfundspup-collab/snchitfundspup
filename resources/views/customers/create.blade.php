@@ -69,6 +69,19 @@
 
                 <div class="mb-4">
                     <label class="block font-medium mb-1">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        name="email"
+                        value="{{ old('email') }}"
+                        class="w-full border rounded px-3 py-2"
+                    >
+                </div>
+
+                <div class="mb-4">
+                    <label class="block font-medium mb-1">
                         Address
                     </label>
 

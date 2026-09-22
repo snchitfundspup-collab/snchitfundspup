@@ -10,6 +10,7 @@ class Customer extends Model
         'customer_code',
         'name',
         'phone',
+        'email',
         'address',
         'remarks',
         'is_active',

@@ -7,6 +7,12 @@ use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
+    public function index()
+    {
+        $customers = Customer::orderBy('id', 'desc')->get();
+
+        return view('customers.index', compact('customers'));
+    }
     public function create()
     {
         return view('customers.create');
@@ -17,6 +23,7 @@ class CustomerController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:20'],
+            'email' => ['nullable', 'email', 'max:255'],
             'address' => ['nullable', 'string'],
             'remarks' => ['nullable', 'string'],
         ]);
@@ -33,12 +40,13 @@ class CustomerController extends Controller
             'customer_code' => $customerCode,
             'name' => $validated['name'],
             'phone' => $validated['phone'],
+            'email' => $validated['email'] ?? null,
             'address' => $validated['address'] ?? null,
             'remarks' => $validated['remarks'] ?? null,
         ]);
 
         return redirect()
-            ->route('customers.create')
+            ->route('customers.index')
             ->with('success', "Customer {$customerCode} created successfully.");
     }
 }
