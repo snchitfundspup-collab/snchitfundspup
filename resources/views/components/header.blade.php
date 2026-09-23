@@ -2,22 +2,32 @@
 
     <div class="brand">
 
-        <div class="brand-logo">
-            <img
-                src="{{ asset('images/sn-chit-funds-logo.png') }}"
-                alt="SN Chit Funds"
-            >
-        </div>
-        
-        <div>
-            <div class="brand-name">
-                <span>SN</span> Chit Funds
+        {{-- logo + name → Home (dashboard) --}}
+
+        <a
+            href="{{ route('dashboard') }}"
+            class="brand-link"
+            aria-label="SN Chit Funds – go to Home"
+        >
+
+            <div class="brand-logo logo-3d">
+                <img
+                    src="{{ asset('images/sn-chit-funds-logo.png') }}"
+                    alt=""
+                >
             </div>
 
-            <div class="brand-tagline" data-i18n="brand_tagline">
-                Trust · Growth · Together
+            <div>
+                <div class="brand-name">
+                    <span>SN</span> Chit Funds
+                </div>
+
+                <div class="brand-tagline" data-i18n="brand_tagline">
+                    Trust · Growth · Together
+                </div>
             </div>
-        </div>
+
+        </a>
              <button
                 type="button"
                 class="header-menu-button"
@@ -69,21 +79,90 @@
                 id="themeButton"
                 onclick="toggleTheme()"
             >
-                <span id="themeIcon">☀</span>
+                <span id="themeIcon" class="theme-icon">
+                    <x-icon name="sun" class="theme-sun" />
+                    <x-icon name="moon" class="theme-moon" />
+                </span>
             </button>
 
         </div>
 
 
-        <div class="admin">
+        <div class="admin" id="adminDropdown">
 
-            <div class="admin-avatar">
-                <span>♙</span>
+            <button
+                type="button"
+                class="admin-toggle"
+                onclick="toggleAdminMenu()"
+                aria-haspopup="true"
+                aria-expanded="false"
+                aria-controls="adminMenu"
+            >
+
+                <span class="admin-avatar icon-3d icon-3d-orange">
+                    {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr(auth()->user()?->name ?? 'A', 0, 1)) }}
+                </span>
+
+                <span class="admin-name">
+                    {{ auth()->user()?->name ?? 'Admin' }}
+                </span>
+
+                <x-icon name="chevron-down" class="admin-caret" />
+
+            </button>
+
+
+            <div
+                class="admin-menu"
+                id="adminMenu"
+                role="menu"
+                hidden
+            >
+
+                <div class="admin-menu-user">
+
+                    <strong>
+                        {{ auth()->user()?->name ?? 'Admin' }}
+                    </strong>
+
+                    <span>
+                        {{ auth()->user()?->username }}
+                    </span>
+
+                </div>
+
+
+                <a
+                    href="{{ route('password.edit') }}"
+                    class="admin-menu-item"
+                    role="menuitem"
+                >
+                    <span class="admin-menu-icon icon-3d icon-3d-blue">
+                        <x-icon name="lock" />
+                    </span>
+                    <span data-i18n="passwordTitle">Change Password</span>
+                </a>
+
+
+                <form
+                    method="POST"
+                    action="{{ route('logout') }}"
+                >
+                    @csrf
+
+                    <button
+                        type="submit"
+                        class="admin-menu-item admin-menu-logout"
+                        role="menuitem"
+                    >
+                        <span class="admin-menu-icon icon-3d icon-3d-red">
+                            <x-icon name="logout" />
+                        </span>
+                        <span data-i18n="logout">Logout</span>
+                    </button>
+                </form>
+
             </div>
-
-            <span data-i18n="admin">
-                Admin
-            </span>
 
         </div>
 

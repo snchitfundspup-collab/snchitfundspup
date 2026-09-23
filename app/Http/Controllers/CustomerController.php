@@ -3,78 +3,92 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
     /**
+     * Sort options for the customer list. The first one is the default.
+     *
+     * @var list<string>
+     */
+    public const SORT_OPTIONS = [
+        'newest',
+        'oldest',
+        'name_asc',
+        'name_desc',
+        'code_asc',
+        'code_desc',
+        'active_first',
+        'inactive_first',
+    ];
+
+    /**
      * Display customers.
      *
      * Includes:
      * - Search
+     * - Sorting
      * - Pagination
-     * - Search preserved while changing pages
+     * - Search + sort preserved while changing pages
      */
     public function index(Request $request)
     {
         $search = trim($request->input('search', ''));
 
+        $sort = in_array($request->input('sort'), self::SORT_OPTIONS, true)
+            ? $request->input('sort')
+            : self::SORT_OPTIONS[0];
+
         $customers = Customer::query()
 
-            ->when($search !== '', function ($query) use ($search) {
+            ->search($search)
 
-                $query->where(function ($q) use ($search) {
-
-                    $q->where(
-                        'customer_code',
-                        'like',
-                        "%{$search}%"
-                    )
-
-                    ->orWhere(
-                        'name',
-                        'like',
-                        "%{$search}%"
-                    )
-
-                    ->orWhere(
-                        'phone',
-                        'like',
-                        "%{$search}%"
-                    )
-
-                    ->orWhere(
-                        'remarks',
-                        'like',
-                        "%{$search}%"
-                    )
-
-                    ->orWhere(
-                        'address',
-                        'like',
-                        "%{$search}%"
-                    );
-
-                });
-
-            })
-
-            ->orderByDesc('id')
+            ->tap(fn (Builder $query) => $this->applySort($query, $sort))
 
             ->paginate(10)
 
             ->withQueryString();
 
-
         return view(
             'customers.index',
             compact(
                 'customers',
-                'search'
+                'search',
+                'sort'
             )
         );
     }
 
+    /**
+     * Apply one of the SORT_OPTIONS to the customer query. Ties fall back
+     * to newest first so the order is always stable across pages.
+     *
+     * @param  Builder<Customer>  $query
+     */
+    private function applySort(Builder $query, string $sort): void
+    {
+        match ($sort) {
+            'oldest' => $query->orderBy('id'),
+            'name_asc' => $query->orderBy('name'),
+            'name_desc' => $query->orderByDesc('name'),
+
+            /*
+             * Codes are "SN" + number, so sort by length first:
+             * SN9999 must come before SN10000.
+             */
+            'code_asc' => $query->orderByRaw('LENGTH(customer_code)')->orderBy('customer_code'),
+            'code_desc' => $query->orderByRaw('LENGTH(customer_code) DESC')->orderByDesc('customer_code'),
+
+            'active_first' => $query->orderByDesc('is_active')->orderBy('name'),
+            'inactive_first' => $query->orderBy('is_active')->orderBy('name'),
+
+            default => null,
+        };
+
+        $query->orderByDesc('id');
+    }
 
     /**
      * Show create customer page.
@@ -83,7 +97,6 @@ class CustomerController extends Controller
     {
         return view('customers.create');
     }
-
 
     /**
      * Store a new customer.
@@ -122,12 +135,10 @@ class CustomerController extends Controller
 
         ]);
 
-
         /*
          * Get the latest customer.
          */
         $lastCustomer = Customer::orderByDesc('id')->first();
-
 
         /*
          * Generate next customer number.
@@ -149,9 +160,7 @@ class CustomerController extends Controller
 
             : 2601;
 
-
-        $customerCode = 'SN' . $nextNumber;
-
+        $customerCode = 'SN'.$nextNumber;
 
         /*
          * Create customer.
@@ -174,7 +183,6 @@ class CustomerController extends Controller
 
         ]);
 
-
         /*
          * Stay on create page.
          */
@@ -187,7 +195,6 @@ class CustomerController extends Controller
                 "Customer {$customerCode} created successfully."
             );
     }
-
 
     /**
      * Update an existing customer.
@@ -236,7 +243,6 @@ class CustomerController extends Controller
 
         ]);
 
-
         /*
          * Update customer.
          */
@@ -256,7 +262,6 @@ class CustomerController extends Controller
 
         ]);
 
-
         /*
          * Return JSON for JavaScript/AJAX.
          */
@@ -264,8 +269,7 @@ class CustomerController extends Controller
 
             'success' => true,
 
-            'message' =>
-                'Customer updated successfully.',
+            'message' => 'Customer updated successfully.',
 
             'customer' => $customer->fresh(),
 

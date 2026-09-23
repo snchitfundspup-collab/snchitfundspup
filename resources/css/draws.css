@@ -1,0 +1,1067 @@
+/*
+|--------------------------------------------------------------------------
+| DRAWS — PAGE-SPECIFIC STYLES
+|--------------------------------------------------------------------------
+| Run Draw (member picker + animated wheel + winner popup), draw result /
+| payout, and the draws list. Loaded after groups.css (page shell, panels,
+| member rows, flash, facts) and, where used, payments.css (receipt /
+| voucher, method chips, list rows).
+*/
+
+
+/* =========================================================
+   HEADER — GROUP PICKER
+========================================================= */
+
+.draw-group-picker label {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    color: var(--text-soft);
+}
+
+
+.draw-select {
+    min-width: 240px;
+
+    min-height: 48px;
+
+    padding: 0 14px;
+
+    border-radius: 14px;
+
+    border: 1px solid var(--input-border);
+
+    background: var(--input-bg);
+
+    color: inherit;
+
+    font: inherit;
+
+    font-weight: 700;
+}
+
+
+.draw-select option {
+    background: #1b2750;
+
+    color: #f8fbff;
+}
+
+
+html.light .draw-select option {
+    background: #eef1f9;
+
+    color: #1b2750;
+}
+
+
+/* =========================================================
+   FACTS + NOTICES
+========================================================= */
+
+.draw-facts {
+    display: grid;
+
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+
+    gap: 14px;
+
+    margin: 18px 0;
+}
+
+
+.draw-facts a.group-fact {
+    color: inherit;
+
+    text-decoration: none;
+}
+
+
+.draw-last-winner {
+    font-size: 15px !important;
+
+    white-space: normal !important;
+}
+
+
+.draw-block {
+    margin-top: 18px;
+}
+
+
+.draw-hint {
+    margin: 0 0 12px;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+    color: var(--text-soft);
+}
+
+
+/* =========================================================
+   RUN DRAW LAYOUT
+========================================================= */
+
+.draw-layout {
+    display: grid;
+
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+
+    gap: 18px;
+
+    align-items: start;
+}
+
+
+.draw-selected-count {
+    font-size: 13px;
+
+    font-weight: 700;
+
+    color: var(--text-soft);
+}
+
+
+.draw-selected-count strong {
+    font-size: 18px;
+
+    color: #FE691E;
+}
+
+
+.draw-select-actions {
+    display: flex;
+
+    gap: 8px;
+
+    margin-bottom: 10px;
+}
+
+
+.draw-select-actions .group-action {
+    min-height: 38px;
+
+    padding: 0 12px;
+
+    font-size: 13px;
+}
+
+
+/* ---------- member checklist ---------- */
+
+.draw-member-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    max-height: 560px;
+
+    overflow-y: auto;
+
+    padding-right: 4px;
+}
+
+
+.draw-member input {
+    position: absolute;
+
+    opacity: 0;
+
+    pointer-events: none;
+}
+
+
+.draw-member-card {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 10px 12px;
+
+    border-radius: 14px;
+
+    border: 1.5px solid var(--input-border);
+
+    background: var(--input-bg);
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.draw-member-card .avatar-3d {
+    width: 34px;
+    height: 34px;
+
+    font-size: 0.8rem;
+}
+
+
+.draw-check {
+    width: 24px;
+    height: 24px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 7px;
+
+    border: 2px solid var(--input-border);
+
+    color: transparent;
+
+    font-size: 14px;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.draw-member input:checked + .draw-member-card {
+    border-color: #FE691E;
+
+    background: rgba(254, 105, 30, 0.12);
+}
+
+
+.draw-member input:checked + .draw-member-card .draw-check {
+    border-color: #FE691E;
+
+    background: #FE691E;
+
+    color: #ffffff;
+}
+
+
+.draw-member input:focus-visible + .draw-member-card {
+    outline: 2px solid #FE691E;
+
+    outline-offset: 2px;
+}
+
+
+.draw-layout.is-spinning .draw-member-card,
+.draw-layout.is-spinning .draw-select-actions {
+    pointer-events: none;
+
+    opacity: 0.6;
+}
+
+
+/* ---------- wheel ---------- */
+
+.draw-wheel-panel {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 16px;
+}
+
+
+.wheel-stage {
+    position: relative;
+
+    width: min(100%, 440px);
+
+    aspect-ratio: 1;
+}
+
+
+.wheel {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    transform-origin: 50% 50%;
+
+    filter: drop-shadow(0 14px 28px rgba(15, 23, 42, 0.30));
+}
+
+
+.wheel-rim {
+    fill: #1b2650;
+
+    stroke: #fbbf24;
+
+    stroke-width: 4;
+}
+
+
+html.light .wheel-rim {
+    fill: #e3e8f5;
+}
+
+
+.wheel.is-empty .wheel-rim {
+    stroke: var(--input-border);
+}
+
+
+.wheel-slice {
+    stroke: rgba(255, 255, 255, 0.85);
+
+    stroke-width: 1;
+}
+
+
+.wheel-label {
+    fill: #ffffff;
+
+    font-weight: 800;
+
+    paint-order: stroke;
+
+    stroke: rgba(0, 0, 0, 0.25);
+
+    stroke-width: 0.6;
+
+    pointer-events: none;
+}
+
+
+.wheel-hub {
+    fill: #ffffff;
+
+    stroke: #fbbf24;
+
+    stroke-width: 4;
+}
+
+/* no hub on an empty wheel, so the hint text reads cleanly */
+
+:has(> .wheel-empty:not([hidden])) .wheel-hub {
+    display: none;
+}
+
+
+/* pointer at the top, pointing down onto the wheel */
+
+.wheel-pointer {
+    position: absolute;
+
+    left: 50%;
+    top: -6px;
+
+    z-index: 2;
+
+    width: 0;
+    height: 0;
+
+    transform: translateX(-50%);
+
+    border-left: 16px solid transparent;
+    border-right: 16px solid transparent;
+    border-top: 30px solid #FE691E;
+
+    filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.35));
+}
+
+
+.wheel-empty {
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    margin: 0;
+
+    padding: 25%;
+
+    text-align: center;
+
+    font-weight: 700;
+
+    color: var(--text-soft);
+}
+
+
+.spin-button {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    min-width: 240px;
+
+    min-height: 56px;
+
+    padding: 0 26px;
+
+    border: 0;
+
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ff8a45,
+            #fe691e
+        );
+
+    color: #ffffff;
+
+    font: inherit;
+
+    font-size: 17px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.35),
+        0 4px 0 #b8430f,
+        0 10px 18px rgba(15, 23, 42, 0.25);
+
+    transition: transform 0.15s ease;
+}
+
+
+.spin-button .svg-icon {
+    font-size: 22px;
+}
+
+
+.spin-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+}
+
+
+.spin-button:active:not(:disabled) {
+    transform: translateY(2px);
+}
+
+
+.spin-button:disabled {
+    opacity: 0.45;
+
+    cursor: not-allowed;
+}
+
+
+.draw-fair-note {
+    margin: 0;
+
+    max-width: 360px;
+
+    text-align: center;
+
+    font-size: 12px;
+
+    color: var(--text-soft);
+}
+
+
+/* =========================================================
+   WINNER POPUP + CONFETTI
+========================================================= */
+
+.winner-modal {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    overflow: hidden;
+}
+
+
+.winner-modal[hidden] {
+    display: none;
+}
+
+
+.winner-modal-overlay {
+    position: absolute;
+
+    inset: 0;
+
+    background: rgba(5, 10, 25, 0.62);
+
+    backdrop-filter: blur(5px);
+
+    -webkit-backdrop-filter: blur(5px);
+}
+
+
+.winner-modal-dialog {
+    position: relative;
+
+    z-index: 1;
+
+    width: min(440px, 100%);
+
+    padding: 32px 26px 26px;
+
+    border-radius: 26px;
+
+    background: rgba(23, 33, 68, 0.97);
+
+    border: 1px solid rgba(255, 255, 255, 0.14);
+
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+
+    text-align: center;
+
+    animation: winnerPop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+
+html.light .winner-modal-dialog {
+    background: rgba(238, 241, 249, 0.98);
+
+    color: #1b2750;
+}
+
+
+@keyframes winnerPop {
+    from {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+.winner-trophy {
+    width: 76px;
+    height: 76px;
+
+    border-radius: 22px;
+
+    font-size: 38px;
+}
+
+
+.winner-kicker {
+    margin: 16px 0 4px;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    color: var(--text-soft);
+}
+
+
+.winner-modal-dialog h2 {
+    margin: 0;
+
+    font-size: 30px;
+
+    font-weight: 800;
+
+    color: #FE691E;
+}
+
+
+.winner-code {
+    margin: 4px 0 14px;
+
+    font-weight: 700;
+}
+
+
+.winner-prize {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+
+    margin: 0 0 18px;
+
+    font-size: 12px;
+
+    color: var(--text-soft);
+}
+
+
+.winner-prize strong {
+    font-size: 24px;
+
+    color: #22c55e;
+}
+
+
+html.light .winner-prize strong {
+    color: #15803d;
+}
+
+
+.confetti {
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+}
+
+
+.confetti span {
+    position: absolute;
+
+    top: -12px;
+
+    width: 9px;
+    height: 14px;
+
+    border-radius: 2px;
+
+    animation-name: confettiFall;
+
+    animation-timing-function: ease-in;
+
+    animation-fill-mode: forwards;
+}
+
+
+@keyframes confettiFall {
+    to {
+        transform: translateY(110vh) rotate(720deg);
+
+        opacity: 0.2;
+    }
+}
+
+
+/* =========================================================
+   DRAW RESULT / PAYOUT
+========================================================= */
+
+.draw-prize {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-end;
+
+    gap: 2px;
+
+    font-size: 12px;
+
+    color: var(--text-soft);
+}
+
+
+.draw-prize strong {
+    font-size: 28px;
+
+    font-weight: 800;
+
+    color: #22c55e;
+}
+
+
+html.light .draw-prize strong {
+    color: #15803d;
+}
+
+
+.draw-group-link {
+    color: inherit;
+
+    font-weight: 700;
+}
+
+
+.draw-show-grid {
+    display: grid;
+
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+
+    gap: 18px;
+
+    align-items: start;
+
+    margin: 18px 0;
+}
+
+
+.draw-participants {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 6px;
+}
+
+
+.draw-participant {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    padding: 5px 10px;
+
+    border-radius: 999px;
+
+    background: rgba(255, 255, 255, 0.07);
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+
+html.light .draw-participant {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+
+.draw-participant.is-winner {
+    background: rgba(254, 105, 30, 0.18);
+
+    color: #FE691E;
+
+    font-weight: 800;
+}
+
+
+html.light .draw-participant.is-winner {
+    color: #c2410c;
+}
+
+
+.payout-ack {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 14px;
+
+    margin-bottom: 14px;
+
+    padding: 14px;
+
+    border-radius: 16px;
+
+    background: rgba(34, 197, 94, 0.12);
+
+    border: 1px solid rgba(34, 197, 94, 0.32);
+}
+
+
+.payout-ack-icon {
+    width: 44px;
+    height: 44px;
+
+    flex-shrink: 0;
+
+    border-radius: 13px;
+
+    font-size: 22px;
+}
+
+
+.payout-ack strong {
+    font-size: 16px;
+}
+
+
+.payout-ack p {
+    margin: 4px 0 0;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+
+.payout-form .group-form-grid {
+    margin-bottom: 16px;
+}
+
+
+.payout-button {
+    width: 100%;
+}
+
+
+.draw-cancel-form {
+    margin-top: 14px;
+}
+
+
+.draw-cancel-form .group-action {
+    width: 100%;
+
+    justify-content: center;
+}
+
+
+/* voucher: three signature / name columns */
+
+.voucher {
+    margin-top: 6px;
+}
+
+
+.voucher-signatures {
+    grid-template-columns: 1.2fr 1fr 1.2fr !important;
+}
+
+
+/* printed voucher → draw has moved to Past Winners */
+
+.voucher-printed-note {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin: 0 0 12px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    color: #4ade80;
+}
+
+
+html.light .voucher-printed-note {
+    color: #15803d;
+}
+
+
+/* =========================================================
+   WINNERS REPORT
+   Uses the Payment Ledger sheet (letterhead + A4 landscape print);
+   one table per group, months in order.
+========================================================= */
+
+.winners-group + .winners-group {
+    margin-top: 22px;
+}
+
+
+.winners-group-title {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: baseline;
+
+    gap: 4px 10px;
+
+    margin: 0 0 10px;
+
+    font-size: 17px;
+
+    font-weight: 800;
+}
+
+
+.winners-group-title small {
+    font-size: 12px;
+
+    font-weight: 600;
+
+    color: var(--text-soft);
+}
+
+
+.winners-table td {
+    vertical-align: top;
+}
+
+
+.winners-table .winners-col-name {
+    min-width: 200px;
+
+    text-align: left;
+}
+
+
+.winners-col-name a {
+    color: inherit;
+
+    text-decoration: none;
+}
+
+
+.winners-col-name a:hover strong {
+    color: #FE691E;
+}
+
+
+.winners-col-name > span {
+    display: block;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    color: #FE691E;
+}
+
+
+.winners-payout-meta {
+    display: block;
+
+    margin-top: 2px;
+
+    font-size: 11px;
+
+    color: var(--text-soft);
+}
+
+
+@media print {
+
+    .winners-group + .winners-group {
+        margin-top: 10px;
+    }
+
+    .winners-group {
+        page-break-inside: avoid;
+    }
+
+    .winners-group-title {
+        margin-bottom: 4px;
+
+        font-size: 12px;
+
+        color: #000000 !important;
+    }
+
+    .winners-group-title small,
+    .winners-payout-meta {
+        font-size: 8px;
+
+        color: #374151 !important;
+    }
+
+    .winners-table .winners-col-name {
+        min-width: 0;
+    }
+
+    .winners-col-name > span {
+        font-size: 7.5px;
+
+        color: #c2410c !important;
+    }
+
+}
+
+
+/* =========================================================
+   DRAWS LIST
+========================================================= */
+
+.draws-pending-total {
+    color: #ff8a45;
+}
+
+
+html.light .draws-pending-total {
+    color: #c2410c;
+}
+
+
+.draw-row-icon {
+    width: 40px;
+    height: 40px;
+
+    flex-shrink: 0;
+
+    border-radius: 12px;
+
+    font-size: 19px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .draw-layout,
+    .draw-show-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    /* tick members first, then the wheel right below (list scrolls inside) */
+
+    .draw-member-list {
+        max-height: 50vh;
+    }
+
+}
+
+
+@media (max-width: 560px) {
+
+    .draw-select {
+        min-width: 0;
+
+        width: 100%;
+    }
+
+    .draw-group-picker {
+        width: 100%;
+    }
+
+    .draw-prize {
+        align-items: flex-start;
+    }
+
+    .spin-button {
+        width: 100%;
+
+        min-width: 0;
+    }
+
+    .voucher-signatures {
+        grid-template-columns: 1fr !important;
+    }
+
+}

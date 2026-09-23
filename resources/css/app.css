@@ -60,21 +60,84 @@
 }
 
 
+/*
+ * Light mode — "soft daylight": a tinted blue-lavender page with
+ * frosted off-white surfaces instead of pure white, so it stays calm
+ * on the eyes rather than glaring.
+ */
+
 html.light {
-    --page-bg: #dfe7fa;
+    --page-bg: #cdd4ea;
 
-    --text: #172449;
-    --text-soft: #53678f;
+    --text: #1b2750;
+    --text-soft: #4d5f86;
 
-    --glass: rgba(255, 255, 255, 0.46);
-    --glass-light: rgba(255, 255, 255, 0.38);
+    --glass: rgba(244, 246, 252, 0.55);
+    --glass-light: rgba(244, 246, 252, 0.40);
 
     --border: rgba(255, 255, 255, 0.55);
 
-    --input-bg: rgba(255, 255, 255, 0.34);
-    --input-border: rgba(87, 116, 177, 0.28);
+    --input-bg: rgba(255, 255, 255, 0.45);
+    --input-border: rgba(70, 95, 150, 0.22);
 
-    --shadow: 0 30px 90px rgba(43, 62, 110, 0.20);
+    --shadow: 0 24px 60px rgba(35, 50, 95, 0.16);
+}
+
+
+html.light .background-shape {
+    opacity: 0.7;
+}
+
+
+html.light .glass {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.50),
+            rgba(255, 255, 255, 0.26)
+        );
+
+    border-color: rgba(255, 255, 255, 0.60);
+
+    box-shadow:
+        var(--shadow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.70);
+}
+
+
+/* header controls: white tints vanish on a light page — use navy tints */
+
+html.light .language-switch {
+    background: rgba(35, 50, 95, 0.06);
+
+    border-color: rgba(35, 50, 95, 0.08);
+}
+
+html.light .theme-button,
+html.light .header-menu-button,
+html.light .menu-close {
+    background: rgba(35, 50, 95, 0.07);
+}
+
+
+/*
+ * Readable secondary text: faded (low-opacity) text works on the dark
+ * theme but washes out on a light page, so use a solid slate instead.
+ */
+
+html.light .brand-tagline,
+html.light .menu-brand-subtitle,
+html.light .menu-user-info span,
+html.light .admin-menu-user span,
+html.light .footer-tagline,
+html.light .footer-right {
+    opacity: 1;
+
+    color: #4d5f86;
+}
+
+html.light .language-button:not(.active) {
+    opacity: 0.85;
 }
 
 
@@ -158,6 +221,391 @@ html.light {
 
     backdrop-filter: blur(25px) saturate(135%);
     -webkit-backdrop-filter: blur(25px) saturate(135%);
+}
+
+
+/* =========================================================
+   SVG ICONS
+   (<x-icon name="..."> — sized by the parent's font-size)
+========================================================= */
+
+.svg-icon {
+    width: 1em;
+    height: 1em;
+
+    display: block;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   3D ICON TILES
+   (add .icon-3d + a tone to any icon holder — glossy gradient,
+   top highlight, bottom depth and a colored glow)
+========================================================= */
+
+.icon-3d {
+    --i3d-light: #ff8a45;
+    --i3d-mid: #fe691e;
+    --i3d-dark: #b8430f;
+
+    position: relative;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color: #ffffff;
+
+    /* matte face: a gentle top-to-bottom shade, no glass shine */
+    background:
+        linear-gradient(
+            180deg,
+            var(--i3d-light) 0%,
+            var(--i3d-mid) 100%
+        );
+
+    border: 0;
+
+    /*
+     * Crisp depth, no blur halo:
+     *   thin light line on top  → catches the light
+     *   solid darker ledge      → gives the tile its thickness
+     *   one small tight shadow  → sits it on the page
+     */
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.35),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.12),
+        0 3px 0 var(--i3d-dark),
+        0 5px 8px rgba(15, 23, 42, 0.22);
+
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+
+.icon-3d .svg-icon {
+    width: 52%;
+    height: 52%;
+
+    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.28));
+}
+
+
+.icon-3d-orange {
+    --i3d-light: #ff8a45;
+    --i3d-mid: #fe691e;
+    --i3d-dark: #b8430f;
+}
+
+.icon-3d-blue {
+    --i3d-light: #6390ff;
+    --i3d-mid: #3d73ff;
+    --i3d-dark: #1e40af;
+}
+
+.icon-3d-purple {
+    --i3d-light: #9a75ff;
+    --i3d-mid: #8255ff;
+    --i3d-dark: #4c1fc0;
+}
+
+.icon-3d-green {
+    --i3d-light: #3fd67a;
+    --i3d-mid: #22c55e;
+    --i3d-dark: #15803d;
+}
+
+.icon-3d-red {
+    --i3d-light: #f56b6b;
+    --i3d-mid: #ef4444;
+    --i3d-dark: #a91d1d;
+}
+
+
+/* lift slightly on hover (ledge grows) … */
+
+.icon-3d:hover,
+a:hover > .icon-3d,
+button:hover > .icon-3d {
+    transform: translateY(-1px);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.35),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.12),
+        0 4px 0 var(--i3d-dark),
+        0 7px 10px rgba(15, 23, 42, 0.22);
+}
+
+
+/* … and press down on click (ledge shrinks) */
+
+a:active > .icon-3d,
+button:active > .icon-3d {
+    transform: translateY(2px);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.35),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.12),
+        0 1px 0 var(--i3d-dark),
+        0 2px 3px rgba(15, 23, 42, 0.22);
+}
+
+
+/* =========================================================
+   3D INITIAL THUMBNAILS
+   (customer / admin avatars — round .icon-3d with a letter)
+========================================================= */
+
+.avatar-3d {
+    width: 40px;
+    height: 40px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    font-size: 0.95rem;
+
+    font-weight: 800;
+
+    line-height: 1;
+
+    letter-spacing: 0;
+}
+
+
+/* =========================================================
+   CUSTOMER NAME + IDENTIFICATION
+   (<x-customer-name> — "Kumaran Shop (Textile shop)")
+========================================================= */
+
+.customer-ident {
+    font-weight: 500;
+
+    font-size: 0.9em;
+
+    color: var(--text-soft);
+}
+
+
+@media print {
+
+    .customer-ident {
+        color: #374151 !important;
+    }
+
+}
+
+
+/* =========================================================
+   GROUP STATUS PILL (<x-group-status>)
+   Shared: groups pages, dashboard, payment screens.
+========================================================= */
+
+.group-status {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 4px 10px;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+
+.group-status::before {
+    content: "";
+
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: currentColor;
+}
+
+
+.group-status-forming {
+    background: rgba(254, 105, 30, 0.14);
+
+    color: #ff8a45;
+}
+
+
+.group-status-running {
+    background: rgba(34, 197, 94, 0.14);
+
+    color: #22c55e;
+}
+
+
+.group-status-completed {
+    background: rgba(148, 163, 184, 0.18);
+
+    color: #cbd5e1;
+}
+
+
+
+
+html.light .group-status-forming {
+    color: #c2410c;
+}
+
+html.light .group-status-running {
+    color: #15803d;
+}
+
+html.light .group-status-completed {
+    color: #475569;
+}
+
+
+/* =========================================================
+   3D LOGO THUMBNAILS
+   (header, menu, footer and login logo rings)
+========================================================= */
+
+.logo-3d {
+    position: relative;
+
+    background: #eef0f4;
+
+    border: 2px solid #d1d5db;
+
+    box-shadow:
+        inset 0 -3px 6px rgba(0, 0, 0, 0.10),
+        0 10px 24px rgba(0, 0, 0, 0.22);
+}
+
+
+html.light .logo-3d {
+    background: #ffffff;
+
+    border-color: #e5e7eb;
+
+    box-shadow:
+        inset 0 -3px 6px rgba(23, 36, 73, 0.06),
+        0 10px 24px rgba(23, 36, 73, 0.14);
+}
+
+
+/* =========================================================
+   THEME BUTTON (sun in light mode, moon in dark mode)
+========================================================= */
+
+.theme-icon {
+    display: flex;
+}
+
+html.light .theme-moon,
+html:not(.light) .theme-sun {
+    display: none;
+}
+
+
+/* =========================================================
+   SMALL INLINE ICONS (close buttons, logout, footer)
+========================================================= */
+
+.menu-close {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 1.2rem;
+}
+
+
+.menu-logout .svg-icon {
+    font-size: 1rem;
+}
+
+
+.footer-secure {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+}
+
+
+/* =========================================================
+   SHOW / HIDE PASSWORD BUTTON
+   (login + change password — see password-toggle.js)
+========================================================= */
+
+.password-toggle {
+    position: absolute;
+
+    right: 7px;
+    top: 50%;
+
+    margin-top: -19px;
+
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border: 0;
+
+    border-radius: 10px;
+
+    background: transparent;
+
+    color: inherit;
+
+    font-size: 18px;
+
+    opacity: 0.65;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        opacity 0.2s ease;
+}
+
+
+.password-toggle:hover,
+.password-toggle.is-visible {
+    opacity: 1;
+
+    color: #FE691E;
+
+    background: rgba(254, 105, 30, 0.14);
+}
+
+
+.password-toggle .eye-hide,
+.password-toggle.is-visible .eye-show {
+    display: none;
+}
+
+
+.password-toggle.is-visible .eye-hide {
+    display: block;
 }
 
 
@@ -265,33 +713,33 @@ html.light body {
 
         radial-gradient(
             circle at 5% 10%,
-            rgba(254, 105, 30, 0.18),
-            transparent 26%
+            rgba(254, 105, 30, 0.20),
+            transparent 30%
         ),
 
         radial-gradient(
             circle at 50% 0%,
-            rgba(70, 115, 255, 0.30),
-            transparent 32%
+            rgba(61, 115, 255, 0.28),
+            transparent 35%
         ),
 
         radial-gradient(
-            circle at 100% 30%,
-            rgba(139, 93, 255, 0.28),
-            transparent 31%
+            circle at 100% 35%,
+            rgba(130, 85, 255, 0.26),
+            transparent 33%
         ),
 
         radial-gradient(
             circle at 15% 90%,
-            rgba(71, 107, 255, 0.22),
-            transparent 30%
+            rgba(61, 115, 255, 0.20),
+            transparent 32%
         ),
 
         linear-gradient(
             135deg,
-            #cfd9f5,
-            #dfe7fb 45%,
-            #d4d4f1 100%
+            #b9c3df 0%,
+            #c6cce5 45%,
+            #bfb8dc 100%
         );
 
     color: var(--text);
@@ -365,17 +813,17 @@ html.light body {
 html.light .header {
 
     background:
-        rgba(255, 255, 255, 0.72);
+        rgba(244, 246, 252, 0.60);
 
     border-color:
-        rgba(23, 36, 73, 0.09);
+        rgba(255, 255, 255, 0.60);
 
     box-shadow:
         0 18px 45px
-        rgba(23, 36, 73, 0.10),
+        rgba(35, 50, 95, 0.12),
 
         inset 0 1px 0
-        rgba(255, 255, 255, 0.90);
+        rgba(255, 255, 255, 0.75);
 }
 
 
@@ -392,6 +840,70 @@ html.light .header {
     min-width: 0;
 
     gap: 12px;
+}
+
+
+/* =========================================================
+   BRAND LINK
+   (logo + name in header, side menu and footer → Home)
+========================================================= */
+
+.brand-link {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    min-width: 0;
+
+    color: inherit;
+
+    text-decoration: none;
+
+    border-radius: 14px;
+
+    transition: opacity 0.2s ease;
+}
+
+
+.brand-link:hover {
+    opacity: 0.85;
+}
+
+
+.brand-link:hover .logo-3d {
+    transform: scale(1.05);
+}
+
+
+.brand-link .logo-3d {
+    transition: transform 0.2s ease;
+}
+
+
+.brand-link:focus-visible {
+    outline: 2px solid #FE691E;
+
+    outline-offset: 4px;
+}
+
+
+@media (max-width: 760px) {
+
+    .header .brand-link {
+        gap: 8px;
+    }
+
+}
+
+
+@media (max-width: 500px) {
+
+    .header .brand-link {
+        gap: 6px;
+    }
+
 }
 
 
@@ -413,20 +925,7 @@ html.light .header {
 
     border-radius: 50%;
 
-    padding: 4px;
-
-    background:
-        rgba(255, 255, 255, 0.12);
-
-    border:
-        1px solid rgba(255, 255, 255, 0.20);
-
-    box-shadow:
-        0 8px 20px
-        rgba(0, 0, 0, 0.16),
-
-        inset 0 1px 0
-        rgba(255, 255, 255, 0.20);
+    padding: 3px;
 }
 
 
@@ -723,20 +1222,240 @@ html.light .header {
 
     border-radius: 50%;
 
-    background:
-        linear-gradient(
-            135deg,
-            #FE691E,
-            #2563EB
-        );
+    font-size: 0.9rem;
 
-    color: white;
+    font-weight: 800;
+}
 
-    font-size: 1rem;
+
+/* =========================================================
+   ADMIN DROPDOWN
+   (click the name in the header → Change Password / Logout)
+========================================================= */
+
+.admin {
+    position: relative;
+}
+
+
+.admin-toggle {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 3px 10px 3px 3px;
+
+    border: 1px solid transparent;
+
+    border-radius: 999px;
+
+    background: transparent;
+
+    color: inherit;
+
+    font: inherit;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.admin-toggle:hover,
+.admin.open .admin-toggle {
+    background: rgba(254, 105, 30, 0.12);
+
+    border-color: rgba(254, 105, 30, 0.20);
+}
+
+
+.admin-caret {
+    font-size: 0.85rem;
+
+    opacity: 0.6;
+
+    transition: transform 0.2s ease;
+}
+
+
+.admin.open .admin-caret {
+    transform: rotate(180deg);
+}
+
+
+.admin-menu {
+    position: absolute;
+
+    top: calc(100% + 10px);
+
+    right: 0;
+
+    z-index: 150;
+
+    width: 220px;
+
+    padding: 8px;
+
+    border-radius: 16px;
+
+    background: rgba(23, 33, 68, 0.94);
+
+    border: 1px solid rgba(255, 255, 255, 0.13);
+
+    backdrop-filter: blur(24px);
+
+    -webkit-backdrop-filter: blur(24px);
 
     box-shadow:
-        0 6px 16px
-        rgba(37, 99, 235, 0.20);
+        0 20px 50px rgba(0, 0, 0, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 0.10);
+
+    animation: adminMenuIn 0.18s ease-out;
+}
+
+
+@keyframes adminMenuIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+.admin-menu-user {
+    display: flex;
+
+    flex-direction: column;
+
+    padding: 8px 10px 10px;
+
+    margin-bottom: 6px;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+
+.admin-menu-user strong {
+    font-size: 0.85rem;
+}
+
+
+.admin-menu-user span {
+    margin-top: 2px;
+
+    font-size: 0.7rem;
+
+    opacity: 0.55;
+}
+
+
+.admin-menu form {
+    margin: 0;
+}
+
+
+.admin-menu-item {
+    width: 100%;
+
+    min-height: 42px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 8px 10px;
+
+    border: 0;
+
+    border-radius: 11px;
+
+    background: transparent;
+
+    color: inherit;
+
+    font: inherit;
+
+    font-size: 0.82rem;
+
+    font-weight: 600;
+
+    text-align: left;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.admin-menu-item:hover {
+    background: rgba(254, 105, 30, 0.12);
+
+    transform: translateX(2px);
+}
+
+
+.admin-menu-icon {
+    width: 28px;
+    height: 28px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 9px;
+
+    font-size: 1rem;
+}
+
+
+.admin-menu-logout {
+    color: #f87171;
+}
+
+
+.admin-menu-logout:hover {
+    background: rgba(239, 68, 68, 0.12);
+}
+
+
+html.light .admin-menu {
+    background: rgba(238, 241, 249, 0.97);
+
+    border-color: rgba(35, 50, 95, 0.10);
+
+    color: #1b2750;
+
+    box-shadow:
+        0 20px 50px rgba(35, 50, 95, 0.20),
+        inset 0 1px 0 rgba(255, 255, 255, 0.80);
+}
+
+
+html.light .admin-menu-user {
+    border-bottom-color: rgba(23, 36, 73, 0.08);
+}
+
+
+html.light .admin-menu-logout {
+    color: #dc2626;
 }
 
 
@@ -839,10 +1558,10 @@ html.light .header {
 html.light .app-menu {
 
     background:
-        rgba(248, 250, 252, 0.94);
+        rgba(236, 239, 248, 0.96);
 
     border-right-color:
-        rgba(23, 36, 73, 0.09);
+        rgba(35, 50, 95, 0.10);
 
     color:
         #172449;
@@ -906,15 +1625,9 @@ html.light .menu-header {
 
     flex-shrink: 0;
 
-    padding: 4px;
+    padding: 3px;
 
     border-radius: 50%;
-
-    background:
-        rgba(255, 255, 255, 0.10);
-
-    border:
-        1px solid rgba(255, 255, 255, 0.16);
 }
 
 
@@ -1152,31 +1865,142 @@ html.light .menu-item.active {
     border-radius:
         10px;
 
-    background:
-        rgba(255, 255, 255, 0.06);
-
     font-size:
-        1rem;
-
-    transition:
-        background 0.2s ease,
-        transform 0.2s ease;
-}
-
-
-.menu-item:hover .menu-item-icon {
-
-    background:
-        rgba(254, 105, 30, 0.14);
-
-    transform:
-        scale(1.04);
+        1.05rem;
 }
 
 
 .menu-item-text {
 
     flex: 1;
+}
+
+
+/* =========================================================
+   MENU GROUP + SUB MENU
+   (e.g. Customers → All / Add / Edit)
+========================================================= */
+
+.menu-group-toggle {
+    width: 100%;
+
+    border: 0;
+
+    background: transparent;
+
+    font: inherit;
+
+    font-size: 0.88rem;
+
+    text-align: left;
+
+    cursor: pointer;
+}
+
+
+.menu-group-caret {
+    font-size: 1rem;
+
+    opacity: 0.6;
+
+    transition: transform 0.25s ease;
+}
+
+
+.menu-group.open .menu-group-caret {
+    transform: rotate(180deg);
+}
+
+
+.menu-submenu {
+    max-height: 0;
+
+    overflow: hidden;
+
+    margin: 0 0 0 28px;
+
+    padding-left: 14px;
+
+    border-left: 2px solid rgba(254, 105, 30, 0.25);
+
+    transition:
+        max-height 0.3s ease,
+        margin 0.3s ease;
+}
+
+
+.menu-group.open .menu-submenu {
+    max-height: 200px;
+
+    margin-bottom: 6px;
+}
+
+
+.menu-subitem {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    min-height: 40px;
+
+    padding: 6px 12px;
+
+    margin: 2px 0;
+
+    border-radius: 11px;
+
+    color: inherit;
+
+    text-decoration: none;
+
+    font-size: 0.84rem;
+
+    font-weight: 600;
+
+    opacity: 0.75;
+
+    transition:
+        background 0.2s ease,
+        opacity 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.menu-subitem .svg-icon {
+    font-size: 1rem;
+
+    color: #FE691E;
+}
+
+
+.menu-subitem:hover {
+    opacity: 1;
+
+    background: rgba(254, 105, 30, 0.10);
+
+    transform: translateX(3px);
+}
+
+
+.menu-subitem.active {
+    opacity: 1;
+
+    background: rgba(254, 105, 30, 0.14);
+}
+
+
+html.light .menu-item,
+html.light .menu-subitem {
+    opacity: 0.92;
+}
+
+html.light .menu-item:hover,
+html.light .menu-item.active,
+html.light .menu-subitem:hover,
+html.light .menu-subitem.active {
+    opacity: 1;
 }
 
 
@@ -1244,18 +2068,8 @@ html.light .menu-footer {
     border-radius:
         50%;
 
-    background:
-        linear-gradient(
-            135deg,
-            #FE691E,
-            #2563EB
-        );
-
-    color:
-        white;
-
     font-weight:
-        700;
+        800;
 }
 
 
@@ -1407,14 +2221,14 @@ html.light .menu-footer {
 html.light .page-footer {
 
     background:
-        rgba(255, 255, 255, 0.62);
+        rgba(244, 246, 252, 0.50);
 
     border-color:
-        rgba(23, 36, 73, 0.08);
+        rgba(255, 255, 255, 0.55);
 
     box-shadow:
         0 15px 40px
-        rgba(23, 36, 73, 0.07);
+        rgba(35, 50, 95, 0.10);
 }
 
 
@@ -1444,16 +2258,10 @@ html.light .page-footer {
         40px;
 
     padding:
-        3px;
+        2px;
 
     border-radius:
         50%;
-
-    background:
-        rgba(255, 255, 255, 0.10);
-
-    border:
-        1px solid rgba(255, 255, 255, 0.15);
 }
 
 
@@ -1480,6 +2288,15 @@ html.light .page-footer {
 
     font-weight:
         700;
+}
+
+
+/* same brand colouring everywhere: orange "SN", then "Chit Funds" */
+
+.footer-name span {
+
+    color:
+        #FE691E;
 }
 
 
