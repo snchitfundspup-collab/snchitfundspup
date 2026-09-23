@@ -4,10 +4,14 @@ namespace Database\Seeders;
 
 use App\Models\Customer;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Arr;
 
 /**
- * Adds sample customers for local testing (not called from
- * DatabaseSeeder, so it never runs on a live server by accident).
+ * Adds sample customers for testing (not called from DatabaseSeeder,
+ * so it never runs on a live server by accident).
+ *
+ * Uses plain PHP randomness instead of Faker, because Faker is a dev
+ * dependency and is not installed on Laravel Cloud.
  *
  * Codes continue from the last customer (SN2611 → SN2612 …) so the
  * normal "last code + 1" numbering keeps working afterwards.
@@ -16,7 +20,7 @@ use Illuminate\Database\Seeder;
  */
 class SampleCustomerSeeder extends Seeder
 {
-    private const COUNT = 50;
+    private const COUNT = 100;
 
     /**
      * Every 10th sample customer is inactive.
@@ -66,17 +70,17 @@ class SampleCustomerSeeder extends Seeder
         $nextNumber = $lastCode ? ((int) substr($lastCode, 2)) + 1 : 2601;
 
         foreach (range(1, self::COUNT) as $index) {
-            $name = fake()->randomElement(self::FIRST_NAMES).' '.fake()->randomElement(self::LAST_NAMES);
+            $name = Arr::random(self::FIRST_NAMES).' '.Arr::random(self::LAST_NAMES);
 
             Customer::create([
                 'customer_code' => 'SN'.$nextNumber++,
                 'name' => $name,
-                'phone' => fake()->randomElement(['6', '7', '8', '9']).fake()->numerify('#########'),
-                'email' => fake()->boolean(40)
-                    ? strtolower(str_replace(' ', '.', $name)).fake()->numberBetween(1, 99).'@gmail.com'
+                'phone' => Arr::random(['6', '7', '8', '9']).str_pad((string) random_int(0, 999999999), 9, '0', STR_PAD_LEFT),
+                'email' => random_int(1, 100) <= 40
+                    ? strtolower(str_replace(' ', '.', $name)).random_int(1, 99).'@gmail.com'
                     : null,
-                'address' => fake()->numberBetween(1, 250).', '.fake()->randomElement(['Main Road', 'Temple Street', 'Gandhi Nagar', 'Bazaar Street', 'Anna Nagar']).', '.fake()->randomElement(self::TOWNS),
-                'remarks' => fake()->boolean(70) ? fake()->randomElement(self::REMARKS) : null,
+                'address' => random_int(1, 250).', '.Arr::random(['Main Road', 'Temple Street', 'Gandhi Nagar', 'Bazaar Street', 'Anna Nagar']).', '.Arr::random(self::TOWNS),
+                'remarks' => random_int(1, 100) <= 70 ? Arr::random(self::REMARKS) : null,
                 'is_active' => $index % self::INACTIVE_EVERY !== 0,
             ]);
         }
