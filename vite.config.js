@@ -15,6 +15,9 @@ export default defineConfig({
                 'resources/css/customers.css',
                 'resources/js/customers.js',
 
+                'resources/css/create.css',
+                'resources/js/create.js',
+
             ],
 
             refresh: true,
