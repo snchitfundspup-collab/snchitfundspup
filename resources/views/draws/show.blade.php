@@ -11,6 +11,10 @@
     ])
 @endpush
 
+@push('scripts')
+    @vite('resources/js/draws.js')
+@endpush
+
 @section('content')
 
 @php
@@ -54,13 +58,23 @@
 
     <section class="group-hero glass no-print">
 
-        <a
-            href="{{ route('draws.index') }}"
-            class="group-back-link"
-        >
-            <x-icon name="arrow-left" />
-            <span data-i18n="all_draws">All Draws</span>
-        </a>
+        @if ($draw->isVoucherPrinted())
+            <a
+                href="{{ route('draws.index', ['status' => 'past']) }}"
+                class="group-back-link"
+            >
+                <x-icon name="arrow-left" />
+                <span data-i18n="back_to_past_winners">Back to Past Winners</span>
+            </a>
+        @else
+            <a
+                href="{{ route('draws.index') }}"
+                class="group-back-link"
+            >
+                <x-icon name="arrow-left" />
+                <span data-i18n="back_to_draw_details">Back to Draw Details</span>
+            </a>
+        @endif
 
         <div class="group-hero-main">
 
@@ -192,12 +206,26 @@
 
                 </div>
 
+                <p
+                    class="voucher-printed-note"
+                    id="voucherPrintedNote"
+                    @if (! $draw->isVoucherPrinted()) hidden @endif
+                >
+                    <x-icon name="check" />
+                    <span>
+                        <span data-i18n="voucher_printed_on">Voucher printed on</span>
+                        <span id="voucherPrintedAt">{{ $draw->voucher_printed_at?->format('d M Y, h:i A') }}</span>
+                        · <span data-i18n="moved_to_past_winners">moved to Past Winners</span>
+                    </span>
+                </p>
+
                 <div class="receipt-actions">
 
                     <button
                         type="button"
                         class="group-action"
-                        onclick="window.print()"
+                        id="printVoucherButton"
+                        data-printed-url="{{ route('draws.voucher.printed', $draw) }}"
                     >
                         <x-icon name="printer" />
                         <span data-i18n="print_voucher">Print voucher</span>
@@ -206,6 +234,7 @@
                     <a
                         href="{{ route('draws.voucher.pdf', $draw) }}"
                         class="group-action download-pdf-button"
+                        id="downloadVoucherButton"
                     >
                         <x-icon name="download" />
                         <span data-i18n="download_pdf">Download PDF</span>

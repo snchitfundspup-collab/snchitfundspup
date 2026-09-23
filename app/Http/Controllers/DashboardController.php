@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ChitGroup;
 use App\Models\ChitGroupMember;
+use App\Models\Draw;
 use App\Models\Payment;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -23,7 +24,7 @@ class DashboardController extends Controller
 
         $groups = ChitGroup::query()
             ->with(['members.customer', 'members.allocations'])
-            ->withCount('members')
+            ->withCount(['members', 'draws'])
             ->orderByRaw("CASE status WHEN 'running' THEN 0 WHEN 'forming' THEN 1 ELSE 2 END")
             ->orderBy('name')
             ->get();
@@ -38,7 +39,49 @@ class DashboardController extends Controller
             'pending' => $this->pendingCollections($groups),
             'groupCards' => $groups->map(fn (ChitGroup $group) => $this->groupCard($group))->all(),
             'today' => $today,
+            ...$this->drawDetails($groups, $businessNow),
         ]);
+    }
+
+    /**
+     * Draws at a glance: groups whose draw is due, prizes still to hand
+     * over, prizes paid this month and the latest winners.
+     *
+     * @param  Collection<int, ChitGroup>  $groups
+     * @return array{drawsDue: Collection<int, array{group: ChitGroup, month: int, prize: int}>, pendingPayouts: array{amount: int, count: int}, paidThisMonth: array{amount: int, count: int}, recentDraws: Collection<int, Draw>}
+     */
+    private function drawDetails(Collection $groups, Carbon $businessNow): array
+    {
+        $drawsDue = $groups
+            ->filter(fn (ChitGroup $group) => $group->canDrawNow())
+            ->map(function (ChitGroup $group) {
+                $month = $group->nextDrawMonth();
+
+                return ['group' => $group, 'month' => $month, 'prize' => $group->withdrawalForMonth($month)];
+            })
+            ->values();
+
+        $paidThisMonth = Draw::whereBetween('paid_at', [
+            $businessNow->copy()->startOfMonth()->format('Y-m-d 00:00:00'),
+            $businessNow->copy()->endOfMonth()->format('Y-m-d 23:59:59'),
+        ]);
+
+        return [
+            'drawsDue' => $drawsDue,
+            'pendingPayouts' => [
+                'amount' => (int) Draw::whereNull('paid_at')->sum('withdrawal_amount'),
+                'count' => Draw::whereNull('paid_at')->count(),
+            ],
+            'paidThisMonth' => [
+                'amount' => (int) $paidThisMonth->clone()->sum('payout_amount'),
+                'count' => $paidThisMonth->count(),
+            ],
+            'recentDraws' => Draw::with(['chitGroup', 'winner.customer'])
+                ->latest('drawn_at')
+                ->latest('id')
+                ->take(5)
+                ->get(),
+        ];
     }
 
     /**

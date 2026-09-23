@@ -253,7 +253,7 @@
 
         @php
             $isDrawsSection = request()->routeIs('draws.*');
-            $isPendingPayouts = request()->routeIs('draws.index') && request('status') === 'pending';
+            $drawTab = request()->routeIs('draws.index') ? (string) request('status') : null;
         @endphp
 
         <div @class(['menu-group', 'open' => $isDrawsSection])>
@@ -292,18 +292,34 @@
 
                 <a
                     href="{{ route('draws.index') }}"
-                    @class(['menu-subitem', 'active' => request()->routeIs('draws.index', 'draws.show') && ! $isPendingPayouts])
+                    @class(['menu-subitem', 'active' => in_array($drawTab, ['', 'all'], true) || request()->routeIs('draws.show')])
                 >
                     <x-icon name="layers" />
-                    <span data-i18n="all_draws">All Draws</span>
+                    <span data-i18n="draw_details_menu">Draw Details</span>
                 </a>
 
                 <a
                     href="{{ route('draws.index', ['status' => 'pending']) }}"
-                    @class(['menu-subitem', 'active' => $isPendingPayouts])
+                    @class(['menu-subitem', 'active' => $drawTab === 'pending'])
                 >
                     <x-icon name="rupee" />
                     <span data-i18n="pending_payouts">Pending Payouts</span>
+                </a>
+
+                <a
+                    href="{{ route('draws.index', ['status' => 'past']) }}"
+                    @class(['menu-subitem', 'active' => $drawTab === 'past'])
+                >
+                    <x-icon name="user-check" />
+                    <span data-i18n="past_winners">Past Winners</span>
+                </a>
+
+                <a
+                    href="{{ route('draws.winners') }}"
+                    @class(['menu-subitem', 'active' => request()->routeIs('draws.winners')])
+                >
+                    <x-icon name="printer" />
+                    <span data-i18n="winners_report">Winners Report</span>
                 </a>
 
             </div>

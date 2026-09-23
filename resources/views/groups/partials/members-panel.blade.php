@@ -95,8 +95,9 @@
                                 class="won-badge"
                                 title="Won the draw in month {{ $member->wonDraw->month_number }}"
                             >
-                                <x-icon name="trophy" />
-                                <span data-i18n="won_word">Won</span> · M{{ $member->wonDraw->month_number }}
+                                <span data-i18n="won_word">Won</span>
+                                <x-rupees :amount="$member->wonDraw->prizeAmount()" />
+                                · M{{ $member->wonDraw->month_number }}
                             </a>
                         @endif
 

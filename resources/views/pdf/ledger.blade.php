@@ -110,6 +110,11 @@
         font-weight: bold;
     }
 
+    .won .won-mark {
+        display: block;
+        font-size: 6.5px;
+    }
+
     .prize {
         text-align: right !important;
         font-weight: bold;
@@ -185,7 +190,7 @@
                         @endphp
                         <td class="{{ in_array($cell['status'], ['paid', 'partial', 'due'], true) ? $cell['status'] : '' }} {{ $wonThisMonth ? 'won' : '' }}">
                             @if ($wonThisMonth)
-                                <span class="won-mark">★</span>
+                                <span class="won-mark">+{{ \Illuminate\Support\Number::format($row['won']->prizeAmount(), locale: 'en_IN') }}</span>
                             @endif
                             @if ($cell['paid'] > 0)
                                 {{ \Illuminate\Support\Number::format($cell['paid'], locale: 'en_IN') }}
@@ -199,7 +204,7 @@
                     <td class="total {{ $row['balance_due'] > 0 ? 'due-text' : '' }}"><x-rupees :amount="$row['balance_due']" /></td>
                     <td class="prize">
                         @if ($row['won'])
-                            <x-rupees :amount="$row['won']->payout_amount ?? $row['won']->withdrawal_amount" />
+                            <x-rupees :amount="$row['won']->prizeAmount()" />
                             <small>M{{ $row['won']->month_number }} · {{ $row['won']->isPaidOut() ? 'Paid out' : 'Awaiting payout' }}</small>
                         @else
                             —
@@ -232,7 +237,7 @@
         <span class="paid">Paid</span>
         <span class="partial">Part paid</span>
         <span class="due">— Due</span>
-        <span class="won won-mark">★ Won the draw</span>
+        <span class="won won-mark">+ Prize money won that month</span>
         Amounts in ₹. Month totals show collected / expected.
     </div>
 

@@ -10,7 +10,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -25,17 +27,24 @@ class DrawController extends Controller
     private const PER_PAGE = 15;
 
     /**
-     * All Draws / Pending Payouts.
+     * The list tabs: Draw Details (voucher not printed yet), Pending
+     * Payouts, Past Winners (voucher printed) and All.
+     */
+    private const STATUSES = ['', 'pending', 'past', 'all'];
+
+    /**
+     * Draw Details / Pending Payouts / Past Winners.
      */
     public function index(Request $request): View
     {
-        $status = in_array($request->input('status'), ['pending', 'paid'], true) ? $request->input('status') : '';
+        $status = in_array($request->input('status'), self::STATUSES, true) ? $request->input('status') : '';
         $search = trim((string) $request->input('q', ''));
 
         $draws = Draw::query()
             ->with(['chitGroup', 'winner.customer'])
+            ->when($status === '', fn ($query) => $query->current())
             ->when($status === 'pending', fn ($query) => $query->whereNull('paid_at'))
-            ->when($status === 'paid', fn ($query) => $query->whereNotNull('paid_at'))
+            ->when($status === 'past', fn ($query) => $query->pastWinners())
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
                     $query->where('voucher_number', 'like', "%{$search}%")
@@ -53,9 +62,82 @@ class DrawController extends Controller
             'draws' => $draws,
             'status' => $status,
             'search' => $search,
+            'currentCount' => Draw::current()->count(),
             'pendingCount' => Draw::whereNull('paid_at')->count(),
             'pendingAmount' => (int) Draw::whereNull('paid_at')->sum('withdrawal_amount'),
+            'pastCount' => Draw::pastWinners()->count(),
         ]);
+    }
+
+    /**
+     * Winners Report: every group's winners month by month, printable.
+     */
+    public function winners(Request $request): View
+    {
+        return view('draws.winners', $this->winnersReport($request));
+    }
+
+    /**
+     * Download the Winners Report shown on screen (same group filter).
+     */
+    public function winnersPdf(Request $request): Response
+    {
+        $report = $this->winnersReport($request);
+
+        $fileName = 'Winners-'.($report['selectedGroup'] ? Str::slug($report['selectedGroup']->name) : 'all-groups').'.pdf';
+
+        return Pdf::loadView('pdf.winners', $report)
+            ->setPaper('a4', 'landscape')
+            ->download($fileName);
+    }
+
+    /**
+     * Groups that have held draws, each with its draws in month order.
+     *
+     * @return array{groups: Collection<int, ChitGroup>, reportGroups: Collection<int, ChitGroup>, selectedGroup: ?ChitGroup, totalPrize: int, totalPaidOut: int, drawCount: int}
+     */
+    private function winnersReport(Request $request): array
+    {
+        $groups = ChitGroup::query()
+            ->whereHas('draws')
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        $selectedGroup = $groups->firstWhere('id', $request->integer('group'));
+
+        $reportGroups = ChitGroup::query()
+            ->whereHas('draws')
+            ->when($selectedGroup, fn ($query) => $query->whereKey($selectedGroup->id))
+            ->with(['draws.winner.customer'])
+            ->orderBy('name')
+            ->get();
+
+        $draws = $reportGroups->flatMap->draws;
+
+        return [
+            'groups' => $groups,
+            'reportGroups' => $reportGroups,
+            'selectedGroup' => $selectedGroup,
+            'totalPrize' => (int) $draws->sum(fn (Draw $draw) => $draw->prizeAmount()),
+            'totalPaidOut' => (int) $draws->filter->isPaidOut()->sum('payout_amount'),
+            'drawCount' => $draws->count(),
+        ];
+    }
+
+    /**
+     * The voucher was printed: the draw is settled and moves to Past Winners.
+     */
+    public function voucherPrinted(Request $request, Draw $draw): JsonResponse|RedirectResponse
+    {
+        abort_unless($draw->isPaidOut(), 404);
+
+        $draw->markVoucherPrinted();
+
+        if ($request->wantsJson()) {
+            return response()->json(['voucher_printed_at' => $draw->voucher_printed_at?->format('d M Y, h:i A')]);
+        }
+
+        return redirect()->route('draws.show', $draw);
     }
 
     /**
@@ -211,6 +293,8 @@ class DrawController extends Controller
     public function voucherPdf(Draw $draw): Response
     {
         abort_unless($draw->isPaidOut(), 404);
+
+        $draw->markVoucherPrinted();
 
         $draw->load(['chitGroup', 'winner.customer', 'paidBy']);
 

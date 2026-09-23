@@ -7,7 +7,59 @@
 |   the winner at random first; the wheel then spins and stops on that
 |   member, and the winner popup (with confetti) links to the draw page.
 | - Without JavaScript the form still posts and opens the draw page.
+|
+| DRAW PAGE: printing the payout voucher tells the server it was printed,
+| which moves the draw from Draw Details to Past Winners.
 */
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const printButton = document.getElementById('printVoucherButton');
+
+    if (!printButton) {
+        return;
+    }
+
+    const note = document.getElementById('voucherPrintedNote');
+    const printedAt = document.getElementById('voucherPrintedAt');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+    async function markPrinted() {
+
+        if (!note.hidden) {
+            return;
+        }
+
+        try {
+
+            const response = await fetch(printButton.dataset.printedUrl, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                printedAt.textContent = data.voucher_printed_at;
+                note.hidden = false;
+            }
+
+        } catch (error) {
+            /* printing still works; it can be marked on the next print */
+        }
+    }
+
+    printButton.addEventListener('click', function () {
+        markPrinted();
+        window.print();
+    });
+
+    /* the PDF download marks it on the server; just show the note */
+    document.getElementById('downloadVoucherButton')?.addEventListener('click', function () {
+        setTimeout(markPrinted, 800);
+    });
+
+});
+
 
 document.addEventListener('DOMContentLoaded', function () {
 

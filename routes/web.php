@@ -198,6 +198,16 @@ Route::middleware('auth')->group(function () {
     )->name('draws.store');
 
     Route::get(
+        '/draws/winners',
+        [DrawController::class, 'winners']
+    )->name('draws.winners');
+
+    Route::get(
+        '/draws/winners.pdf',
+        [DrawController::class, 'winnersPdf']
+    )->name('draws.winners.pdf');
+
+    Route::get(
         '/draws/{draw}',
         [DrawController::class, 'show']
     )->name('draws.show');
@@ -211,6 +221,11 @@ Route::middleware('auth')->group(function () {
         '/draws/{draw}/voucher.pdf',
         [DrawController::class, 'voucherPdf']
     )->name('draws.voucher.pdf');
+
+    Route::post(
+        '/draws/{draw}/voucher-printed',
+        [DrawController::class, 'voucherPrinted']
+    )->name('draws.voucher.printed');
 
     Route::delete(
         '/draws/{draw}',

@@ -72,6 +72,14 @@
                 <span data-i18n="payment_ledger">Payment Ledger</span>
             </a>
 
+            <a
+                href="{{ route('draws.create') }}"
+                class="dashboard-action"
+            >
+                <x-icon name="trophy" />
+                <span data-i18n="run_draw">Run Draw</span>
+            </a>
+
         </div>
 
     </section>
@@ -147,6 +155,166 @@
                 </span>
             </span>
         </a>
+
+    </section>
+
+
+    {{-- =====================================================
+         DRAW DETAILS
+    ====================================================== --}}
+
+    <section class="dashboard-card glass">
+
+        <div class="dashboard-card-header">
+
+            <h2 data-i18n="draw_details_menu">Draw Details</h2>
+
+            <a
+                href="{{ route('draws.index') }}"
+                class="dashboard-card-link"
+            >
+                <span data-i18n="view_all">View all</span>
+                <x-icon name="arrow-right" />
+            </a>
+
+        </div>
+
+
+        <div class="dashboard-stats draw-stats">
+
+            <a
+                href="{{ route('draws.create') }}"
+                class="stat-tile draw-stat"
+            >
+                <span class="stat-icon icon-3d icon-3d-orange">
+                    <x-icon name="trophy" />
+                </span>
+                <span class="stat-body">
+                    <span class="stat-label" data-i18n="draws_due_now">Draws due now</span>
+                    <span class="stat-value">{{ $drawsDue->count() }}</span>
+                    <span class="stat-note" data-i18n="draws_due_note">Groups ready for this month's draw</span>
+                </span>
+            </a>
+
+            <a
+                href="{{ route('draws.index', ['status' => 'pending']) }}"
+                class="stat-tile draw-stat"
+            >
+                <span class="stat-icon icon-3d icon-3d-red">
+                    <x-icon name="rupee" />
+                </span>
+                <span class="stat-body">
+                    <span class="stat-label" data-i18n="awaiting_payout">Awaiting payout</span>
+                    <span class="stat-value stat-value-due"><x-rupees :amount="$pendingPayouts['amount']" /></span>
+                    <span class="stat-note">
+                        {{ $pendingPayouts['count'] }} <span data-i18n="winners">winners</span>
+                    </span>
+                </span>
+            </a>
+
+            <a
+                href="{{ route('draws.winners') }}"
+                class="stat-tile draw-stat"
+            >
+                <span class="stat-icon icon-3d icon-3d-green">
+                    <x-icon name="check" />
+                </span>
+                <span class="stat-body">
+                    <span class="stat-label">
+                        <span data-i18n="prizes_paid_this_month">Prizes paid this month</span>
+                    </span>
+                    <span class="stat-value"><x-rupees :amount="$paidThisMonth['amount']" /></span>
+                    <span class="stat-note">
+                        {{ $paidThisMonth['count'] }} <span data-i18n="winners">winners</span>
+                    </span>
+                </span>
+            </a>
+
+        </div>
+
+
+        <div class="draw-lists">
+
+            {{-- groups whose draw can be run now --}}
+
+            <div>
+
+                <h3 class="draw-list-title" data-i18n="draws_due_now">Draws due now</h3>
+
+                @forelse ($drawsDue as $due)
+
+                    <div class="draw-list-row">
+
+                        <div class="draw-list-main">
+                            <strong>{{ $due['group']->name }}</strong>
+                            <span>
+                                <span data-i18n="month_number">Month</span> {{ $due['month'] }}
+                                · {{ $due['group']->monthPeriodLabel($due['month'], withYear: false) }}
+                            </span>
+                        </div>
+
+                        <strong class="draw-list-amount"><x-rupees :amount="$due['prize']" /></strong>
+
+                        <a
+                            href="{{ route('draws.create', ['group' => $due['group']->id]) }}"
+                            class="draw-list-button"
+                        >
+                            <x-icon name="trophy" />
+                            <span data-i18n="run_word">Run</span>
+                        </a>
+
+                    </div>
+
+                @empty
+
+                    <p class="dashboard-empty draw-list-empty" data-i18n="no_draws_due">No draws due right now.</p>
+
+                @endforelse
+
+            </div>
+
+
+            {{-- latest winners --}}
+
+            <div>
+
+                <h3 class="draw-list-title" data-i18n="recent_winners">Recent winners</h3>
+
+                @forelse ($recentDraws as $draw)
+
+                    <a
+                        href="{{ route('draws.show', $draw) }}"
+                        class="draw-list-row"
+                    >
+
+                        <div class="draw-list-main">
+                            <strong><x-customer-name :customer="$draw->winner->customer" /></strong>
+                            <span>
+                                {{ $draw->winner->member_code }} · {{ $draw->chitGroup->name }}
+                                · M{{ $draw->month_number }}
+                            </span>
+                        </div>
+
+                        <div class="draw-list-side">
+                            <strong class="draw-list-amount"><x-rupees :amount="$draw->prizeAmount()" /></strong>
+                            @if ($draw->isPaidOut())
+                                <span class="group-status group-status-running" data-i18n="payout_paid">Paid out</span>
+                            @else
+                                <span class="group-status group-status-forming" data-i18n="payout_pending">Awaiting payout</span>
+                            @endif
+                        </div>
+
+                    </a>
+
+                @empty
+
+                    <p class="dashboard-empty draw-list-empty" data-i18n="no_draws">No draws yet</p>
+
+                @endforelse
+
+            </div>
+
+        </div>
 
     </section>
 
@@ -236,6 +404,13 @@
                                     <dt data-i18n="due_now">Due now</dt>
                                     <dd @class(['is-due' => $card['due_now'] > 0])><x-rupees :amount="$card['due_now']" /></dd>
                                 </div>
+
+                                @if ($group->type === 'draw')
+                                    <div>
+                                        <dt data-i18n="draws_held">Draws held</dt>
+                                        <dd>{{ $group->draws_count }} / {{ $group->months }}</dd>
+                                    </div>
+                                @endif
 
                             @else
 

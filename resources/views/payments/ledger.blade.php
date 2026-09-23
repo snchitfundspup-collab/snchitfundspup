@@ -253,7 +253,9 @@
                                             title="Month {{ $month }}: paid {{ number_format($cell['paid']) }} of {{ number_format($cell['installment']) }}{{ $wonThisMonth ? ' · won the draw' : '' }}"
                                         >
                                             @if ($wonThisMonth)
-                                                <span class="ledger-won-mark" aria-label="Won the draw">🏆</span>
+                                                <span class="ledger-won-mark" title="Prize money won this month">
+                                                    +{{ \Illuminate\Support\Number::format($row['won']->prizeAmount(), locale: 'en_IN') }}
+                                                </span>
                                             @endif
 
                                             @if ($cell['paid'] > 0)
@@ -277,7 +279,7 @@
                                                 href="{{ route('draws.show', $row['won']) }}"
                                                 class="ledger-prize"
                                             >
-                                                <strong><x-rupees :amount="$row['won']->payout_amount ?? $row['won']->withdrawal_amount" /></strong>
+                                                <strong><x-rupees :amount="$row['won']->prizeAmount()" /></strong>
                                                 <small>
                                                     M{{ $row['won']->month_number }} ·
                                                     @if ($row['won']->isPaidOut())
@@ -327,7 +329,7 @@
                     <span><i class="ledger-swatch ledger-cell-partial"></i> <span data-i18n="ledger_partial">Part paid</span></span>
                     <span><i class="ledger-swatch ledger-cell-due"></i> — <span data-i18n="ledger_due">Due</span></span>
                     <span><i class="ledger-swatch ledger-cell-upcoming"></i> <span data-i18n="ledger_upcoming">Upcoming</span></span>
-                    <span>🏆 <span data-i18n="ledger_won">Won the draw that month</span></span>
+                    <span><i class="ledger-swatch ledger-cell-won"></i> <span class="ledger-won-key">+₹</span> <span data-i18n="ledger_won">Prize money won that month</span></span>
                     <span class="ledger-key-note" data-i18n="ledger_key_note">Amounts in ₹. Month totals show collected / expected.</span>
                 </div>
 

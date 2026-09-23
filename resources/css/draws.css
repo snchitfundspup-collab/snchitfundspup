@@ -847,6 +847,151 @@ html.light .draw-participant.is-winner {
 }
 
 
+/* printed voucher → draw has moved to Past Winners */
+
+.voucher-printed-note {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin: 0 0 12px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    color: #4ade80;
+}
+
+
+html.light .voucher-printed-note {
+    color: #15803d;
+}
+
+
+/* =========================================================
+   WINNERS REPORT
+   Uses the Payment Ledger sheet (letterhead + A4 landscape print);
+   one table per group, months in order.
+========================================================= */
+
+.winners-group + .winners-group {
+    margin-top: 22px;
+}
+
+
+.winners-group-title {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: baseline;
+
+    gap: 4px 10px;
+
+    margin: 0 0 10px;
+
+    font-size: 17px;
+
+    font-weight: 800;
+}
+
+
+.winners-group-title small {
+    font-size: 12px;
+
+    font-weight: 600;
+
+    color: var(--text-soft);
+}
+
+
+.winners-table td {
+    vertical-align: top;
+}
+
+
+.winners-table .winners-col-name {
+    min-width: 200px;
+
+    text-align: left;
+}
+
+
+.winners-col-name a {
+    color: inherit;
+
+    text-decoration: none;
+}
+
+
+.winners-col-name a:hover strong {
+    color: #FE691E;
+}
+
+
+.winners-col-name > span {
+    display: block;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    color: #FE691E;
+}
+
+
+.winners-payout-meta {
+    display: block;
+
+    margin-top: 2px;
+
+    font-size: 11px;
+
+    color: var(--text-soft);
+}
+
+
+@media print {
+
+    .winners-group + .winners-group {
+        margin-top: 10px;
+    }
+
+    .winners-group {
+        page-break-inside: avoid;
+    }
+
+    .winners-group-title {
+        margin-bottom: 4px;
+
+        font-size: 12px;
+
+        color: #000000 !important;
+    }
+
+    .winners-group-title small,
+    .winners-payout-meta {
+        font-size: 8px;
+
+        color: #374151 !important;
+    }
+
+    .winners-table .winners-col-name {
+        min-width: 0;
+    }
+
+    .winners-col-name > span {
+        font-size: 7.5px;
+
+        color: #c2410c !important;
+    }
+
+}
+
+
 /* =========================================================
    DRAWS LIST
 ========================================================= */

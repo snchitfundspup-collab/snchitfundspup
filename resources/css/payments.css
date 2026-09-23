@@ -1487,8 +1487,23 @@ html.light .ledger-cell-due {
 .ledger-won-mark {
     display: block;
 
-    font-size: 12px;
+    margin-bottom: 2px;
+
+    color: #fbbf24;
+    font-size: 10.5px;
+    font-weight: 800;
     line-height: 1;
+    white-space: nowrap;
+}
+
+.ledger-won-key {
+    color: #fbbf24;
+    font-weight: 800;
+}
+
+html.light .ledger-won-mark,
+html.light .ledger-won-key {
+    color: #b45309;
 }
 
 html.light .ledger-prize {
@@ -1786,8 +1801,14 @@ html.light .ledger-table tfoot .ledger-sticky {
         min-width: 0;
     }
 
-    .ledger-prize {
+    .ledger-prize,
+    .ledger-won-mark,
+    .ledger-won-key {
         color: #b45309 !important;
+    }
+
+    .ledger-won-mark {
+        font-size: 7.5px;
     }
 
     .ledger-prize small {

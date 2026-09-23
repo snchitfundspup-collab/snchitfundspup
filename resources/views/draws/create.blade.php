@@ -46,6 +46,14 @@
 
     <section class="group-hero glass">
 
+        <a
+            href="{{ route('draws.index') }}"
+            class="group-back-link"
+        >
+            <x-icon name="arrow-left" />
+            <span data-i18n="back_to_draw_details">Back to Draw Details</span>
+        </a>
+
         <div class="group-hero-main">
 
             <span class="group-hero-icon icon-3d icon-3d-orange">

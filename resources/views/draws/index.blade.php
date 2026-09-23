@@ -1,6 +1,16 @@
 @extends('layouts.app')
 
-@section('title', ($status === 'pending' ? 'Pending Payouts' : 'Draws').' | SN Chit Funds')
+@php
+    $titles = [
+        '' => ['draw_details_menu', 'Draw Details'],
+        'pending' => ['pending_payouts', 'Pending Payouts'],
+        'past' => ['past_winners', 'Past Winners'],
+        'all' => ['all_draws', 'All Draws'],
+    ];
+    [$titleKey, $titleText] = $titles[$status];
+@endphp
+
+@section('title', $titleText.' | SN Chit Funds')
 
 @push('styles')
     @vite([
@@ -22,18 +32,36 @@
     <div class="groups-list-header">
 
         <div>
+            @if ($status === '')
+                <a
+                    href="{{ route('dashboard') }}"
+                    class="group-back-link"
+                >
+                    <x-icon name="arrow-left" />
+                    <span data-i18n="back_to_home">Back to Home</span>
+                </a>
+            @else
+                <a
+                    href="{{ route('draws.index') }}"
+                    class="group-back-link"
+                >
+                    <x-icon name="arrow-left" />
+                    <span data-i18n="back_to_draw_details">Back to Draw Details</span>
+                </a>
+            @endif
+
             <h1 class="groups-title">
-                @if ($status === 'pending')
-                    <span data-i18n="pending_payouts">Pending Payouts</span>
-                @else
-                    <span data-i18n="all_draws">All Draws</span>
-                @endif
+                <span data-i18n="{{ $titleKey }}">{{ $titleText }}</span>
             </h1>
 
             <p class="groups-subtitle">
-                <span data-i18n="awaiting_payout">Awaiting payout</span>:
-                <strong class="draws-pending-total"><x-rupees :amount="$pendingAmount" /></strong>
-                ({{ $pendingCount }} <span data-i18n="winners">winners</span>)
+                @if ($status === 'past')
+                    <span data-i18n="past_winners_hint">Winners whose payout voucher has been printed.</span>
+                @else
+                    <span data-i18n="awaiting_payout">Awaiting payout</span>:
+                    <strong class="draws-pending-total"><x-rupees :amount="$pendingAmount" /></strong>
+                    ({{ $pendingCount }} <span data-i18n="winners">winners</span>)
+                @endif
             </p>
         </div>
 
@@ -55,10 +83,11 @@
     <nav class="status-tabs" aria-label="Filter draws">
 
         @foreach ([
-            '' => ['status_all', 'All'],
-            'pending' => ['payout_pending', 'Awaiting payout'],
-            'paid' => ['payout_paid', 'Paid out'],
-        ] as $tabStatus => [$tabKey, $tabLabel])
+            '' => ['current_draws', 'Current', $currentCount],
+            'pending' => ['payout_pending', 'Awaiting payout', $pendingCount],
+            'past' => ['past_winners', 'Past Winners', $pastCount],
+            'all' => ['status_all', 'All', null],
+        ] as $tabStatus => [$tabKey, $tabLabel, $tabCount])
 
             <a
                 href="{{ route('draws.index', array_filter(['status' => $tabStatus, 'q' => $search])) }}"
@@ -66,8 +95,8 @@
                 @if ($status === $tabStatus) aria-current="page" @endif
             >
                 <span data-i18n="{{ $tabKey }}">{{ $tabLabel }}</span>
-                @if ($tabStatus === 'pending')
-                    <span class="status-tab-count">{{ $pendingCount }}</span>
+                @if ($tabCount !== null)
+                    <span class="status-tab-count">{{ $tabCount }}</span>
                 @endif
             </a>
 
@@ -115,7 +144,12 @@
                 <x-icon name="trophy" />
             </span>
 
-            <strong data-i18n="no_draws">No draws yet</strong>
+            @if ($status === 'past')
+                <strong data-i18n="no_past_winners">No past winners yet</strong>
+                <p data-i18n="no_past_winners_text">A draw moves here once its payout voucher is printed.</p>
+            @else
+                <strong data-i18n="no_draws">No draws yet</strong>
+            @endif
 
             <a
                 href="{{ route('draws.create') }}"
@@ -152,7 +186,10 @@
                     </div>
 
                     <div class="payment-row-meta">
-                        @if ($draw->isPaidOut())
+                        @if ($draw->isVoucherPrinted())
+                            <span class="group-status group-status-completed" data-i18n="voucher_printed">Voucher printed</span>
+                            <span>{{ $draw->voucher_number }} · {{ $draw->paid_at->format('d M Y') }}</span>
+                        @elseif ($draw->isPaidOut())
                             <span class="group-status group-status-running" data-i18n="payout_paid">Paid out</span>
                             <span>{{ $draw->voucher_number }} · {{ $draw->paid_at->format('d M Y') }}</span>
                         @else

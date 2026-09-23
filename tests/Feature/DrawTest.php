@@ -219,6 +219,95 @@ test('the payout voucher downloads as a pdf once paid', function () {
         ->assertHeader('content-type', 'application/pdf');
 
     expect($response->headers->get('content-disposition'))->toContain("Voucher-{$draw->voucher_number}.pdf")
+        ->and(substr($response->getContent(), 0, 4))->toBe('%PDF')
+        ->and($draw->refresh()->isVoucherPrinted())->toBeTrue();
+});
+
+test('printing the voucher moves the draw from draw details to past winners', function () {
+    runDraw($this->group, [$this->members[0]->id]);
+    runDraw($this->group, [$this->members[1]->id]);
+
+    $printed = Draw::where('winner_member_id', $this->members[0]->id)->sole();
+
+    $this->postJson(route('draws.voucher.printed', $printed))->assertNotFound();
+
+    $this->post(route('draws.payout', $printed), ['payout_amount' => 150000, 'payout_method' => 'cash', 'paid_at' => '2026-03-20 17:00']);
+
+    $this->postJson(route('draws.voucher.printed', $printed))
+        ->assertOk()
+        ->assertJson(['voucher_printed_at' => '20 Mar 2026, 11:30 PM']);
+
+    $this->get(route('draws.index'))
+        ->assertViewHas('draws', fn ($draws) => $draws->pluck('winner_member_id')->all() === [$this->members[1]->id])
+        ->assertViewHas('currentCount', 1)
+        ->assertViewHas('pastCount', 1);
+
+    $this->get(route('draws.index', ['status' => 'past', 'q' => 'Anand']))
+        ->assertOk()
+        ->assertViewHas('draws', fn ($draws) => $draws->pluck('id')->all() === [$printed->id])
+        ->assertSee('Voucher printed');
+
+    $this->get(route('draws.index', ['status' => 'past', 'q' => 'Bharathi']))
+        ->assertViewHas('draws', fn ($draws) => $draws->isEmpty());
+
+    $this->get(route('draws.show', $printed))->assertSee('moved to Past Winners');
+});
+
+test('printing again keeps the first printed time', function () {
+    runDraw($this->group, [$this->members[0]->id]);
+
+    $draw = Draw::sole();
+
+    $this->post(route('draws.payout', $draw), ['payout_amount' => 150000, 'payout_method' => 'cash', 'paid_at' => '2026-03-20 17:00']);
+    $this->postJson(route('draws.voucher.printed', $draw));
+
+    $this->travel(2)->days();
+    $this->postJson(route('draws.voucher.printed', $draw));
+
+    expect($draw->refresh()->voucher_printed_at->format('Y-m-d'))->toBe('2026-03-20');
+});
+
+test('the winners report lists every group month by month', function () {
+    runDraw($this->group, [$this->members[2]->id]);
+    runDraw($this->group, [$this->members[0]->id]);
+
+    $otherGroup = ChitGroup::factory()->running()->withPayouts(90000)->create(['name' => 'Another Group', 'start_date' => '2026-02-15', 'months' => 4, 'member_count' => 1]);
+    $otherMember = ChitGroupMember::factory()->create(['chit_group_id' => $otherGroup->id, 'customer_id' => Customer::factory()->create(['name' => 'Ezhil'])->id]);
+    runDraw($otherGroup, [$otherMember->id]);
+
+    ChitGroup::factory()->running()->create(['name' => 'No Draws Yet']);
+
+    $this->get(route('draws.winners'))
+        ->assertOk()
+        ->assertViewHas('reportGroups', fn ($groups) => $groups->pluck('name')->all() === ['Another Group', 'Draw Group']
+            && $groups[1]->draws->pluck('month_number')->all() === [1, 2])
+        ->assertViewHas('drawCount', 3)
+        ->assertViewHas('totalPrize', 395000)
+        ->assertSeeInOrder(['Another Group', 'Ezhil', 'Draw Group', 'M1', 'Chitra', 'M2', 'Anand'])
+        ->assertDontSee('No Draws Yet');
+
+    $this->get(route('draws.winners', ['group' => $otherGroup->id]))
+        ->assertViewHas('reportGroups', fn ($groups) => $groups->pluck('id')->all() === [$otherGroup->id]);
+});
+
+test('every draw page has a back link', function () {
+    runDraw($this->group, [$this->members[0]->id]);
+
+    $this->get(route('draws.index'))->assertSee('Back to Home')->assertSee(route('dashboard'));
+    $this->get(route('draws.index', ['status' => 'past']))->assertSee('Back to Draw Details');
+    $this->get(route('draws.create'))->assertSee('Back to Draw Details');
+    $this->get(route('draws.winners'))->assertSee('Back to Draw Details');
+    $this->get(route('draws.show', Draw::sole()))->assertSee('Back to Draw Details');
+});
+
+test('the winners report downloads as a pdf', function () {
+    runDraw($this->group, [$this->members[0]->id]);
+
+    $response = $this->get(route('draws.winners.pdf', ['group' => $this->group->id]))
+        ->assertOk()
+        ->assertHeader('content-type', 'application/pdf');
+
+    expect($response->headers->get('content-disposition'))->toContain('Winners-draw-group.pdf')
         ->and(substr($response->getContent(), 0, 4))->toBe('%PDF');
 });
 
@@ -263,8 +352,8 @@ test('all draws can be filtered by payout status and searched', function () {
         ->assertViewHas('pendingCount', 1)
         ->assertViewHas('pendingAmount', 155000);
 
-    $this->get(route('draws.index', ['status' => 'paid']))
-        ->assertViewHas('draws', fn ($draws) => $draws->pluck('id')->all() === [$paid->id]);
+    $this->get(route('draws.index', ['status' => 'all']))
+        ->assertViewHas('draws', fn ($draws) => $draws->count() === 2);
 
     $this->get(route('draws.index', ['q' => 'Bharathi']))
         ->assertViewHas('draws', fn ($draws) => $draws->pluck('winner_member_id')->all() === [$this->members[1]->id]);
@@ -280,10 +369,11 @@ test('the prize is shown in the payment ledger and on the member card', function
         ->assertViewHas('totalPrizes', 150000)
         ->assertViewHas('rows', fn ($rows) => $rows[1]['won']?->is($draw) && $rows[0]['won'] === null)
         ->assertSee('Prize won')
-        ->assertSee('Awaiting payout');
+        ->assertSee('Awaiting payout')
+        ->assertSee('+1,50,000');
 
     $this->get(route('groups.show', $this->group))
-        ->assertSee('Won</span> · M1', false);
+        ->assertSeeInOrder(['Won', '₹1,50,000', '· M1']);
 
     $this->get(route('payments.ledger.pdf', ['group' => $this->group->id]))->assertOk();
 });

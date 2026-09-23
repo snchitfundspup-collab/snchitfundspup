@@ -3,6 +3,7 @@
 use App\Models\ChitGroup;
 use App\Models\ChitGroupMember;
 use App\Models\Customer;
+use App\Models\Draw;
 use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -78,13 +79,49 @@ test('the dashboard shows collections and groups, not customer details', functio
         ->assertDontSee('Total Customers');
 });
 
+test('the dashboard shows draws due, payouts and recent winners', function () {
+    $this->travelTo(now()->setDate(2026, 3, 20)->setTime(10, 0));
+
+    /* running since 15 Jan → months 1–3 can be drawn on 20 Mar */
+    $group = ChitGroup::factory()->running()->withPayouts(150000, 5000)->create([
+        'name' => 'Draw Dash Group',
+        'start_date' => '2026-01-15',
+        'months' => 5,
+        'member_count' => 3,
+    ]);
+
+    $anand = ChitGroupMember::factory()->create(['chit_group_id' => $group->id, 'customer_id' => Customer::factory()->create(['name' => 'Anand'])->id]);
+    $bharathi = ChitGroupMember::factory()->create(['chit_group_id' => $group->id, 'customer_id' => Customer::factory()->create(['name' => 'Bharathi'])->id]);
+
+    Draw::create(['chit_group_id' => $group->id, 'month_number' => 1, 'winner_member_id' => $anand->id, 'withdrawal_amount' => 150000, 'drawn_at' => '2026-01-20 18:00', 'payout_amount' => 150000, 'payout_method' => 'cash', 'paid_at' => '2026-03-05 11:00', 'voucher_number' => 'PV000001']);
+    Draw::create(['chit_group_id' => $group->id, 'month_number' => 2, 'winner_member_id' => $bharathi->id, 'withdrawal_amount' => 155000, 'drawn_at' => '2026-02-20 18:00']);
+
+    ChitGroup::factory()->running()->create(['name' => 'Not Started Month', 'start_date' => '2026-04-15']);
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertViewHas('drawsDue', fn ($due) => $due->count() === 1
+            && $due[0]['group']->is($group)
+            && $due[0]['month'] === 3
+            && $due[0]['prize'] === 160000)
+        ->assertViewHas('pendingPayouts', ['amount' => 155000, 'count' => 1])
+        ->assertViewHas('paidThisMonth', ['amount' => 150000, 'count' => 1])
+        ->assertViewHas('recentDraws', fn ($draws) => $draws->pluck('month_number')->all() === [2, 1])
+        ->assertSee('Draw Details')
+        ->assertSee(route('draws.create', ['group' => $group->id]))
+        ->assertSeeInOrder(['Recent winners', 'Bharathi', 'Awaiting payout', 'Anand', 'Paid out'])
+        ->assertSee('2 / 5');
+});
+
 test('the dashboard works with no groups or payments', function () {
     $this->actingAs(User::factory()->create())
         ->get(route('dashboard'))
         ->assertOk()
         ->assertViewHas('todayCollection', 0)
         ->assertViewHas('pending', ['amount' => 0, 'members' => 0, 'overdue' => 0])
-        ->assertSee('No groups yet');
+        ->assertSee('No groups yet')
+        ->assertSee('No draws due right now.');
 });
 
 test('the logo in the header, menu and footer links to home', function () {

@@ -107,7 +107,7 @@ class PaymentLedgerController extends Controller
             'toMonth' => $toMonth,
             'totalPaid' => $rows->sum('paid'),
             'totalDue' => $rows->sum('balance_due'),
-            'totalPrizes' => (int) $group->draws->sum(fn ($draw) => $draw->payout_amount ?? $draw->withdrawal_amount),
+            'totalPrizes' => (int) $group->draws->sum(fn ($draw) => $draw->prizeAmount()),
         ];
     }
 }
