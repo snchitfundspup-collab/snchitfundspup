@@ -38,6 +38,14 @@
 
 <body>
 
+    {{-- ANIMATED BACKGROUND (shared on every page — see app.css) --}}
+
+    <div class="background-shape shape-orange"></div>
+    <div class="background-shape shape-blue"></div>
+    <div class="background-shape shape-purple"></div>
+    <div class="background-shape shape-bottom"></div>
+
+
     {{-- HEADER --}}
     @include('components.header')
 
@@ -48,7 +56,7 @@
 
     {{-- PAGE CONTENT --}}
 
-    <main>
+    <main class="animate-page">
         @yield('content')
     </main>
 

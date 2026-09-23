@@ -28,6 +28,161 @@
 
 
 /* =========================================================
+   SHARED DESIGN TOKENS
+   (single source of truth — used by app.css, customers.css,
+   and the create-customer page, so every page matches)
+========================================================= */
+
+:root {
+    --orange: #FE691E;
+    --orange-dark: #e95712;
+
+    --blue: #3d73ff;
+    --blue-light: #76a2ff;
+
+    --purple: #8255ff;
+    --lavender: #a77cff;
+
+    --page-bg: #101a3b;
+
+    --text: #f8fbff;
+    --text-soft: #b9c9ed;
+
+    --glass: rgba(34, 55, 105, 0.58);
+    --glass-light: rgba(255, 255, 255, 0.10);
+
+    --border: rgba(170, 200, 255, 0.28);
+
+    --input-bg: rgba(115, 142, 199, 0.24);
+    --input-border: rgba(166, 197, 255, 0.32);
+
+    --shadow: 0 30px 90px rgba(0, 0, 0, 0.30);
+}
+
+
+html.light {
+    --page-bg: #dfe7fa;
+
+    --text: #172449;
+    --text-soft: #53678f;
+
+    --glass: rgba(255, 255, 255, 0.46);
+    --glass-light: rgba(255, 255, 255, 0.38);
+
+    --border: rgba(255, 255, 255, 0.55);
+
+    --input-bg: rgba(255, 255, 255, 0.34);
+    --input-border: rgba(87, 116, 177, 0.28);
+
+    --shadow: 0 30px 90px rgba(43, 62, 110, 0.20);
+}
+
+
+/* =========================================================
+   ANIMATED BACKGROUND SHAPES
+   (same floating glow blobs on every page)
+========================================================= */
+
+.background-shape {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(45px);
+    animation: floatShape 12s ease-in-out infinite;
+}
+
+.shape-orange {
+    width: 420px;
+    height: 420px;
+    left: -160px;
+    top: 250px;
+    background: radial-gradient(circle, rgba(254, 105, 30, 0.52), rgba(254, 105, 30, 0.12) 55%, transparent 75%);
+}
+
+.shape-blue {
+    width: 500px;
+    height: 500px;
+    left: 20%;
+    top: -220px;
+    background: radial-gradient(circle, rgba(62, 110, 255, 0.48), rgba(62, 110, 255, 0.12) 55%, transparent 75%);
+    animation-delay: -3s;
+}
+
+.shape-purple {
+    width: 500px;
+    height: 500px;
+    right: -180px;
+    top: 220px;
+    background: radial-gradient(circle, rgba(138, 78, 255, 0.52), rgba(138, 78, 255, 0.12) 55%, transparent 75%);
+    animation-delay: -6s;
+}
+
+.shape-bottom {
+    width: 500px;
+    height: 360px;
+    left: 30%;
+    bottom: -220px;
+    background: radial-gradient(ellipse, rgba(254, 105, 30, 0.34), rgba(69, 101, 255, 0.24) 45%, transparent 75%);
+    animation-delay: -8s;
+}
+
+@keyframes floatShape {
+    0%, 100% {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+    50% {
+        transform: translate3d(20px, -18px, 0) scale(1.06);
+    }
+}
+
+
+/* =========================================================
+   GLASS UTILITY
+   (shared frosted-glass surface — used on cards across pages)
+========================================================= */
+
+.glass {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255,255,255,0.13),
+            rgba(255,255,255,0.055)
+        );
+
+    border: 1px solid var(--border);
+
+    box-shadow:
+        var(--shadow),
+        inset 0 1px 0 rgba(255,255,255,0.22);
+
+    backdrop-filter: blur(25px) saturate(135%);
+    -webkit-backdrop-filter: blur(25px) saturate(135%);
+}
+
+
+/* =========================================================
+   PAGE ENTRY ANIMATION
+   (same fade/slide-in used on every page)
+========================================================= */
+
+.animate-page {
+    animation: pageIn 0.65s ease-out;
+}
+
+@keyframes pageIn {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* =========================================================
    ROOT
 ========================================================= */
 
@@ -61,33 +216,42 @@ body {
 
     position: relative;
 
+    overflow-x: hidden;
+
     background:
         radial-gradient(
-            circle at 10% 15%,
-            rgba(254, 105, 30, 0.14),
+            circle at 10% 20%,
+            rgba(254, 105, 30, 0.22),
+            transparent 27%
+        ),
+
+        radial-gradient(
+            circle at 50% 5%,
+            rgba(62, 110, 255, 0.34),
+            transparent 32%
+        ),
+
+        radial-gradient(
+            circle at 90% 35%,
+            rgba(132, 83, 255, 0.38),
             transparent 30%
         ),
 
         radial-gradient(
-            circle at 90% 10%,
-            rgba(37, 99, 235, 0.16),
-            transparent 32%
-        ),
-
-        radial-gradient(
-            circle at 80% 85%,
-            rgba(124, 58, 237, 0.13),
-            transparent 32%
+            circle at 25% 85%,
+            rgba(70, 105, 255, 0.28),
+            transparent 30%
         ),
 
         linear-gradient(
             135deg,
-            #111827 0%,
-            #172449 48%,
-            #111827 100%
+            #111a39 0%,
+            #172754 40%,
+            #151d43 70%,
+            #211742 100%
         );
 
-    color: #ffffff;
+    color: var(--text);
 }
 
 
@@ -98,82 +262,45 @@ body {
 html.light body {
 
     background:
+
         radial-gradient(
-            circle at 10% 15%,
-            rgba(254, 105, 30, 0.11),
+            circle at 5% 10%,
+            rgba(254, 105, 30, 0.18),
+            transparent 26%
+        ),
+
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(70, 115, 255, 0.30),
+            transparent 32%
+        ),
+
+        radial-gradient(
+            circle at 100% 30%,
+            rgba(139, 93, 255, 0.28),
+            transparent 31%
+        ),
+
+        radial-gradient(
+            circle at 15% 90%,
+            rgba(71, 107, 255, 0.22),
             transparent 30%
-        ),
-
-        radial-gradient(
-            circle at 90% 10%,
-            rgba(37, 99, 235, 0.10),
-            transparent 32%
-        ),
-
-        radial-gradient(
-            circle at 80% 85%,
-            rgba(124, 58, 237, 0.09),
-            transparent 32%
         ),
 
         linear-gradient(
             135deg,
-            #f8fafc 0%,
-            #eef2ff 50%,
-            #f8fafc 100%
+            #cfd9f5,
+            #dfe7fb 45%,
+            #d4d4f1 100%
         );
 
-    color: #172449;
+    color: var(--text);
 }
 
 
-/* =========================================================
-   ABSTRACT BACKGROUND SHAPES
-========================================================= */
-
-body::before,
-body::after {
-
-    content: "";
-
-    position: fixed;
-
-    pointer-events: none;
-
-    z-index: -1;
-
-    border-radius: 50%;
-
-    filter: blur(70px);
-
-    opacity: 0.45;
-}
-
-
-body::before {
-
-    width: 300px;
-    height: 300px;
-
-    top: 18%;
-    left: -120px;
-
-    background:
-        rgba(254, 105, 30, 0.16);
-}
-
-
-body::after {
-
-    width: 350px;
-    height: 350px;
-
-    right: -140px;
-    bottom: 5%;
-
-    background:
-        rgba(37, 99, 235, 0.17);
-}
+/* NOTE: the old static body::before/::after blur blobs were removed —
+   the animated .background-shape elements (see SHARED DESIGN TOKENS
+   section above) now provide this effect consistently on every page. */
 
 
 /* =========================================================
@@ -644,7 +771,7 @@ html.light .header {
 }
 
 
-.menu-overlay.active {
+.menu-overlay.open {
 
     opacity: 1;
 
@@ -698,7 +825,7 @@ html.light .header {
 }
 
 
-.app-menu.active {
+.app-menu.open {
 
     transform:
         translateX(0);

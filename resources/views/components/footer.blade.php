@@ -15,7 +15,7 @@
                 SN Chit Funds
             </div>
 
-            <div class="footer-tagline">
+            <div class="footer-tagline" data-i18n="brand_tagline">
                 Trust · Growth · Together
             </div>
 
@@ -26,19 +26,17 @@
 
     <div class="footer-right">
 
-        <span>
-            ◆ Secure
-        </span>
+        <span>◆ <span data-i18n="footer_secure">Secure</span></span>
 
         <span>•</span>
 
-        <span>
+        <span data-i18n="footer_reliable">
             Reliable
         </span>
 
         <span>•</span>
 
-        <span>
+        <span data-i18n="footer_always">
             Always With You
         </span>
 

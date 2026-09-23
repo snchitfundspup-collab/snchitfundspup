@@ -14,7 +14,7 @@
                 <span>SN</span> Chit Funds
             </div>
 
-            <div class="brand-tagline">
+            <div class="brand-tagline" data-i18n="brand_tagline">
                 Trust · Growth · Together
             </div>
         </div>
@@ -81,7 +81,7 @@
                 <span>♙</span>
             </div>
 
-            <span>
+            <span data-i18n="admin">
                 Admin
             </span>
 

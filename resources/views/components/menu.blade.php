@@ -35,7 +35,7 @@
                     SN <span>Chit Funds</span>
                 </div>
 
-                <div class="menu-brand-subtitle">
+                <div class="menu-brand-subtitle" data-i18n="brand_tagline">
                     Trust · Growth · Together
                 </div>
             </div>
@@ -57,7 +57,7 @@
 
     <div class="menu-content">
 
-        <div class="menu-section-title">
+        <div class="menu-section-title" data-i18n="menu_main">
             MAIN
         </div>
 
@@ -70,7 +70,7 @@
         >
             <span class="menu-item-icon">⌂</span>
 
-            <span class="menu-item-text">
+            <span class="menu-item-text" data-i18n="menu_home">
                 Home
             </span>
         </a>
@@ -84,7 +84,7 @@
         >
             <span class="menu-item-icon">♙</span>
 
-            <span class="menu-item-text">
+            <span class="menu-item-text" data-i18n="menu_customers">
                 Customers
             </span>
         </a>
@@ -98,7 +98,7 @@
         >
             <span class="menu-item-icon">♙</span>
 
-            <span class="menu-item-text">
+            <span class="menu-item-text" data-i18n="menu_groups">
                 Groups
             </span>
         </a>
@@ -112,7 +112,7 @@
         >
             <span class="menu-item-icon">₹</span>
 
-            <span class="menu-item-text">
+            <span class="menu-item-text" data-i18n="menu_payments">
                 Payments
             </span>
         </a>
@@ -126,13 +126,13 @@
         >
             <span class="menu-item-icon">◆</span>
 
-            <span class="menu-item-text">
+            <span class="menu-item-text" data-i18n="menu_draws">
                 Draws
             </span>
         </a>
 
 
-        <div class="menu-section-title menu-section-spaced">
+        <div class="menu-section-title menu-section-spaced" data-i18n="menu_management">
             MANAGEMENT
         </div>
 
@@ -145,7 +145,7 @@
         >
             <span class="menu-item-icon">▤</span>
 
-            <span class="menu-item-text">
+            <span class="menu-item-text" data-i18n="menu_reports">
                 Reports
             </span>
         </a>
@@ -159,7 +159,7 @@
         >
             <span class="menu-item-icon">⚙</span>
 
-            <span class="menu-item-text">
+            <span class="menu-item-text" data-i18n="menu_settings">
                 Settings
             </span>
         </a>
@@ -177,11 +177,11 @@
 
             <div class="menu-user-info">
 
-                <strong>
+                <strong data-i18n="admin">
                     Admin
                 </strong>
 
-                <span>
+                <span data-i18n="administrator">
                     Administrator
                 </span>
 
@@ -195,7 +195,7 @@
             class="menu-logout"
         >
             <span>↪</span>
-            <span>Logout</span>
+            <span data-i18n="logout">Logout</span>
         </button>
 
     </div>
