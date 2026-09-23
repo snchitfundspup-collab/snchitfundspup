@@ -69,6 +69,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Business Timezone
+    |--------------------------------------------------------------------------
+    |
+    | The office's local timezone. Used for "today" in payments and dues
+    | (payment dates, today's collection, which months have fallen due), so
+    | early-morning IST is not treated as the previous UTC day.
+    |
+    */
+
+    'business_timezone' => env('BUSINESS_TIMEZONE', 'Asia/Kolkata'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |

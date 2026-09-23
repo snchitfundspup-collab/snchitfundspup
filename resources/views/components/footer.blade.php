@@ -1,18 +1,22 @@
 <footer class="page-footer">
 
-    <div class="footer-brand">
+    <a
+        href="{{ route('dashboard') }}"
+        class="footer-brand brand-link"
+        aria-label="SN Chit Funds – go to Home"
+    >
 
-        <div class="footer-logo">
+        <div class="footer-logo logo-3d">
             <img
                 src="{{ asset('images/sn-chit-funds-logo.png') }}"
-                alt="SN Chit Funds"
+                alt=""
             >
         </div>
 
         <div>
 
             <div class="footer-name">
-                SN Chit Funds
+                <span>SN</span> Chit Funds
             </div>
 
             <div class="footer-tagline" data-i18n="brand_tagline">
@@ -21,12 +25,15 @@
 
         </div>
 
-    </div>
+    </a>
 
 
     <div class="footer-right">
 
-        <span>◆ <span data-i18n="footer_secure">Secure</span></span>
+        <span class="footer-secure">
+            <span class="footer-dot">•</span>
+            <span data-i18n="footer_secure">Secure</span>
+        </span>
 
         <span>•</span>
 

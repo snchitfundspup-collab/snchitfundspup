@@ -1,0 +1,2069 @@
+/*
+|--------------------------------------------------------------------------
+| PAYMENTS — PAGE-SPECIFIC STYLES
+|--------------------------------------------------------------------------
+| Collect Payment, receipt and All Payments. Loaded after groups.css
+| (page shell, panels, search box, member rows, buttons) and, on the
+| collect page, create.css (inputs, labels, save button).
+*/
+
+
+/* =========================================================
+   SHARED
+========================================================= */
+
+.payment-step {
+    margin-top: 18px;
+}
+
+
+.step-number {
+    width: 26px;
+    height: 26px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    margin-right: 8px;
+
+    border-radius: 50%;
+
+    background: #FE691E;
+
+    color: #ffffff;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    vertical-align: middle;
+}
+
+
+/* =========================================================
+   STEP 1 — CUSTOMER SEARCH
+========================================================= */
+
+.payment-customer-result {
+    color: inherit;
+
+    text-decoration: none;
+
+    transition:
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.payment-customer-result:hover {
+    border-color: rgba(254, 105, 30, 0.45);
+
+    transform: translateX(3px);
+}
+
+
+.collect-list-count {
+    margin: 0 0 4px;
+
+    font-size: 13px;
+
+    color: var(--text-soft);
+}
+
+
+.collect-group-name {
+    font-weight: 700;
+
+    color: var(--text);
+}
+
+
+.collect-status {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-end;
+
+    gap: 3px;
+
+    flex-shrink: 0;
+}
+
+
+.collect-amount {
+    font-size: 16px;
+
+    font-weight: 800;
+}
+
+
+/* Due = this month unpaid (amber) · Part paid (orange) · Pending (red, from groups.css) */
+
+.due-badge-month {
+    background: rgba(245, 158, 11, 0.16);
+
+    color: #fbbf24;
+}
+
+
+.due-badge-part {
+    background: rgba(254, 105, 30, 0.16);
+
+    color: #ff8a45;
+}
+
+
+html.light .due-badge-month {
+    color: #b45309;
+}
+
+
+html.light .due-badge-part {
+    color: #c2410c;
+}
+
+
+.payment-result-arrow {
+    flex-shrink: 0;
+
+    font-size: 18px;
+
+    opacity: 0.5;
+}
+
+
+/* =========================================================
+   STEP 2 — CUSTOMER + SEATS
+========================================================= */
+
+.payment-customer {
+    display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 14px;
+}
+
+
+.payment-customer-avatar {
+    width: 52px;
+    height: 52px;
+
+    font-size: 1.2rem;
+}
+
+
+.payment-customer-name {
+    font-size: 19px;
+}
+
+
+.payment-change-customer {
+    min-height: 38px;
+
+    padding: 0 12px;
+
+    font-size: 13px;
+}
+
+
+.payment-seats-title {
+    display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 4px;
+
+    margin: 22px 0 12px;
+
+    font-size: 17px;
+
+    font-weight: 800;
+}
+
+
+.payment-form-seat {
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: var(--text-soft);
+}
+
+
+.payment-seats {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+
+.payment-seat {
+    display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    padding: 12px 14px;
+
+    border-radius: 16px;
+
+    background: rgba(255, 255, 255, 0.05);
+
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+}
+
+
+html.light .payment-seat {
+    background: rgba(255, 255, 255, 0.40);
+
+    border-color: rgba(255, 255, 255, 0.60);
+}
+
+
+.payment-seat.is-selected {
+    border-color: #FE691E;
+
+    box-shadow: 0 0 0 3px rgba(254, 105, 30, 0.14);
+}
+
+
+.payment-seat.is-disabled {
+    opacity: 0.6;
+}
+
+
+.payment-seat-main {
+    flex: 1;
+
+    min-width: 180px;
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.payment-seat-status {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-end;
+
+    gap: 4px;
+}
+
+
+.payment-seat-next {
+    font-size: 11px;
+
+    color: var(--text-soft);
+}
+
+
+.payment-collect-button {
+    min-height: 40px;
+
+    padding: 0 16px;
+
+    font-size: 13px;
+
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   STEP 3 — COLLECT FORM
+========================================================= */
+
+.payment-summary {
+    display: grid;
+
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+}
+
+
+.payment-summary > div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+
+    padding: 12px 14px;
+
+    border-radius: 14px;
+
+    background: rgba(255, 255, 255, 0.06);
+}
+
+
+html.light .payment-summary > div {
+    background: rgba(255, 255, 255, 0.45);
+}
+
+
+.payment-summary > div > span {
+    font-size: 11px;
+
+    font-weight: 700;
+
+    color: var(--text-soft);
+}
+
+
+.payment-summary strong {
+    font-size: 18px;
+
+    font-weight: 800;
+}
+
+
+.payment-summary strong.is-due,
+.receipt-footer strong.is-due {
+    color: #f87171;
+}
+
+
+html.light .payment-summary strong.is-due,
+html.light .receipt-footer strong.is-due {
+    color: #b91c1c;
+}
+
+
+/* ---------- full / partial switch ---------- */
+
+.pay-mode {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+}
+
+
+.pay-mode-option input,
+.method-option input {
+    position: absolute;
+
+    opacity: 0;
+
+    pointer-events: none;
+}
+
+
+.pay-mode-option > span {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    min-height: 52px;
+
+    padding: 0 12px;
+
+    border-radius: 14px;
+
+    border: 1.5px solid var(--input-border);
+
+    background: var(--input-bg);
+
+    font-weight: 700;
+
+    text-align: center;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.pay-mode-option .svg-icon {
+    font-size: 18px;
+}
+
+
+.pay-mode-option input:checked + span {
+    border-color: #FE691E;
+
+    background: rgba(254, 105, 30, 0.14);
+
+    box-shadow: 0 0 0 3px rgba(254, 105, 30, 0.12);
+}
+
+
+.pay-mode-option input:focus-visible + span,
+.method-option input:focus-visible + span {
+    outline: 2px solid #FE691E;
+
+    outline-offset: 2px;
+}
+
+
+.pay-mode-single {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+
+.partial-only-note {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 8px;
+
+    margin: 0 0 12px;
+
+    padding: 10px 14px;
+
+    border-radius: 12px;
+
+    background: rgba(254, 105, 30, 0.12);
+
+    border: 1px solid rgba(254, 105, 30, 0.30);
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+
+.partial-only-note .svg-icon {
+    flex-shrink: 0;
+
+    margin-top: 2px;
+
+    color: #FE691E;
+}
+
+
+.payment-fields {
+    margin-bottom: 8px;
+}
+
+
+/* ---------- months stepper ---------- */
+
+.month-stepper {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+.month-stepper-button {
+    width: 46px;
+    height: 46px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid var(--input-border);
+
+    border-radius: 11px;
+
+    background: var(--input-bg);
+
+    color: inherit;
+
+    font-size: 18px;
+
+    cursor: pointer;
+}
+
+
+.month-stepper-button:hover {
+    border-color: #FE691E;
+}
+
+
+.month-stepper-input {
+    text-align: center;
+
+    font-weight: 800;
+}
+
+
+.payment-amount-input {
+    font-size: 20px !important;
+
+    font-weight: 800;
+}
+
+
+.payment-amount-input[readonly] {
+    border-style: dashed !important;
+}
+
+
+.installment-hint.is-error {
+    color: #f87171;
+
+    font-weight: 700;
+}
+
+
+/* ---------- method chips ---------- */
+
+.method-options {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+
+.method-option > span {
+    display: inline-flex;
+
+    align-items: center;
+
+    min-height: 42px;
+
+    padding: 0 16px;
+
+    border-radius: 999px;
+
+    border: 1.5px solid var(--input-border);
+
+    background: var(--input-bg);
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+.method-option input:checked + span {
+    border-color: #22c55e;
+
+    background: rgba(34, 197, 94, 0.16);
+}
+
+
+.payment-form-footer {
+    margin-left: 0;
+    margin-right: 0;
+
+    padding-left: 0;
+    padding-right: 0;
+}
+
+
+/* ---------- ledger ---------- */
+
+.payment-ledger {
+    margin-top: 16px;
+}
+
+
+.payment-ledger summary {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 10px 0;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    list-style: none;
+}
+
+
+.payment-ledger summary::-webkit-details-marker {
+    display: none;
+}
+
+
+.payment-ledger[open] .schedule-summary-caret {
+    transform: rotate(180deg);
+}
+
+
+.ledger-status {
+    font-size: 11px;
+
+    font-weight: 800;
+}
+
+
+.ledger-status-paid {
+    color: #22c55e;
+}
+
+.ledger-status-partial {
+    color: #ff8a45;
+}
+
+.ledger-status-due {
+    color: #f87171;
+}
+
+.ledger-status-upcoming {
+    color: var(--text-soft);
+}
+
+
+html.light .ledger-status-paid {
+    color: #15803d;
+}
+
+html.light .ledger-status-partial {
+    color: #c2410c;
+}
+
+html.light .ledger-status-due {
+    color: #b91c1c;
+}
+
+
+/* =========================================================
+   RECEIPT
+   On screen: a glass card in the app theme. Printed (or Save as
+   PDF): a plain black-on-white receipt, with only the logo and the
+   orange "SN" kept in colour.
+========================================================= */
+
+.receipt-actions {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin-bottom: 16px;
+}
+
+
+.receipt-actions form {
+    margin: 0;
+}
+
+
+.receipt-cancel {
+    color: #f87171;
+}
+
+
+.download-pdf-button {
+    border-color: rgba(34, 197, 94, 0.45);
+
+    background: rgba(34, 197, 94, 0.14);
+}
+
+
+.ledger-actions {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+/* Print + Download: same height, padding and text size */
+
+.ledger-actions > .group-action,
+.ledger-actions > .add-group-button {
+    height: 46px;
+
+    min-height: 46px;
+
+    padding: 0 18px;
+
+    box-sizing: border-box;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    line-height: 1;
+}
+
+
+.ledger-actions .svg-icon {
+    font-size: 17px;
+}
+
+
+html.light .receipt-cancel {
+    color: #b91c1c;
+}
+
+
+.receipt {
+    max-width: 640px;
+
+    margin: 0 auto;
+
+    padding: 26px 28px 22px;
+
+    border-radius: 22px;
+}
+
+
+.receipt-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+
+    gap: 14px;
+
+    padding-bottom: 16px;
+
+    border-bottom: 2px solid var(--text);
+}
+
+
+.receipt-brand {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+
+.receipt-logo {
+    width: 58px;
+    height: 58px;
+
+    object-fit: contain;
+}
+
+
+.receipt-company {
+    display: block;
+
+    font-size: 22px;
+
+    font-weight: 800;
+
+    letter-spacing: -0.3px;
+}
+
+
+.receipt-company span {
+    color: #FE691E;
+}
+
+
+.receipt-tagline {
+    font-size: 12px;
+
+    color: var(--text-soft);
+}
+
+
+.receipt-title strong {
+    display: inline-block;
+
+    padding: 6px 12px;
+
+    border: 1.5px solid var(--text);
+
+    border-radius: 6px;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.08em;
+
+    text-transform: uppercase;
+}
+
+
+.receipt-meta {
+    display: flex;
+
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    padding: 14px 0;
+
+    border-bottom: 1px dashed var(--border);
+}
+
+
+.receipt-meta div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.receipt-meta-right {
+    align-items: flex-end;
+}
+
+
+.receipt-meta span {
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.04em;
+
+    text-transform: uppercase;
+
+    color: var(--text-soft);
+}
+
+
+.receipt-meta strong {
+    font-size: 16px;
+}
+
+
+.receipt-lines {
+    width: 100%;
+
+    margin: 8px 0 14px;
+
+    border-collapse: collapse;
+}
+
+
+.receipt-lines th,
+.receipt-lines td {
+    padding: 8px 0;
+
+    border-bottom: 1px dotted var(--border);
+
+    text-align: left;
+
+    vertical-align: top;
+
+    font-size: 14px;
+}
+
+
+.receipt-lines th {
+    width: 38%;
+
+    padding-right: 12px;
+
+    font-weight: 600;
+
+    color: var(--text-soft);
+}
+
+
+.receipt-lines td {
+    font-weight: 700;
+}
+
+
+.receipt-month {
+    display: block;
+}
+
+
+.receipt-amount {
+    padding: 14px 16px;
+
+    border: 2px solid var(--text);
+
+    border-radius: 10px;
+}
+
+
+.receipt-amount-figure {
+    display: flex;
+
+    align-items: baseline;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+
+.receipt-amount-figure > span {
+    font-size: 13px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.04em;
+}
+
+
+.receipt-amount-figure strong {
+    font-size: 30px;
+
+    font-weight: 800;
+
+    letter-spacing: -0.5px;
+}
+
+
+.receipt-amount-words {
+    margin: 6px 0 0;
+
+    font-size: 13px;
+
+    font-style: italic;
+
+    color: var(--text-soft);
+}
+
+
+.receipt-footer {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr 1.2fr;
+
+    align-items: end;
+
+    gap: 14px;
+
+    padding-top: 22px;
+}
+
+
+.receipt-footer > div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.receipt-footer > div > span {
+    font-size: 11px;
+
+    color: var(--text-soft);
+}
+
+
+.receipt-signature {
+    align-items: center;
+
+    text-align: center;
+}
+
+
+.receipt-signature-line {
+    width: 100%;
+
+    height: 34px;
+
+    border-bottom: 1px solid var(--text);
+}
+
+
+.receipt-thanks {
+    margin: 16px 0 0;
+
+    text-align: center;
+
+    font-size: 12px;
+
+    color: var(--text-soft);
+}
+
+
+/* ---------- print / Save as PDF ---------- */
+
+/* named print pages: receipt = A5 portrait, ledger = A4 landscape */
+
+@page receipt {
+    size: A5 portrait;
+
+    margin: 10mm;
+}
+
+
+.receipt {
+    page: receipt;
+}
+
+
+@media print {
+
+    .header,
+    .app-menu,
+    .menu-overlay,
+    .page-footer,
+    .background-shape,
+    .no-print {
+        display: none !important;
+    }
+
+    html,
+    body,
+    html.light body,
+    main {
+        background: #ffffff !important;
+
+        color: #000000 !important;
+
+        animation: none !important;
+    }
+
+    .group-show-page {
+        padding: 0 !important;
+
+        max-width: none !important;
+    }
+
+    .receipt {
+        max-width: none;
+
+        margin: 0;
+
+        padding: 0;
+
+        border: 0 !important;
+
+        border-radius: 0;
+
+        background: #ffffff !important;
+
+        box-shadow: none !important;
+
+        backdrop-filter: none !important;
+
+        -webkit-backdrop-filter: none !important;
+
+        color: #000000;
+    }
+
+    .receipt,
+    .receipt * {
+        color: #000000 !important;
+
+        border-color: #000000 !important;
+
+        text-shadow: none !important;
+    }
+
+    .receipt-lines th,
+    .receipt-lines td,
+    .receipt-meta {
+        border-color: #9ca3af !important;
+    }
+
+    .receipt-lines th,
+    .receipt-tagline,
+    .receipt-meta span,
+    .receipt-amount-words,
+    .receipt-footer > div > span,
+    .receipt-thanks {
+        color: #374151 !important;
+    }
+
+    /* keep the brand in colour */
+    .receipt .receipt-company span {
+        color: #FE691E !important;
+    }
+
+    .receipt-logo,
+    .receipt-company span {
+        -webkit-print-color-adjust: exact;
+
+        print-color-adjust: exact;
+    }
+
+}
+
+/* =========================================================
+   PAYMENT LEDGER
+   Members × months grid. On screen the member columns stay put
+   while months scroll sideways; printed on A4 landscape with a
+   letterhead, keeping the paid / part / due cell colours.
+========================================================= */
+
+@page ledger {
+    size: A4 landscape;
+
+    margin: 8mm;
+}
+
+
+.ledger-sheet {
+    page: ledger;
+
+    padding: 20px 22px;
+
+    border-radius: 22px;
+}
+
+
+/* (doubled class so it beats .payment-filters, defined later) */
+
+.payment-filters.ledger-filters {
+    align-items: flex-end;
+}
+
+
+.ledger-filters .payment-filter-select,
+.ledger-filters .group-action {
+    height: 48px;
+
+    min-height: 48px;
+
+    box-sizing: border-box;
+}
+
+
+.ledger-filter {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    color: var(--text-soft);
+}
+
+
+.ledger-month-input {
+    width: 96px !important;
+}
+
+
+/* letterhead only appears on paper */
+
+.ledger-print-head {
+    display: none;
+}
+
+
+.ledger-group-info {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 10px 28px;
+
+    margin-bottom: 16px;
+}
+
+
+.ledger-group-info > div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.ledger-group-info > div > span {
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.04em;
+
+    text-transform: uppercase;
+
+    color: var(--text-soft);
+}
+
+
+.ledger-group-info strong {
+    font-size: 16px;
+}
+
+
+.ledger-total-paid {
+    color: #22c55e;
+}
+
+
+.ledger-total-due {
+    color: #f87171;
+}
+
+
+html.light .ledger-total-paid {
+    color: #15803d;
+}
+
+
+html.light .ledger-total-due {
+    color: #b91c1c;
+}
+
+
+.ledger-table-wrapper {
+    overflow-x: auto;
+
+    border-radius: 14px;
+
+    border: 1px solid var(--border);
+}
+
+
+.ledger-table {
+    width: 100%;
+
+    border-collapse: separate;
+
+    border-spacing: 0;
+
+    font-size: 13px;
+}
+
+
+.ledger-table th,
+.ledger-table td {
+    padding: 8px 10px;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+
+    white-space: nowrap;
+
+    text-align: center;
+}
+
+
+html.light .ledger-table th,
+html.light .ledger-table td {
+    border-color: rgba(35, 50, 95, 0.08);
+}
+
+
+.ledger-table thead th {
+    position: sticky;
+
+    top: 0;
+
+    z-index: 2;
+
+    background: #1e2a55;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    color: var(--text-soft);
+}
+
+
+html.light .ledger-table thead th,
+html.light .ledger-table tfoot th,
+html.light .ledger-table tfoot td {
+    background: #e3e8f5;
+}
+
+
+.ledger-month-head span,
+.ledger-month-head small,
+.ledger-month-total strong,
+.ledger-month-total small {
+    display: block;
+}
+
+
+.ledger-month-head small {
+    font-size: 10px;
+
+    font-weight: 600;
+
+    opacity: 0.8;
+}
+
+
+/* the #, member columns stay visible while scrolling across months */
+
+.ledger-sticky {
+    position: sticky;
+
+    z-index: 1;
+
+    background: #1b2650;
+}
+
+
+.ledger-table thead .ledger-sticky {
+    z-index: 3;
+}
+
+
+html.light .ledger-sticky {
+    background: #edf0f8;
+}
+
+
+.ledger-col-no {
+    left: 0;
+
+    width: 34px;
+
+    min-width: 34px;
+
+    color: var(--text-soft);
+
+    font-weight: 800;
+}
+
+
+.ledger-col-member {
+    left: 34px;
+
+    min-width: 170px;
+
+    text-align: left !important;
+}
+
+
+.ledger-col-member > strong,
+.ledger-col-member > span {
+    display: block;
+}
+
+
+.ledger-col-member > span {
+    font-size: 11px;
+
+    color: #FE691E;
+
+    font-weight: 700;
+}
+
+
+.ledger-cell {
+    min-width: 64px;
+
+    font-weight: 700;
+
+    font-variant-numeric: tabular-nums;
+}
+
+
+.ledger-cell-paid {
+    background: rgba(34, 197, 94, 0.16);
+
+    color: #22c55e;
+}
+
+
+.ledger-cell-partial {
+    background: rgba(254, 105, 30, 0.18);
+
+    color: #ff8a45;
+}
+
+
+.ledger-cell-due {
+    background: rgba(239, 68, 68, 0.14);
+
+    color: #f87171;
+}
+
+
+.ledger-cell-upcoming {
+    color: var(--text-soft);
+}
+
+
+html.light .ledger-cell-paid {
+    color: #15803d;
+}
+
+html.light .ledger-cell-partial {
+    color: #c2410c;
+}
+
+html.light .ledger-cell-due {
+    color: #b91c1c;
+}
+
+
+.ledger-col-total {
+    min-width: 96px;
+
+    text-align: right !important;
+
+    font-weight: 800;
+}
+
+
+/* ---- draw prize column + won month marker ---- */
+
+.ledger-col-prize {
+    min-width: 110px;
+
+    text-align: right !important;
+}
+
+.ledger-prize {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+
+    color: #fbbf24;
+    text-decoration: none;
+}
+
+.ledger-prize strong {
+    font-weight: 800;
+}
+
+.ledger-prize small {
+    font-size: 11px;
+    color: var(--text-soft);
+    white-space: nowrap;
+}
+
+.ledger-prize-paid {
+    color: #4ade80;
+    font-weight: 700;
+}
+
+.ledger-prize-pending {
+    color: #fb923c;
+    font-weight: 700;
+}
+
+.ledger-prize-none {
+    color: var(--text-soft);
+}
+
+.ledger-cell-won {
+    box-shadow: inset 0 0 0 2px #f59e0b;
+}
+
+.ledger-won-mark {
+    display: block;
+
+    font-size: 12px;
+    line-height: 1;
+}
+
+html.light .ledger-prize {
+    color: #b45309;
+}
+
+html.light .ledger-prize-paid {
+    color: #15803d;
+}
+
+html.light .ledger-prize-pending {
+    color: #c2410c;
+}
+
+
+.ledger-table tfoot th,
+.ledger-table tfoot td {
+    background: #1e2a55;
+
+    border-bottom: 0;
+
+    font-weight: 800;
+}
+
+
+.ledger-table tfoot .ledger-sticky {
+    background: #1e2a55;
+}
+
+
+html.light .ledger-table tfoot .ledger-sticky {
+    background: #e3e8f5;
+}
+
+
+.ledger-month-total small {
+    font-size: 10px;
+
+    font-weight: 600;
+
+    color: var(--text-soft);
+}
+
+
+.ledger-key {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 8px 18px;
+
+    margin-top: 12px;
+
+    font-size: 12px;
+
+    color: var(--text-soft);
+}
+
+
+.ledger-key > span {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+}
+
+
+.ledger-swatch {
+    width: 16px;
+    height: 12px;
+
+    border-radius: 3px;
+
+    border: 1px solid var(--border);
+}
+
+
+.ledger-key-note {
+    margin-left: auto;
+}
+
+
+/* phones: keep the fixed member column narrow (name wraps) so the
+   month cells are visible next to it instead of hidden under it */
+
+@media (max-width: 700px) {
+
+    .ledger-sheet {
+        padding: 14px 10px;
+
+        border-radius: 18px;
+    }
+
+    .ledger-table {
+        font-size: 12px;
+    }
+
+    .ledger-table th,
+    .ledger-table td {
+        padding: 6px 6px;
+    }
+
+    .ledger-col-no {
+        width: 24px;
+
+        min-width: 24px;
+
+        max-width: 24px;
+
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+    }
+
+    .ledger-col-member {
+        left: 24px;
+
+        width: 112px;
+
+        min-width: 112px;
+
+        max-width: 112px;
+
+        white-space: normal !important;
+
+        box-shadow: 4px 0 8px -4px rgba(0, 0, 0, 0.35);
+    }
+
+    .ledger-col-member > strong {
+        font-size: 12px;
+
+        line-height: 1.25;
+
+        overflow-wrap: anywhere;
+    }
+
+    .ledger-col-member .customer-ident {
+        display: block;
+
+        font-size: 10.5px;
+    }
+
+    .ledger-cell {
+        min-width: 54px;
+    }
+
+    .ledger-col-total {
+        min-width: 78px;
+    }
+
+    .ledger-actions,
+    .ledger-actions > * {
+        width: 100%;
+
+        justify-content: center;
+    }
+
+    .ledger-key-note {
+        margin-left: 0;
+    }
+
+}
+
+
+@media print {
+
+    .ledger-page {
+        padding: 0 !important;
+
+        max-width: none !important;
+    }
+
+    .ledger-sheet {
+        padding: 0;
+
+        border: 0 !important;
+
+        border-radius: 0;
+
+        background: #ffffff !important;
+
+        box-shadow: none !important;
+
+        backdrop-filter: none !important;
+
+        -webkit-backdrop-filter: none !important;
+    }
+
+    .ledger-sheet,
+    .ledger-sheet * {
+        color: #000000 !important;
+    }
+
+    .ledger-print-head {
+        display: flex;
+
+        align-items: center;
+
+        gap: 12px;
+
+        padding-bottom: 8px;
+
+        margin-bottom: 10px;
+
+        border-bottom: 2px solid #000000;
+    }
+
+    .ledger-print-head .receipt-logo {
+        width: 44px;
+        height: 44px;
+    }
+
+    .ledger-print-head .receipt-company {
+        font-size: 18px;
+    }
+
+    .ledger-print-title {
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: flex-end;
+
+        margin-left: auto;
+
+        font-size: 11px;
+    }
+
+    .ledger-print-title strong {
+        font-size: 15px;
+
+        letter-spacing: 0.06em;
+
+        text-transform: uppercase;
+    }
+
+    .ledger-group-info {
+        gap: 4px 22px;
+
+        margin-bottom: 8px;
+    }
+
+    .ledger-group-info strong {
+        font-size: 12px;
+    }
+
+    .ledger-table-wrapper {
+        overflow: visible;
+
+        border: 1px solid #000000 !important;
+
+        border-radius: 0;
+    }
+
+    .ledger-table {
+        font-size: 8.5px;
+    }
+
+    .ledger-table th,
+    .ledger-table td {
+        padding: 3px 4px;
+
+        border-color: #9ca3af !important;
+    }
+
+    .ledger-table thead th,
+    .ledger-table tfoot th,
+    .ledger-table tfoot td,
+    .ledger-sticky {
+        position: static;
+
+        background: #f1f3f6 !important;
+    }
+
+    .ledger-col-member {
+        min-width: 0;
+    }
+
+    .ledger-col-member > strong {
+        font-size: 9.5px;
+    }
+
+    .ledger-col-member > span {
+        font-size: 7.5px;
+    }
+
+    .ledger-cell {
+        min-width: 0;
+    }
+
+    .ledger-col-total,
+    .ledger-col-prize {
+        min-width: 0;
+    }
+
+    .ledger-prize {
+        color: #b45309 !important;
+    }
+
+    .ledger-prize small {
+        font-size: 7.5px;
+    }
+
+    /* keep the brand + status colours on paper */
+
+    .ledger-sheet .receipt-company span {
+        color: #FE691E !important;
+    }
+
+    .ledger-cell-paid {
+        background: #dcfce7 !important;
+    }
+
+    .ledger-cell-partial {
+        background: #ffedd5 !important;
+    }
+
+    .ledger-cell-due {
+        background: #fee2e2 !important;
+    }
+
+    .ledger-sheet .receipt-logo,
+    .ledger-sheet .receipt-company span,
+    .ledger-table th,
+    .ledger-table td,
+    .ledger-swatch {
+        -webkit-print-color-adjust: exact;
+
+        print-color-adjust: exact;
+    }
+
+    .ledger-table tr {
+        page-break-inside: avoid;
+    }
+
+    .ledger-key {
+        margin-top: 6px;
+
+        font-size: 9px;
+    }
+
+}
+
+
+/* =========================================================
+   ALL PAYMENTS
+========================================================= */
+
+.today-total {
+    color: #22c55e;
+}
+
+
+html.light .today-total {
+    color: #15803d;
+}
+
+
+.payment-filters {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+}
+
+
+.payment-filters .member-search {
+    flex: 1;
+
+    min-width: 220px;
+
+    margin: 0;
+}
+
+
+.payment-filter-select {
+    width: auto !important;
+
+    min-height: 48px;
+
+    padding: 0 14px !important;
+
+    border-radius: 14px;
+
+    border: 1px solid var(--input-border);
+
+    background: var(--input-bg);
+
+    color: inherit;
+
+    font: inherit;
+}
+
+
+.payment-filter-select option {
+    background: #1b2750;
+
+    color: #f8fbff;
+}
+
+
+html.light .payment-filter-select option {
+    background: #eef1f9;
+
+    color: #1b2750;
+}
+
+
+.payment-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+
+.payment-row {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 14px 18px;
+
+    border-radius: 18px;
+
+    color: inherit;
+
+    text-decoration: none;
+
+    transition: transform 0.2s ease;
+}
+
+
+.payment-row:hover {
+    transform: translateX(3px);
+}
+
+
+.payment-row-main {
+    flex: 1;
+
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.payment-row-main > span,
+.payment-row-meta span:last-child {
+    overflow: hidden;
+
+    white-space: nowrap;
+
+    text-overflow: ellipsis;
+
+    font-size: 12px;
+
+    color: var(--text-soft);
+}
+
+
+.payment-row-meta {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-end;
+
+    gap: 4px;
+}
+
+
+.payment-method-tag {
+    padding: 2px 9px;
+
+    border-radius: 999px;
+
+    background: rgba(61, 115, 255, 0.14);
+
+    font-size: 11px;
+
+    font-weight: 800;
+}
+
+
+.payment-row-amount {
+    min-width: 100px;
+
+    text-align: right;
+
+    font-size: 18px;
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 800px) {
+
+    .payment-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .payment-row {
+        flex-wrap: wrap;
+    }
+
+    .payment-row-meta {
+        align-items: flex-start;
+
+        order: 3;
+
+        width: 100%;
+
+        flex-direction: row;
+
+        gap: 8px;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .receipt {
+        padding: 18px 16px;
+    }
+
+    .receipt-meta-right {
+        align-items: flex-start;
+    }
+
+    .receipt-amount-figure strong {
+        font-size: 24px;
+    }
+
+    .receipt-footer {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .receipt-signature {
+        grid-column: 1 / -1;
+    }
+
+    .pay-mode {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .payment-seat-status {
+        align-items: flex-start;
+    }
+
+    .payment-collect-button {
+        width: 100%;
+
+        justify-content: center;
+    }
+
+    .payment-filter-select {
+        flex: 1;
+    }
+
+}

@@ -362,16 +362,7 @@
 
         border-radius: 50%;
 
-        background:
-            linear-gradient(
-                135deg,
-                #ff9c4c,
-                #fe691e
-            );
-
-        box-shadow:
-            0 5px 14px
-            rgba(254,105,30,0.35);
+        font-size: 16px;
     }
 
 
@@ -521,20 +512,7 @@
 
         border-radius: 50%;
 
-        background:
-            linear-gradient(
-                135deg,
-                #ff9a48,
-                #fe691e
-            );
-
-        color: white;
-
         font-size: 30px;
-
-        box-shadow:
-            0 10px 25px
-            rgba(254,105,30,0.40);
     }
 
 
@@ -615,9 +593,6 @@
 
         border-radius: 50%;
 
-        background:
-            rgba(115,155,240,0.25);
-
         font-size: 19px;
     }
 
@@ -672,22 +647,9 @@
 
         border-radius: 50%;
 
-        background:
-            linear-gradient(
-                135deg,
-                #6c9cff,
-                #315ce4
-            );
-
-        color: white;
-
         font-size: 23px;
 
-        font-weight: 700;
-
-        box-shadow:
-            0 8px 20px
-            rgba(47,95,226,0.35);
+        font-weight: 800;
     }
 
 
@@ -747,50 +709,7 @@
 
         border-radius: 50%;
 
-        font-size: 24px;
-
-        border:
-            1px solid
-            rgba(255,255,255,0.12);
-    }
-
-
-    .icon-orange {
-        background:
-            radial-gradient(
-                circle,
-                rgba(254,105,30,0.42),
-                rgba(254,105,30,0.12)
-            );
-
-        color:
-            #ffab69;
-    }
-
-
-    .icon-blue {
-        background:
-            radial-gradient(
-                circle,
-                rgba(45,103,255,0.55),
-                rgba(45,103,255,0.12)
-            );
-
-        color:
-            #9fc0ff;
-    }
-
-
-    .icon-purple {
-        background:
-            radial-gradient(
-                circle,
-                rgba(126,73,255,0.58),
-                rgba(126,73,255,0.12)
-            );
-
-        color:
-            #c2a8ff;
+        font-size: 26px;
     }
 
 
@@ -952,6 +871,14 @@
 
 
     .save-button {
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 10px;
+
         min-width: 230px;
 
         padding:
@@ -1001,6 +928,12 @@
     .save-button:active {
         transform:
             translateY(0);
+    }
+
+
+    .cancel-button .svg-icon,
+    .save-button .svg-icon {
+        font-size: 17px;
     }
 
 
@@ -1206,9 +1139,11 @@
             display:
                 none;
         }
-        /* =========================================================
+
+    }
 
 
+/* =========================================================
 FINAL RESPONSIVE + LIGHT MODE FIXES
 ========================================================= */
 
@@ -1692,9 +1627,6 @@ VERY SMALL PHONES
 
 }
 
-
-    }
-
 /* =========================================================
    CUSTOMER SUCCESS POPUP
 ========================================================= */
@@ -1830,12 +1762,18 @@ VERY SMALL PHONES
 
     border-radius: 50%;
 
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
     background:
         rgba(255, 255, 255, 0.08);
 
     color: inherit;
 
-    font-size: 22px;
+    font-size: 17px;
 
     line-height: 1;
 
@@ -1878,22 +1816,7 @@ VERY SMALL PHONES
 
     border-radius: 50%;
 
-    background:
-        rgba(34, 197, 94, 0.16);
-
-    border:
-        1px solid
-        rgba(34, 197, 94, 0.35);
-
-    color: #4ade80;
-
     font-size: 34px;
-
-    font-weight: 700;
-
-    box-shadow:
-        0 10px 30px
-        rgba(34, 197, 94, 0.12);
 
 }
 
@@ -1970,7 +1893,7 @@ html.light .customer-success-overlay {
 html.light .customer-success-popup {
 
     background:
-        rgba(255, 255, 255, 0.82);
+        rgba(238, 241, 249, 0.96);
 
     border-color:
         rgba(23, 36, 73, 0.10);

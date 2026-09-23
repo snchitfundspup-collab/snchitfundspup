@@ -40,7 +40,102 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    async function performLiveSearch(searchValue) {
+    /* =========================================================
+       SORTING
+       (dropdown + clickable table headings — both reload only
+       the results card, keeping the current search)
+    ========================================================= */
+
+    const sortSelect =
+        document.getElementById('customerSort');
+
+
+    function applySort(
+        sortValue
+    ) {
+
+        const url =
+            new URL(window.location.href);
+
+
+        if (sortValue === 'newest') {
+
+            url.searchParams.delete('sort');
+
+        } else {
+
+            url.searchParams.set(
+                'sort',
+                sortValue
+            );
+
+        }
+
+
+        window.history.replaceState(
+            {},
+            '',
+            url.toString()
+        );
+
+
+        if (sortSelect) {
+            sortSelect.value = sortValue;
+        }
+
+
+        performLiveSearch(
+            searchInput
+                ? searchInput.value.trim()
+                : '',
+            false
+        );
+
+    }
+
+
+    if (sortSelect) {
+
+        sortSelect.addEventListener(
+            'change',
+            function () {
+
+                applySort(
+                    sortSelect.value
+                );
+
+            }
+        );
+
+    }
+
+
+    document.addEventListener(
+        'click',
+        function (event) {
+
+            const headerLink =
+                event.target.closest(
+                    '.sort-header-link'
+                );
+
+
+            if (!headerLink) {
+                return;
+            }
+
+
+            event.preventDefault();
+
+            applySort(
+                headerLink.dataset.sort
+            );
+
+        }
+    );
+
+
+    async function performLiveSearch(searchValue, keepSearchFocus = true) {
 
         const url =
             new URL(window.location.href);
@@ -137,6 +232,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 currentCustomerCard.innerHTML =
                     newCustomerCard.innerHTML;
 
+
+                /*
+                 * New HTML arrives in English — re-apply
+                 * the chosen language.
+                 */
+
+                if (window.changeLanguage) {
+
+                    window.changeLanguage(
+                        localStorage.getItem('sn-language') || 'en'
+                    );
+
+                }
+
             }
 
 
@@ -164,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function () {
              * Keep cursor in search box.
              */
 
-            if (searchInput) {
+            if (keepSearchFocus && searchInput) {
 
                 searchInput.focus();
 
@@ -411,6 +520,74 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =========================================================
+       3D INITIAL THUMBNAILS
+       (same initial + tone rules as the <x-customer-avatar>
+       Blade component)
+    ========================================================= */
+
+    const AVATAR_TONES = [
+        'orange',
+        'blue',
+        'purple'
+    ];
+
+
+    function customerInitial(
+        name
+    ) {
+
+        return (
+            (name || '').trim().charAt(0).toUpperCase() ||
+            '?'
+        );
+
+    }
+
+
+    function updateModalAvatar(
+        customer
+    ) {
+
+        const avatar =
+            document.getElementById(
+                'editCustomerAvatar'
+            );
+
+
+        if (!avatar) {
+            return;
+        }
+
+
+        const tone =
+            AVATAR_TONES[
+                Number(customer.id) % AVATAR_TONES.length
+            ] || 'orange';
+
+
+        AVATAR_TONES.forEach(function (name) {
+
+            avatar.classList.remove(
+                'icon-3d-' + name
+            );
+
+        });
+
+
+        avatar.classList.add(
+            'icon-3d-' + tone
+        );
+
+
+        avatar.textContent =
+            customerInitial(
+                customer.name
+            );
+
+    }
+
+
+    /* =========================================================
        OPEN CUSTOMER MODAL
     ========================================================= */
 
@@ -429,6 +606,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         editCustomerCodeDisplay.textContent =
             customer.customer_code || 'CUSTOMER';
+
+
+        updateModalAvatar(
+            customer
+        );
 
 
         editCustomerName.value =
@@ -939,6 +1121,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 nameButton.textContent =
                     customer.name;
+
+            }
+
+
+            /*
+             * Thumbnail initial.
+             */
+
+            const avatar =
+                element.querySelector(
+                    '.customer-avatar'
+                );
+
+
+            if (avatar) {
+
+                avatar.textContent =
+                    customerInitial(
+                        customer.name
+                    );
 
             }
 

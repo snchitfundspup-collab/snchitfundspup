@@ -49,7 +49,9 @@
                 href="{{ route('customers.create') }}"
                 class="add-customer-btn"
             >
-                <span class="add-icon">+</span>
+                <span class="add-icon">
+                    <x-icon name="user-plus" />
+                </span>
 
                 <span data-i18n="add_customer">
                     Add Customer
@@ -68,7 +70,7 @@
             <div class="customer-search-wrapper">
 
                 <span class="customer-search-icon">
-                    ⌕
+                    <x-icon name="search" />
                 </span>
 
                 <input
@@ -88,25 +90,69 @@
                     aria-label="Clear search"
                     style="{{ !empty($search) ? '' : 'display:none;' }}"
                 >
-                    ×
+                    <x-icon name="x" />
                 </button>
 
             </div>
 
 
-            <div
-                class="customer-results-info"
-                id="customerResultsInfo"
-            >
-                @if ($customers->total() > 0)
-                    {{ $customers->firstItem() }}
-                    -
-                    {{ $customers->lastItem() }}
-                    /
-                    {{ $customers->total() }}
-                @else
-                    0 / 0
-                @endif
+            <div class="customers-controls-right">
+
+                {{-- SORT --}}
+
+                <label class="customer-sort">
+
+                    <span class="customer-sort-icon">
+                        <x-icon name="sort" />
+                    </span>
+
+                    <select
+                        id="customerSort"
+                        class="customer-sort-select"
+                        aria-label="Sort customers"
+                    >
+
+                        @foreach ([
+                            'newest' => ['sort_newest', 'Newest first'],
+                            'oldest' => ['sort_oldest', 'Oldest first'],
+                            'name_asc' => ['sort_name_asc', 'Name A → Z'],
+                            'name_desc' => ['sort_name_desc', 'Name Z → A'],
+                            'code_asc' => ['sort_code_asc', 'Customer ID ↑'],
+                            'code_desc' => ['sort_code_desc', 'Customer ID ↓'],
+                            'active_first' => ['sort_active_first', 'Active first'],
+                            'inactive_first' => ['sort_inactive_first', 'Inactive first'],
+                        ] as $sortValue => [$sortI18n, $sortLabel])
+
+                            <option
+                                value="{{ $sortValue }}"
+                                data-i18n="{{ $sortI18n }}"
+                                @selected($sort === $sortValue)
+                            >{{ $sortLabel }}</option>
+
+                        @endforeach
+
+                    </select>
+
+                    <x-icon name="chevron-down" class="customer-sort-caret" />
+
+                </label>
+
+
+                <div
+                    class="customer-results-info"
+                    id="customerResultsInfo"
+                >
+                    @if ($customers->total() > 0)
+                        {{ $customers->firstItem() }}
+                        -
+                        {{ $customers->lastItem() }}
+                        /
+                        {{ $customers->total() }}
+                    @else
+                        0 / 0
+                    @endif
+                </div>
+
             </div>
 
         </div>
@@ -131,13 +177,21 @@
 
                         <tr>
 
-                            <th data-i18n="customer_id">
-                                Customer ID
-                            </th>
+                            <x-sort-header
+                                label="Customer ID"
+                                i18n="customer_id"
+                                ascending="code_asc"
+                                descending="code_desc"
+                                :current="$sort"
+                            />
 
-                            <th data-i18n="name">
-                                Name
-                            </th>
+                            <x-sort-header
+                                label="Name"
+                                i18n="name"
+                                ascending="name_asc"
+                                descending="name_desc"
+                                :current="$sort"
+                            />
 
                             <th data-i18n="identification">
                                 Identification
@@ -151,9 +205,13 @@
                                 Groups
                             </th>
 
-                            <th data-i18n="status">
-                                Status
-                            </th>
+                            <x-sort-header
+                                label="Status"
+                                i18n="status"
+                                ascending="active_first"
+                                descending="inactive_first"
+                                :current="$sort"
+                            />
 
                         </tr>
 
@@ -192,13 +250,19 @@
 
                                 <td>
 
-                                    <button
-                                        type="button"
-                                        class="customer-name-button"
-                                        data-customer-id="{{ $customer->id }}"
-                                    >
-                                        {{ $customer->name }}
-                                    </button>
+                                    <div class="customer-name-cell">
+
+                                        <x-customer-avatar :customer="$customer" />
+
+                                        <button
+                                            type="button"
+                                            class="customer-name-button"
+                                            data-customer-id="{{ $customer->id }}"
+                                        >
+                                            {{ $customer->name }}
+                                        </button>
+
+                                    </div>
 
                                 </td>
 
@@ -276,8 +340,8 @@
                                     class="customers-empty"
                                 >
 
-                                    <div class="empty-icon">
-                                        ♙
+                                    <div class="empty-icon icon-3d icon-3d-blue">
+                                        <x-icon name="users" />
                                     </div>
 
                                     <strong>
@@ -327,19 +391,25 @@
 
                         <div class="mobile-card-top">
 
-                            <div>
+                            <div class="mobile-card-identity">
 
-                                <span class="mobile-customer-code">
-                                    {{ $customer->customer_code }}
-                                </span>
+                                <x-customer-avatar :customer="$customer" class="mobile-customer-avatar" />
 
-                                <button
-                                    type="button"
-                                    class="customer-name-button mobile-customer-name"
-                                    data-customer-id="{{ $customer->id }}"
-                                >
-                                    {{ $customer->name }}
-                                </button>
+                                <div>
+
+                                    <span class="mobile-customer-code">
+                                        {{ $customer->customer_code }}
+                                    </span>
+
+                                    <button
+                                        type="button"
+                                        class="customer-name-button mobile-customer-name"
+                                        data-customer-id="{{ $customer->id }}"
+                                    >
+                                        {{ $customer->name }}
+                                    </button>
+
+                                </div>
 
                             </div>
 
@@ -490,7 +560,7 @@
                         @if ($customers->onFirstPage())
 
                             <span class="pagination-button disabled">
-                                ‹
+                                <x-icon name="chevron-left" />
                             </span>
 
                         @else
@@ -498,8 +568,9 @@
                             <a
                                 href="{{ $customers->previousPageUrl() }}"
                                 class="pagination-button"
+                                aria-label="Previous page"
                             >
-                                ‹
+                                <x-icon name="chevron-left" />
                             </a>
 
                         @endif
@@ -539,14 +610,15 @@
                             <a
                                 href="{{ $customers->nextPageUrl() }}"
                                 class="pagination-button"
+                                aria-label="Next page"
                             >
-                                ›
+                                <x-icon name="chevron-right" />
                             </a>
 
                         @else
 
                             <span class="pagination-button disabled">
-                                ›
+                                <x-icon name="chevron-right" />
                             </span>
 
                         @endif
@@ -587,7 +659,13 @@
 
         <div class="customer-modal-header">
 
-            <div>
+            <span
+                class="modal-customer-avatar avatar-3d icon-3d icon-3d-orange"
+                id="editCustomerAvatar"
+                aria-hidden="true"
+            ></span>
+
+            <div class="modal-customer-heading">
 
                 <div
                     class="modal-customer-code"
@@ -607,8 +685,9 @@
                 type="button"
                 id="customerModalClose"
                 class="modal-close"
+                aria-label="Close"
             >
-                ×
+                <x-icon name="x" />
             </button>
 
         </div>
@@ -803,7 +882,14 @@
 
         <div class="customer-modal-header">
 
-            <div>
+            <span
+                class="modal-customer-avatar icon-3d icon-3d-purple"
+                aria-hidden="true"
+            >
+                <x-icon name="layers" />
+            </span>
+
+            <div class="modal-customer-heading">
 
                 <div class="modal-customer-code">
                     GROUPS
@@ -820,8 +906,9 @@
                 type="button"
                 id="groupsModalClose"
                 class="modal-close"
+                aria-label="Close"
             >
-                ×
+                <x-icon name="x" />
             </button>
 
         </div>
@@ -831,8 +918,8 @@
 
             <div class="groups-placeholder">
 
-                <div class="groups-placeholder-icon">
-                    ◈
+                <div class="groups-placeholder-icon icon-3d icon-3d-purple">
+                    <x-icon name="layers" />
                 </div>
 
                 <strong>
@@ -862,8 +949,8 @@
     aria-hidden="true"
 >
 
-    <div class="success-popup-icon">
-        ✓
+    <div class="success-popup-icon icon-3d icon-3d-green">
+        <x-icon name="check" />
     </div>
 
 

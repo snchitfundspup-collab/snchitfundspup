@@ -55,8 +55,8 @@
 
             <div class="badge">
 
-                <span class="badge-icon">
-                    ♙
+                <span class="badge-icon icon-3d icon-3d-orange">
+                    <x-icon name="user-plus" />
                 </span>
 
                 <span data-i18n="heroBadge">
@@ -100,8 +100,8 @@
             </div>
 
 
-            <div class="id-plus">
-                +
+            <div class="id-plus icon-3d icon-3d-orange">
+                <x-icon name="plus" />
             </div>
 
         </div>
@@ -125,8 +125,8 @@
                 class="back-button"
             >
 
-                <span class="back-icon">
-                    ←
+                <span class="back-icon icon-3d icon-3d-blue">
+                    <x-icon name="arrow-left" />
                 </span>
 
                 <span data-i18n="backText">
@@ -180,8 +180,8 @@
 
             <div class="info-box">
 
-                <div class="info-icon">
-                    i
+                <div class="info-icon icon-3d icon-3d-blue">
+                    <x-icon name="id-card" />
                 </div>
 
 
@@ -225,8 +225,8 @@
 
                 <div class="field">
 
-                    <div class="field-icon icon-orange">
-                        ♙
+                    <div class="field-icon icon-3d icon-3d-orange">
+                        <x-icon name="user" />
                     </div>
 
 
@@ -261,8 +261,8 @@
 
                 <div class="field">
 
-                    <div class="field-icon icon-blue">
-                        ☎
+                    <div class="field-icon icon-3d icon-3d-blue">
+                        <x-icon name="phone" />
                     </div>
 
 
@@ -297,8 +297,8 @@
 
                 <div class="field">
 
-                    <div class="field-icon icon-purple">
-                        ✉
+                    <div class="field-icon icon-3d icon-3d-purple">
+                        <x-icon name="mail" />
                     </div>
 
 
@@ -332,8 +332,8 @@
 
                 <div class="field">
 
-                    <div class="field-icon icon-blue">
-                        ●
+                    <div class="field-icon icon-3d icon-3d-orange">
+                        <x-icon name="map-pin" />
                     </div>
 
 
@@ -366,8 +366,8 @@
 
                 <div class="field">
 
-                    <div class="field-icon icon-purple">
-                        ▤
+                    <div class="field-icon icon-3d icon-3d-blue">
+                        <x-icon name="id-card" />
                     </div>
 
 
@@ -408,9 +408,7 @@
                         class="cancel-button"
                     >
 
-                        <span>
-                            ✕
-                        </span>
+                        <x-icon name="x" />
 
                         <span data-i18n="cancelText">
                             Cancel
@@ -426,9 +424,7 @@
                         class="save-button"
                     >
 
-                        <span>
-                            ▣
-                        </span>
+                        <x-icon name="save" />
 
                         <span data-i18n="saveText">
                             Save Customer
@@ -468,12 +464,12 @@
             onclick="closeCustomerSuccessPopup()"
             aria-label="Close"
         >
-            ×
+            <x-icon name="x" />
         </button>
 
 
-        <div class="customer-success-icon">
-            ✓
+        <div class="customer-success-icon icon-3d icon-3d-green">
+            <x-icon name="check" />
         </div>
 
 
