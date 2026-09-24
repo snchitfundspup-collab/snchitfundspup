@@ -14,6 +14,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentLedgerController;
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Traders;
+use App\Http\Controllers\UsageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -53,6 +54,11 @@ Route::middleware('auth')->group(function () {
         '/logout',
         [LoginController::class, 'destroy']
     )->name('logout');
+
+    Route::get(
+        '/usage',
+        [UsageController::class, 'index']
+    )->name('usage.index')->middleware('can:view-usage');
 
     Route::get(
         '/customers',

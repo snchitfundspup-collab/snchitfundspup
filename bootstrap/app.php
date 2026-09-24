@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\RecordUsage;
 use App\Http\Middleware\SetBusinessContext;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -13,9 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        /* which business (SN Chit Funds / SN Traders) the page belongs to */
+        /* which business (SN Chit Funds / SN Traders) the page belongs to,
+           then log the page for the Usage dashboard */
         $middleware->web(append: [
             SetBusinessContext::class,
+            RecordUsage::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

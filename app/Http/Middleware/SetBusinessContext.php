@@ -40,7 +40,7 @@ class SetBusinessContext
      *
      * @var list<string>
      */
-    private const SHARED_ROUTES = ['customers.*', 'password.*', 'logout'];
+    private const SHARED_ROUTES = ['customers.*', 'password.*', 'usage.*', 'logout'];
 
     /**
      * Handle an incoming request.

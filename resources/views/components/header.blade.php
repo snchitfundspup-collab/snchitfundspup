@@ -144,6 +144,20 @@
                 </a>
 
 
+                @can('view-usage')
+                    <a
+                        href="{{ route('usage.index') }}"
+                        class="admin-menu-item"
+                        role="menuitem"
+                    >
+                        <span class="admin-menu-icon icon-3d icon-3d-purple">
+                            <x-icon name="chart" />
+                        </span>
+                        <span data-i18n="menu_usage">Usage</span>
+                    </a>
+                @endcan
+
+
                 <form
                     method="POST"
                     action="{{ route('logout') }}"
