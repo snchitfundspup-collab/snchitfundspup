@@ -1,19 +1,21 @@
-{{-- Collect form for one member seat: full month(s) or a partial amount,
-     method, date, reference and notes, plus the seat's month ledger. --}}
+{{-- Collect form for one member seat: pick a pending / due month, then the
+     full month or (from month 2) a partial amount — never more than that
+     month's balance — plus method, date, reference, notes and the ledger. --}}
 
 @php
     $group = $member->chitGroup;
-    $openMonths = $member->openMonths();
+    $collectable = $member->collectableMonths();
     $balanceDue = $member->balanceDue();
+    $hasPending = $member->collectionStatus()['pending'] > 0;
     $ledger = $member->ledger();
 
-    /* the next month already has part of its installment paid → only
-       partial payments are offered until that month is complete */
-    $nextMonth = $member->nextUnpaidMonth();
-    $nextMonthPaid = $nextMonth ? ($member->paidByMonth()[$nextMonth] ?? 0) : 0;
-    $partialOnly = $nextMonthPaid > 0;
+    $selected = collect($collectable)->firstWhere('month', (int) old('month_number'))
+        ?? ($collectable[0] ?? null);
 
-    $isPartial = $partialOnly || old('pay_mode') === 'partial';
+    /* month 1 → full only; a month already part paid → partial only */
+    $fullOnly = $selected['full_only'] ?? false;
+    $partialOnly = ! $fullOnly && ($selected['paid'] ?? 0) > 0;
+    $isPartial = ! $fullOnly && ($partialOnly || old('pay_mode') === 'partial');
 @endphp
 
 <section
@@ -22,7 +24,7 @@
 >
 
     <h2 class="payment-seats-title">
-        <span class="step-number">3</span>
+        <span class="step-number">{{ $stepNumber ?? 3 }}</span>
         <span data-i18n="record_payment">Record payment</span>
         <span class="payment-form-seat">— {{ $member->member_code }} · {{ $group->name }}</span>
     </h2>
@@ -34,7 +36,7 @@
 
         <div>
             <span data-i18n="due_now">Due now</span>
-            <strong @class(['is-due' => $balanceDue > 0])><x-rupees :amount="$balanceDue" /></strong>
+            <strong @class(['is-due' => $hasPending, 'is-open' => ! $hasPending && $balanceDue > 0])><x-rupees :amount="$balanceDue" /></strong>
         </div>
 
         <div>
@@ -55,6 +57,15 @@
     </div>
 
 
+    @if ($selected === null)
+
+        <p class="partial-only-note">
+            <x-icon name="check" />
+            <span data-i18n="all_months_paid">Every month of this group is paid.</span>
+        </p>
+
+    @else
+
     <form
         method="POST"
         action="{{ route('payments.store') }}"
@@ -67,38 +78,101 @@
         <input type="hidden" name="chit_group_member_id" value="{{ $member->id }}">
 
 
-        {{-- FULL / PARTIAL --}}
+        {{-- MONTH PICKER: pending months (past due) and the month due next --}}
 
-        @if ($partialOnly)
-            <p class="partial-only-note">
-                <x-icon name="info" />
-                <span>
-                    <span data-i18n="month_number">Month</span> {{ $nextMonth }}
-                    <span data-i18n="partly_paid_note">is part paid</span>
-                    (<x-rupees :amount="$nextMonthPaid" /> <span data-i18n="of">of</span> <x-rupees :amount="$group->installment_amount" />).
-                    <span data-i18n="continue_partial">Continue with a partial payment.</span>
-                </span>
-            </p>
-        @endif
+        <span class="field-label" data-i18n="choose_month">Which month is this for?</span>
 
-        <div @class(['pay-mode', 'pay-mode-single' => $partialOnly]) role="radiogroup" aria-label="Payment type">
+        <div class="month-picker" role="radiogroup" aria-label="Month">
 
-            @unless ($partialOnly)
-                <label class="pay-mode-option">
+            @foreach ($collectable as $open)
+
+                @php
+                    $openState = match (true) {
+                        $open['status'] === 'pending' => 'pending',
+                        $open['paid'] > 0 => 'partial',
+                        default => $open['status'],
+                    };
+                @endphp
+
+                <label @class(['month-choice', 'month-choice-'.$openState])>
+
                     <input
                         type="radio"
-                        name="pay_mode"
-                        value="full"
-                        @checked(! $isPartial)
+                        name="month_number"
+                        value="{{ $open['month'] }}"
+                        data-balance="{{ $open['balance'] }}"
+                        data-paid="{{ $open['paid'] }}"
+                        data-full-only="{{ $open['full_only'] ? '1' : '0' }}"
+                        @checked($open['month'] === $selected['month'])
                     >
-                    <span>
-                        <x-icon name="calendar" />
-                        <span data-i18n="pay_full">Full month(s)</span>
-                    </span>
-                </label>
-            @endunless
 
-            <label class="pay-mode-option">
+                    <span class="month-choice-body">
+
+                        <span class="month-choice-top">
+                            <strong><span data-i18n="month_number">Month</span> {{ $open['month'] }}</strong>
+                            <span @class([
+                                'due-badge',
+                                'due-badge-due' => $openState === 'pending',
+                                'due-badge-part' => $openState === 'partial',
+                                'due-badge-month' => $openState === 'due',
+                                'due-badge-upcoming' => $openState === 'upcoming',
+                            ]) data-i18n="collect_state_{{ $openState }}">{{ ['pending' => 'Pending', 'partial' => 'Part paid', 'due' => 'Due', 'upcoming' => 'Upcoming'][$openState] }}</span>
+                        </span>
+
+                        <small>{{ $open['period'] }} · <span data-i18n="due_on">due</span> {{ $open['due_on'] }}</small>
+
+                        <span class="month-choice-amount">
+                            <x-rupees :amount="$open['balance']" />
+                            @if ($open['paid'] > 0)
+                                <small>(<x-rupees :amount="$open['paid']" /> <span data-i18n="paid">paid</span>)</small>
+                            @endif
+                        </span>
+
+                    </span>
+
+                </label>
+
+            @endforeach
+
+        </div>
+
+
+        {{-- FULL / PARTIAL --}}
+
+        <p
+            class="partial-only-note"
+            id="fullOnlyNote"
+            @unless ($fullOnly) hidden @endunless
+        >
+            <x-icon name="info" />
+            <span data-i18n="month_one_full_only">Month 1 is paid in full — no partial payments.</span>
+        </p>
+
+        <p
+            class="partial-only-note"
+            id="partialOnlyNote"
+            @unless ($partialOnly) hidden @endunless
+        >
+            <x-icon name="info" />
+            <span data-i18n="continue_partial_month">This month is part paid. Continue with a partial payment.</span>
+        </p>
+
+        <div class="pay-mode" id="payModes" role="radiogroup" aria-label="Payment type">
+
+            <label class="pay-mode-option" id="payModeFull" @if ($partialOnly) hidden @endif>
+                <input
+                    type="radio"
+                    name="pay_mode"
+                    value="full"
+                    @checked(! $isPartial)
+                >
+                <span>
+                    <x-icon name="calendar" />
+                    <span data-i18n="pay_full_month">Full month</span>
+                </span>
+            </label>
+
+            <label class="pay-mode-option" id="payModePartial" @if ($fullOnly) hidden @endif>
                 <input
                     type="radio"
                     name="pay_mode"
@@ -117,58 +191,6 @@
         <div class="group-form-grid payment-fields">
 
 
-            {{-- MONTHS (full mode) --}}
-
-            <div
-                class="group-field"
-                id="monthsField"
-                @if ($isPartial) hidden @endif
-                @if ($partialOnly) data-partial-only @endif
-            >
-
-                <label
-                    class="field-label"
-                    for="months_count"
-                    data-i18n="how_many_months"
-                >
-                    How many months?
-                </label>
-
-                <div class="month-stepper">
-
-                    <button
-                        type="button"
-                        class="month-stepper-button"
-                        data-step="-1"
-                        aria-label="One month less"
-                    ><x-icon name="chevron-left" /></button>
-
-                    <input
-                        type="number"
-                        id="months_count"
-                        class="input month-stepper-input"
-                        value="1"
-                        min="1"
-                        max="{{ max(1, count($openMonths)) }}"
-                    >
-
-                    <button
-                        type="button"
-                        class="month-stepper-button"
-                        data-step="1"
-                        aria-label="One month more"
-                    ><x-icon name="chevron-right" /></button>
-
-                </div>
-
-                <small
-                    class="installment-hint"
-                    id="monthsCovered"
-                ></small>
-
-            </div>
-
-
             {{-- AMOUNT --}}
 
             <div class="group-field">
@@ -185,7 +207,7 @@
                     type="text"
                     id="amount"
                     name="amount"
-                    value="{{ $isPartial ? old('amount') : '' }}"
+                    value="{{ $isPartial ? old('amount') : number_format($selected['balance']) }}"
                     class="input money-input payment-amount-input"
                     inputmode="numeric"
                     placeholder="Enter amount"
@@ -261,6 +283,24 @@
             </div>
 
 
+        </div>
+
+
+        {{-- MORE DETAILS: date & time (defaults to now) and notes --}}
+
+        <details
+            class="payment-more"
+            @if ($errors->has('paid_at') || old('notes')) open @endif
+        >
+
+            <summary>
+                <span data-i18n="more_details">More details</span>
+                <small data-i18n="more_details_hint">date &amp; time, notes</small>
+                <x-icon name="chevron-down" class="schedule-summary-caret" />
+            </summary>
+
+            <div class="group-form-grid payment-fields">
+
             {{-- DATE --}}
 
             <div class="group-field">
@@ -309,7 +349,9 @@
 
             </div>
 
-        </div>
+            </div>
+
+        </details>
 
 
         <div class="form-footer payment-form-footer">
@@ -325,6 +367,8 @@
         </div>
 
     </form>
+
+    @endif
 
 
     {{-- LEDGER --}}
@@ -363,7 +407,7 @@
                                 <span
                                     class="ledger-status ledger-status-{{ $row['status'] }}"
                                     data-i18n="ledger_{{ $row['status'] }}"
-                                >{{ ucfirst($row['status']) }}</span>
+                                >{{ ['paid' => 'Paid', 'partial' => 'Part paid', 'due' => 'Pending', 'upcoming' => 'Upcoming'][$row['status']] }}</span>
                             </td>
                         </tr>
 
@@ -379,5 +423,3 @@
 
 </section>
 
-
-<script type="application/json" id="openMonths">@json($openMonths)</script>

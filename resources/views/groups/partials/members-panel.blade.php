@@ -67,17 +67,39 @@
 
                         @if ($group->isRunning())
 
-                            @php $balanceDue = $member->balanceDue(); @endphp
+                            @php
+                                $pendingAmount = $member->collectionStatus()['pending'];
+                                $nextUnpaid = $member->nextUnpaidMonth();
+                                $nextPaid = $nextUnpaid ? ($member->paidByMonth()[$nextUnpaid] ?? 0) : 0;
+                            @endphp
+
+                            {{-- how far the member has paid --}}
+                            <span class="member-progress">
+                                @if ($nextUnpaid === null)
+                                    <span data-i18n="all_months_paid_short">All months paid</span>
+                                @elseif ($nextUnpaid === 1 && $nextPaid === 0)
+                                    <span data-i18n="nothing_paid_yet">Nothing paid yet</span>
+                                @else
+                                    @if ($nextUnpaid > 1)
+                                        <span data-i18n="paid_up_to">Paid up to</span> <span data-i18n="month_number">Month</span> {{ $nextUnpaid - 1 }}
+                                    @endif
+                                    @if ($nextPaid > 0)
+                                        @if ($nextUnpaid > 1) · @endif
+                                        <span data-i18n="month_number">Month</span> {{ $nextUnpaid }} <span data-i18n="part_paid_lower">part paid</span>
+                                        (<x-rupees :amount="$nextPaid" />)
+                                    @endif
+                                @endif
+                            </span>
 
                             <a
                                 href="{{ route('payments.create', ['customer' => $member->customer_id, 'member' => $member->id]) }}#collect"
                                 class="member-due-link"
                                 title="Collect payment"
                             >
-                                @if ($balanceDue > 0)
+                                @if ($pendingAmount > 0)
                                     <span class="due-badge due-badge-due">
-                                        <x-rupees :amount="$balanceDue" />
-                                        <span data-i18n="due">due</span>
+                                        <x-rupees :amount="$pendingAmount" />
+                                        <span data-i18n="pending_word">pending</span>
                                     </span>
                                 @else
                                     <span

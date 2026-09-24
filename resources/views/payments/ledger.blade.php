@@ -190,7 +190,7 @@
 
                 <div>
                     <span data-i18n="due_now">Due now</span>
-                    <strong @class(['ledger-total-due' => $totalDue > 0])><x-rupees :amount="$totalDue" /></strong>
+                    <strong @class(['ledger-total-due' => $totalPending > 0, 'ledger-total-open' => $totalPending === 0 && $totalDue > 0])><x-rupees :amount="$totalDue" /></strong>
                 </div>
 
             </div>
@@ -269,7 +269,7 @@
 
                                     <td class="ledger-col-total"><x-rupees :amount="$row['paid']" /></td>
 
-                                    <td @class(['ledger-col-total', 'ledger-total-due' => $row['balance_due'] > 0])>
+                                    <td @class(['ledger-col-total', 'ledger-total-due' => $row['pending'] > 0, 'ledger-total-open' => $row['pending'] === 0 && $row['balance_due'] > 0])>
                                         <x-rupees :amount="$row['balance_due']" />
                                     </td>
 
@@ -312,7 +312,7 @@
                                 @endforeach
 
                                 <td class="ledger-col-total"><x-rupees :amount="$totalPaid" /></td>
-                                <td @class(['ledger-col-total', 'ledger-total-due' => $totalDue > 0])><x-rupees :amount="$totalDue" /></td>
+                                <td @class(['ledger-col-total', 'ledger-total-due' => $totalPending > 0, 'ledger-total-open' => $totalPending === 0 && $totalDue > 0])><x-rupees :amount="$totalDue" /></td>
                                 <td class="ledger-col-prize"><strong><x-rupees :amount="$totalPrizes" /></strong></td>
                             </tr>
                         </tfoot>
@@ -327,7 +327,7 @@
                 <div class="ledger-key">
                     <span><i class="ledger-swatch ledger-cell-paid"></i> <span data-i18n="ledger_paid">Paid</span></span>
                     <span><i class="ledger-swatch ledger-cell-partial"></i> <span data-i18n="ledger_partial">Part paid</span></span>
-                    <span><i class="ledger-swatch ledger-cell-due"></i> — <span data-i18n="ledger_due">Due</span></span>
+                    <span><i class="ledger-swatch ledger-cell-due"></i> — <span data-i18n="ledger_due">Pending</span></span>
                     <span><i class="ledger-swatch ledger-cell-upcoming"></i> <span data-i18n="ledger_upcoming">Upcoming</span></span>
                     <span><i class="ledger-swatch ledger-cell-won"></i> <span class="ledger-won-key">+₹</span> <span data-i18n="ledger_won">Prize money won that month</span></span>
                     <span class="ledger-key-note" data-i18n="ledger_key_note">Amounts in ₹. Month totals show collected / expected.</span>

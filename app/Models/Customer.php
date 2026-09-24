@@ -52,4 +52,33 @@ class Customer extends Model
     {
         return $this->hasMany(ChitGroupMember::class);
     }
+
+    /**
+     * SN Traders: rice sold to this customer.
+     *
+     * @return HasMany<Sale, $this>
+     */
+    public function traderSales(): HasMany
+    {
+        return $this->hasMany(Sale::class);
+    }
+
+    /**
+     * SN Traders: money received from this customer.
+     *
+     * @return HasMany<TraderReceipt, $this>
+     */
+    public function traderReceipts(): HasMany
+    {
+        return $this->hasMany(TraderReceipt::class);
+    }
+
+    /**
+     * SN Traders: what the customer still owes (sales minus money received;
+     * below zero is an advance).
+     */
+    public function traderBalance(): float
+    {
+        return round((float) $this->traderSales()->sum('total_amount') - (float) $this->traderReceipts()->sum('amount'), 2);
+    }
 }

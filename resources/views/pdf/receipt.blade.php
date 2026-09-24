@@ -88,6 +88,10 @@
         color: #b91c1c;
     }
 
+    .open {
+        color: #c2410c;
+    }
+
     .signature {
         border-top: 1px solid #111827;
         padding-top: 3px;
@@ -196,7 +200,7 @@
         <tr>
             <td style="width: 32%;">
                 <span class="label">Balance due now</span>
-                <strong @class(['due' => $balanceNow > 0])><x-rupees :amount="$balanceNow" /></strong>
+                <strong @class(['due' => $hasPending ?? false, 'open' => ! ($hasPending ?? false) && $balanceNow > 0])><x-rupees :amount="$balanceNow" /></strong>
             </td>
             <td style="width: 32%;">
                 <span class="label">Recorded by</span>

@@ -112,12 +112,12 @@
                 <img
                     class="logo"
                     src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/sn-chit-funds-logo-pdf.png'))) }}"
-                    alt="SN Chit Funds"
+                    alt="SN {{ $companyName ?? 'Chit Funds' }}"
                 >
             </td>
             <td style="padding-bottom: 8px;">
-                <div class="company"><span class="sn">SN</span> Chit Funds</div>
-                <div class="tagline">Trust · Growth · Together</div>
+                <div class="company"><span class="sn">SN</span> {{ $companyName ?? 'Chit Funds' }}</div>
+                <div class="tagline">{{ ($companyName ?? '') === 'Traders' ? 'Quality Rice · Fair Price' : 'Trust · Growth · Together' }}</div>
             </td>
             <td class="doc-title" style="padding-bottom: 8px;">
                 <strong>@yield('doc_title')</strong>

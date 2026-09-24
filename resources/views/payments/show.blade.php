@@ -14,6 +14,7 @@
 @php
     $member = $payment->member;
     $balanceNow = $member->balanceDue();
+    $hasPending = $member->collectionStatus()['pending'] > 0;
 @endphp
 
 <div class="group-show-page payments-page">
@@ -34,11 +35,11 @@
     <div class="receipt-actions no-print">
 
         <a
-            href="{{ route('payments.create') }}"
-            class="group-action"
+            href="{{ route('payments.create', session('collect_tab') === 'due' ? ['tab' => 'due'] : []) }}"
+            class="add-group-button next-member-button"
         >
-            <x-icon name="arrow-left" />
-            <span data-i18n="back_to_collect">Back to members to collect</span>
+            <span data-i18n="next_member">Next member</span>
+            <x-icon name="arrow-right" />
         </a>
 
         <button
@@ -218,7 +219,7 @@
 
             <div>
                 <span data-i18n="balance_due_now">Balance due now</span>
-                <strong @class(['is-due' => $balanceNow > 0])><x-rupees :amount="$balanceNow" /></strong>
+                <strong @class(['is-due' => $hasPending, 'is-open' => ! $hasPending && $balanceNow > 0])><x-rupees :amount="$balanceNow" /></strong>
             </div>
 
             <div>

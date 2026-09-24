@@ -1,9 +1,9 @@
 <footer class="page-footer">
 
     <a
-        href="{{ route('dashboard') }}"
+        href="{{ route($business['home'] ?? 'dashboard') }}"
         class="footer-brand brand-link"
-        aria-label="SN Chit Funds – go to Home"
+        aria-label="{{ $business['full_name'] ?? 'SN Chit Funds' }} – go to Home"
     >
 
         <div class="footer-logo logo-3d">
@@ -16,11 +16,11 @@
         <div>
 
             <div class="footer-name">
-                <span>SN</span> Chit Funds
+                <span>SN</span> {{ $business['name'] ?? 'Chit Funds' }}
             </div>
 
-            <div class="footer-tagline" data-i18n="brand_tagline">
-                Trust · Growth · Together
+            <div class="footer-tagline" data-i18n="{{ $business['tagline_key'] ?? 'brand_tagline' }}">
+                {{ ($business['key'] ?? 'chit') === 'traders' ? 'Quality Rice · Fair Price' : 'Trust · Growth · Together' }}
             </div>
 
         </div>

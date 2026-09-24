@@ -22,9 +22,9 @@
     <div class="menu-header">
 
         <a
-            href="{{ route('dashboard') }}"
+            href="{{ route($business['home'] ?? 'dashboard') }}"
             class="menu-brand brand-link"
-            aria-label="SN Chit Funds – go to Home"
+            aria-label="{{ $business['full_name'] ?? 'SN Chit Funds' }} – go to Home"
         >
 
             <div class="menu-logo logo-3d">
@@ -36,11 +36,11 @@
 
             <div>
                 <div class="menu-brand-name">
-                    <span>SN</span> Chit Funds
+                    <span>SN</span> {{ $business['name'] ?? 'Chit Funds' }}
                 </div>
 
-                <div class="menu-brand-subtitle" data-i18n="brand_tagline">
-                    Trust · Growth · Together
+                <div class="menu-brand-subtitle" data-i18n="{{ $business['tagline_key'] ?? 'brand_tagline' }}">
+                    {{ ($business['key'] ?? 'chit') === 'traders' ? 'Quality Rice · Fair Price' : 'Trust · Growth · Together' }}
                 </div>
             </div>
 
@@ -60,6 +60,15 @@
 
 
     <div class="menu-content">
+
+        {{-- switch between the two businesses --}}
+        @include('components.partials.business-switch')
+
+        @if (($business['key'] ?? 'chit') === 'traders')
+
+            @include('components.partials.traders-menu')
+
+        @else
 
         <div class="menu-section-title" data-i18n="menu_main">
             MAIN
@@ -332,20 +341,134 @@
         </div>
 
 
+        <!-- Expenses (partners' shared spending) -->
+
+        @php
+            $isExpensesSection = request()->routeIs('expenses.*');
+        @endphp
+
+        <div @class(['menu-group', 'open' => $isExpensesSection])>
+
+            <button
+                type="button"
+                @class(['menu-item', 'menu-group-toggle', 'active' => $isExpensesSection])
+                onclick="toggleMenuGroup(this)"
+                aria-expanded="{{ $isExpensesSection ? 'true' : 'false' }}"
+                aria-controls="expensesSubmenu"
+            >
+                <span class="menu-item-icon icon-3d icon-3d-green">
+                    <x-icon name="wallet" />
+                </span>
+
+                <span class="menu-item-text" data-i18n="menu_expenses">
+                    Expenses
+                </span>
+
+                <x-icon name="chevron-down" class="menu-group-caret" />
+            </button>
+
+
+            <div
+                class="menu-submenu"
+                id="expensesSubmenu"
+            >
+
+                <a
+                    href="{{ route('expenses.create') }}"
+                    @class(['menu-subitem', 'active' => request()->routeIs('expenses.create', 'expenses.edit')])
+                >
+                    <x-icon name="plus" />
+                    <span data-i18n="add_expense">Add Expense</span>
+                </a>
+
+                <a
+                    href="{{ route('expenses.index') }}"
+                    @class(['menu-subitem', 'active' => request()->routeIs('expenses.index')])
+                >
+                    <x-icon name="wallet" />
+                    <span data-i18n="all_expenses">All Expenses</span>
+                </a>
+
+                <a
+                    href="{{ route('expenses.balance') }}"
+                    @class(['menu-subitem', 'active' => request()->routeIs('expenses.balance*')])
+                >
+                    <x-icon name="scale" />
+                    <span data-i18n="balance_sheet">Balance Sheet</span>
+                </a>
+
+            </div>
+
+        </div>
+
+
         <!-- Reports -->
 
-        <a
-            href="#"
-            class="menu-item"
-        >
-            <span class="menu-item-icon icon-3d icon-3d-blue">
-                <x-icon name="chart" />
-            </span>
+        @php
+            $isReportsSection = request()->routeIs('reports.*');
+        @endphp
 
-            <span class="menu-item-text" data-i18n="menu_reports">
-                Reports
-            </span>
-        </a>
+        <div @class(['menu-group', 'open' => $isReportsSection])>
+
+            <button
+                type="button"
+                @class(['menu-item', 'menu-group-toggle', 'active' => $isReportsSection])
+                onclick="toggleMenuGroup(this)"
+                aria-expanded="{{ $isReportsSection ? 'true' : 'false' }}"
+                aria-controls="reportsSubmenu"
+            >
+                <span class="menu-item-icon icon-3d icon-3d-blue">
+                    <x-icon name="chart" />
+                </span>
+
+                <span class="menu-item-text" data-i18n="menu_reports">
+                    Reports
+                </span>
+
+                <x-icon name="chevron-down" class="menu-group-caret" />
+            </button>
+
+
+            <div
+                class="menu-submenu"
+                id="reportsSubmenu"
+            >
+
+                <a
+                    href="{{ route('reports.dues') }}"
+                    @class(['menu-subitem', 'active' => request()->routeIs('reports.dues*')])
+                >
+                    <x-icon name="info" />
+                    <span data-i18n="pending_and_due">Pending &amp; Due</span>
+                </a>
+
+                <a
+                    href="{{ route('reports.customer') }}"
+                    @class(['menu-subitem', 'active' => request()->routeIs('reports.customer')])
+                >
+                    <x-icon name="user-check" />
+                    <span data-i18n="customer_statement">Customer Statement</span>
+                </a>
+
+                <a
+                    href="{{ route('payments.ledger') }}"
+                    class="menu-subitem"
+                >
+                    <x-icon name="layers" />
+                    <span data-i18n="payment_ledger">Payment Ledger</span>
+                </a>
+
+                <a
+                    href="{{ route('draws.winners') }}"
+                    class="menu-subitem"
+                >
+                    <x-icon name="printer" />
+                    <span data-i18n="winners_report">Winners Report</span>
+                </a>
+
+            </div>
+
+        </div>
 
 
         <!-- Settings -->
@@ -362,6 +485,8 @@
                 Settings
             </span>
         </a>
+
+        @endif
 
     </div>
 

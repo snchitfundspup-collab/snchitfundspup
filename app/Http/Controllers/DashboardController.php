@@ -23,8 +23,12 @@ class DashboardController extends Controller
         $today = $businessNow->toDateString();
 
         $groups = ChitGroup::query()
-            ->with(['members.customer', 'members.allocations'])
+            ->with([
+                'members.customer',
+                'members.allocations' => fn ($query) => ChitGroupMember::monthTotalsOnly($query),
+            ])
             ->withCount(['members', 'draws'])
+            ->withMax('draws', 'month_number')
             ->orderByRaw("CASE status WHEN 'running' THEN 0 WHEN 'forming' THEN 1 ELSE 2 END")
             ->orderBy('name')
             ->get();
@@ -36,7 +40,7 @@ class DashboardController extends Controller
             'todayReceipts' => Payment::whereDate('paid_at', $today)->count(),
             'monthCollection' => (int) $this->paymentsThisMonth($businessNow)->sum('amount'),
             'monthReceipts' => $this->paymentsThisMonth($businessNow)->count(),
-            'pending' => $this->pendingCollections($groups),
+            ...$this->collectionSummary($groups),
             'groupCards' => $groups->map(fn (ChitGroup $group) => $this->groupCard($group))->all(),
             'today' => $today,
             ...$this->drawDetails($groups, $businessNow),
@@ -98,23 +102,25 @@ class DashboardController extends Controller
     }
 
     /**
-     * Everything owed up to the current month across running groups.
+     * The two collection lists across running groups, as on the Collect
+     * page: pending (past the due date) and due (in the due window).
      *
      * @param  Collection<int, ChitGroup>  $groups
-     * @return array{amount: int, members: int, overdue: int}
+     * @return array{pending: array{amount: int, members: int}, due: array{amount: int, members: int}}
      */
-    private function pendingCollections(Collection $groups): array
+    private function collectionSummary(Collection $groups): array
     {
         $statuses = $groups
             ->filter(fn (ChitGroup $group) => $group->isRunning())
             ->flatMap(fn (ChitGroup $group) => $group->members)
-            ->map(fn (ChitGroupMember $member) => $member->collectionStatus())
-            ->reject(fn (array $status) => $status['state'] === 'clear');
+            ->map(fn (ChitGroupMember $member) => $member->collectionStatus());
+
+        $pending = $statuses->filter(fn (array $status) => $status['state'] === 'pending');
+        $due = $statuses->filter(fn (array $status) => $status['state'] !== 'pending' && $status['in_due_window']);
 
         return [
-            'amount' => (int) $statuses->sum('amount_due'),
-            'members' => $statuses->count(),
-            'overdue' => (int) $statuses->sum('pending'),
+            'pending' => ['amount' => (int) $pending->sum('pending'), 'members' => $pending->count()],
+            'due' => ['amount' => (int) $due->sum('amount_due'), 'members' => $due->count()],
         ];
     }
 
@@ -135,7 +141,7 @@ class DashboardController extends Controller
             return $card;
         }
 
-        $currentMonth = $group->members->first()?->dueMonthCount() ?? 0;
+        $currentMonth = $group->currentMonthNumber();
 
         $collected = $currentMonth > 0
             ? (int) $group->members->sum(fn (ChitGroupMember $member) => $member->paidByMonth()[$currentMonth] ?? 0)
@@ -148,7 +154,7 @@ class DashboardController extends Controller
             'collected' => $collected,
             'expected' => $expected,
             'percent' => $expected > 0 ? min(100, (int) round($collected / $expected * 100)) : 0,
-            'due_now' => (int) $group->members->sum(fn (ChitGroupMember $member) => $member->balanceDue()),
+            'due_now' => (int) $group->members->sum(fn (ChitGroupMember $member) => $member->collectionStatus()['pending']),
         ];
     }
 }

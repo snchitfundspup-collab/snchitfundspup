@@ -36,6 +36,9 @@ export default defineConfig({
                 'resources/js/draws.js',
                 'resources/js/password-toggle.js',
 
+                'resources/css/traders.css',
+                'resources/js/traders.js',
+
             ],
 
             refresh: true,

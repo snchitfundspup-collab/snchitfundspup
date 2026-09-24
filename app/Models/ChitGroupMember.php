@@ -69,6 +69,19 @@ class ChitGroupMember extends Model
     }
 
     /**
+     * Eager-load allocations as one row per month (the month's total), which
+     * is all the dues need — far fewer rows than every payment for lists.
+     *
+     * @param  HasMany<PaymentAllocation, ChitGroupMember>  $query
+     */
+    public static function monthTotalsOnly(HasMany $query): void
+    {
+        $query->select('chit_group_member_id', 'month_number')
+            ->selectRaw('SUM(amount) as amount')
+            ->groupBy('chit_group_member_id', 'month_number');
+    }
+
+    /**
      * The draw this seat won (a seat wins at most once per group).
      *
      * @return HasOne<Draw, $this>
@@ -92,18 +105,88 @@ class ChitGroupMember extends Model
     |--------------------------------------------------------------------------
     | Dues
     |--------------------------------------------------------------------------
-    | Group months run from the start date (15 Sep – 14 Oct is month 1).
-    | A month's installment falls due when that month begins. Only a
-    | running group has anything due. Payments fill the oldest month first.
+    | Group months run from the start date (15 Sep – 14 Oct is month 1) and
+    | each month falls due on its start date. Months are collected one at a
+    | time: the member sees their oldest unpaid month, and the next month
+    | only appears once that one is fully paid. A month is "upcoming" until
+    | the 1st of its due date's calendar month, "due" from then until its
+    | due date (1 – 15 Sep for 15 Sep) and "pending" after it; a month the
+    | member has started paying in parts is "due" at once. If several
+    | due dates have passed, all those unpaid months are pending together.
+    | Month 1 is taken in full only; later months may be paid in parts.
+    | Only a running group has anything to collect.
     */
 
     /**
-     * How many installment months have fallen due by the given date —
-     * i.e. the group month that date falls in.
+     * The months that can be collected now, oldest first: every unpaid month
+     * whose due date has passed (pending), or else the oldest unpaid month
+     * (due, or upcoming before its due window). A later month never shows
+     * while an earlier one is unpaid.
+     *
+     * @return list<array{month: int, balance: int, paid: int, status: string, period: string, due_on: string, full_only: bool}>
      */
-    public function dueMonthCount(?Carbon $asOf = null): int
+    public function collectableMonths(?Carbon $asOf = null): array
     {
-        return $this->chitGroup->currentMonthNumber($asOf);
+        $date = ($asOf ?? now(config('app.business_timezone')))->toDateString();
+
+        $this->syncDuesCache();
+
+        return $this->duesCache['collectable|'.$date] ??= $this->buildCollectableMonths($date);
+    }
+
+    /**
+     * @return list<array{month: int, balance: int, paid: int, status: string, period: string, due_on: string, full_only: bool}>
+     */
+    private function buildCollectableMonths(string $date): array
+    {
+        $group = $this->chitGroup;
+
+        if (! $group->isRunning()) {
+            return [];
+        }
+
+        $overdueCount = $group->overdueMonthCount(Carbon::parse($date));
+        $installment = $group->installment_amount;
+        $paid = $this->paidByMonth();
+
+        $months = [];
+
+        foreach (range(1, $group->months) as $monthNumber) {
+            $paidAmount = $paid[$monthNumber] ?? 0;
+            $balance = max(0, $installment - $paidAmount);
+
+            if ($balance === 0) {
+                continue;
+            }
+
+            $isOverdue = $monthNumber <= $overdueCount;
+
+            if (! $isOverdue && $months !== []) {
+                break;
+            }
+
+            $months[] = [
+                'month' => $monthNumber,
+                'balance' => $balance,
+                'paid' => $paidAmount,
+                /* a month the member has started paying in parts is due at once */
+                'status' => match (true) {
+                    $isOverdue => 'pending',
+                    /* Y-m-d strings compare in date order */
+                    $paidAmount > 0, $date >= $group->dueWindowStart($monthNumber)->toDateString() => 'due',
+                    default => 'upcoming',
+                },
+                'period' => $group->monthPeriodLabel($monthNumber),
+                'due_on' => $group->dateForMonth($monthNumber)->format('d M Y'),
+                'full_only' => $monthNumber === 1,
+            ];
+
+            if (! $isOverdue) {
+                break;
+            }
+        }
+
+        return $months;
     }
 
     /**
@@ -113,10 +196,42 @@ class ChitGroupMember extends Model
      */
     public function paidByMonth(): array
     {
-        return $this->allocations
-            ->groupBy('month_number')
-            ->map(fn ($allocations) => (int) $allocations->sum('amount'))
-            ->all();
+        $this->syncDuesCache();
+
+        if (! isset($this->duesCache['paid'])) {
+            $paid = [];
+
+            foreach ($this->allocations as $allocation) {
+                $paid[$allocation->month_number] = ($paid[$allocation->month_number] ?? 0) + (int) $allocation->amount;
+            }
+
+            $this->duesCache['paid'] = $paid;
+        }
+
+        return $this->duesCache['paid'];
+    }
+
+    /**
+     * Dues already worked out in this request (the Collect list and the
+     * dashboard ask for them several times per member), and the allocations
+     * they were worked out from.
+     *
+     * @var array<string, mixed>
+     */
+    private array $duesCache = [];
+
+    private ?object $duesFor = null;
+
+    /**
+     * Empty the dues cache whenever the allocations are (re)loaded, so it
+     * never outlives the payments it was worked out from.
+     */
+    private function syncDuesCache(): void
+    {
+        if ($this->duesFor !== $this->allocations) {
+            $this->duesFor = $this->allocations;
+            $this->duesCache = [];
+        }
     }
 
     public function totalPaid(): int
@@ -125,57 +240,60 @@ class ChitGroupMember extends Model
     }
 
     /**
-     * Unpaid amount of the months already due (what they owe today).
+     * What the member owes now: the balance of the months that are due or
+     * pending. A month that is still upcoming is not owed yet.
      */
     public function balanceDue(?Carbon $asOf = null): int
     {
-        $dueCount = $this->dueMonthCount($asOf);
-
-        if ($dueCount === 0) {
-            return 0;
-        }
-
-        $installment = $this->chitGroup->installment_amount;
-        $paid = $this->paidByMonth();
-
-        return collect(range(1, $dueCount))
-            ->sum(fn (int $monthNumber) => max(0, $installment - ($paid[$monthNumber] ?? 0)));
+        return (int) collect($this->collectableMonths($asOf))
+            ->where('status', '!=', 'upcoming')
+            ->sum('balance');
     }
 
     /**
      * Where this seat stands for collection today:
-     *   pending — an earlier month is still not fully paid
-     *   partial — only the current month is open, part of it paid
-     *   due     — only the current month is open, nothing paid yet
-     *   clear   — nothing to collect up to the current month
+     *   pending  — one or more months are past their due date and unpaid
+     *   partial  — the next month is part paid
+     *   due      — the next month is in its due window, nothing paid yet
+     *   upcoming — the next month's due window has not started yet
+     *   clear    — nothing left to collect (every month paid)
+     * in_due_window tells whether the next month is due now (the Due tab).
      *
-     * @return array{state: string, month: int, amount_due: int, pending: int}
+     * @return array{state: string, month: int, months: list<int>, amount_due: int, next_balance: int, pending: int, in_due_window: bool}
      */
     public function collectionStatus(?Carbon $asOf = null): array
     {
-        $currentMonth = $this->dueMonthCount($asOf);
-        $installment = $this->chitGroup->installment_amount;
-        $paid = $this->paidByMonth();
+        $date = ($asOf ?? now(config('app.business_timezone')))->toDateString();
 
-        $pending = $currentMonth > 1
-            ? collect(range(1, $currentMonth - 1))->sum(fn (int $monthNumber) => max(0, $installment - ($paid[$monthNumber] ?? 0)))
-            : 0;
+        $this->syncDuesCache();
 
-        $currentPaid = $currentMonth > 0 ? ($paid[$currentMonth] ?? 0) : 0;
-        $currentOpen = $currentMonth > 0 ? max(0, $installment - $currentPaid) : 0;
+        return $this->duesCache['status|'.$date] ??= $this->buildCollectionStatus(Carbon::parse($date));
+    }
+
+    /**
+     * @return array{state: string, month: int, months: list<int>, amount_due: int, next_balance: int, pending: int, in_due_window: bool}
+     */
+    private function buildCollectionStatus(Carbon $asOf): array
+    {
+        $months = collect($this->collectableMonths($asOf));
+        $first = $months->first();
 
         $state = match (true) {
-            $pending > 0 => 'pending',
-            $currentOpen > 0 && $currentPaid > 0 => 'partial',
-            $currentOpen > 0 => 'due',
-            default => 'clear',
+            $first === null => 'clear',
+            $first['status'] === 'pending' => 'pending',
+            $first['paid'] > 0 => 'partial',
+            $first['status'] === 'due' => 'due',
+            default => 'upcoming',
         };
 
         return [
             'state' => $state,
-            'month' => $currentMonth,
-            'amount_due' => $pending + $currentOpen,
-            'pending' => $pending,
+            'in_due_window' => ($first['status'] ?? null) === 'due',
+            'month' => $first['month'] ?? 0,
+            'months' => $months->pluck('month')->all(),
+            'amount_due' => (int) $months->where('status', '!=', 'upcoming')->sum('balance'),
+            'next_balance' => (int) ($first['balance'] ?? 0),
+            'pending' => (int) $months->where('status', 'pending')->sum('balance'),
         ];
     }
 
@@ -207,7 +325,43 @@ class ChitGroupMember extends Model
     }
 
     /**
+     * Check an amount collected for one chosen month and return the
+     * allocation: [month_number => rupees]. The month must be one that can
+     * be collected now, the amount can never be more than that month's
+     * balance (nothing extra is taken), and month 1 is taken in full only.
+     *
+     * @return array<int, int>
+     *
+     * @throws ValidationException
+     */
+    public function allocateToMonth(int $amount, int $monthNumber): array
+    {
+        $month = collect($this->collectableMonths())->firstWhere('month', $monthNumber);
+
+        if ($month === null) {
+            throw ValidationException::withMessages([
+                'month_number' => "Month {$monthNumber} cannot be collected now. Collect the earlier months first.",
+            ]);
+        }
+
+        if ($amount > $month['balance']) {
+            throw ValidationException::withMessages([
+                'amount' => 'Month '.$monthNumber.' only has ₹'.number_format($month['balance']).' left to pay. Enter that much or less.',
+            ]);
+        }
+
+        if ($month['full_only'] && $amount !== $month['balance']) {
+            throw ValidationException::withMessages([
+                'amount' => 'Month 1 must be paid in full (₹'.number_format($month['balance']).').',
+            ]);
+        }
+
+        return [$monthNumber => $amount];
+    }
+
+    /**
      * Split an amount over the oldest unfilled months: [month_number => rupees].
+     * Used when no month is chosen (e.g. entering past records).
      *
      * @return array<int, int>
      *
@@ -246,7 +400,8 @@ class ChitGroupMember extends Model
     }
 
     /**
-     * Month-by-month ledger rows for the member.
+     * Month-by-month ledger rows for the member. Status: paid, partial,
+     * due (past its due date and unpaid — shown as "Pending") or upcoming.
      *
      * @return list<array{month: int, due_on: Carbon, period: string, installment: int, paid: int, balance: int, status: string}>
      */
@@ -254,17 +409,17 @@ class ChitGroupMember extends Model
     {
         $group = $this->chitGroup;
         $paid = $this->paidByMonth();
-        $dueCount = $this->dueMonthCount($asOf);
+        $overdueCount = $group->overdueMonthCount($asOf);
 
         return collect(range(1, $group->months))
-            ->map(function (int $monthNumber) use ($group, $paid, $dueCount) {
+            ->map(function (int $monthNumber) use ($group, $paid, $overdueCount) {
                 $paidAmount = $paid[$monthNumber] ?? 0;
                 $balance = max(0, $group->installment_amount - $paidAmount);
 
                 $status = match (true) {
                     $balance === 0 => 'paid',
                     $paidAmount > 0 => 'partial',
-                    $monthNumber <= $dueCount => 'due',
+                    $monthNumber <= $overdueCount => 'due',
                     default => 'upcoming',
                 };
 
@@ -278,25 +433,6 @@ class ChitGroupMember extends Model
                     'status' => $status,
                 ];
             })
-            ->all();
-    }
-
-    /**
-     * Months not yet fully paid, oldest first — the Collect form uses this
-     * to fill the amount for "full month(s)".
-     *
-     * @return list<array{month: int, balance: int, period: string}>
-     */
-    public function openMonths(): array
-    {
-        return collect($this->ledger())
-            ->filter(fn (array $row) => $row['balance'] > 0)
-            ->map(fn (array $row) => [
-                'month' => $row['month'],
-                'balance' => $row['balance'],
-                'period' => $row['period'],
-            ])
-            ->values()
             ->all();
     }
 

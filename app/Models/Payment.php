@@ -54,16 +54,18 @@ class Payment extends Model
     }
 
     /**
-     * Record money collected for a member seat. The amount is spread over
-     * the oldest unpaid months first and the receipt gets its number
-     * (RC000001 …) once saved.
+     * Record money collected for a member seat and number its receipt
+     * (RC000001 …). With a chosen month the amount goes to that month only
+     * (the Collect form); without one it fills the oldest unpaid months.
      *
-     * @param  array{amount: int, paid_at: string, method: string, reference?: ?string, notes?: ?string}  $details
+     * @param  array{amount: int, paid_at: string, method: string, month_number?: ?int, reference?: ?string, notes?: ?string}  $details
      */
     public static function record(ChitGroupMember $member, array $details, ?User $recordedBy = null): self
     {
         return DB::transaction(function () use ($member, $details, $recordedBy) {
-            $allocations = $member->allocate((int) $details['amount']);
+            $allocations = isset($details['month_number'])
+                ? $member->allocateToMonth((int) $details['amount'], (int) $details['month_number'])
+                : $member->allocate((int) $details['amount']);
 
             $payment = self::create([
                 'chit_group_member_id' => $member->id,
@@ -98,6 +100,15 @@ class Payment extends Model
     public function amountInWords(): string
     {
         return 'Rupees '.self::numberToIndianWords($this->amount).' Only';
+    }
+
+    /**
+     * A whole number in words, Indian style (lakh / crore): 125000 →
+     * "One Lakh Twenty Five Thousand".
+     */
+    public static function numberInWords(int $number): string
+    {
+        return self::numberToIndianWords($number);
     }
 
     private static function numberToIndianWords(int $number): string

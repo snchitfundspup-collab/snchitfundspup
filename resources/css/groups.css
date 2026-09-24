@@ -1404,6 +1404,21 @@ html.light .due-badge-done {
 }
 
 
+/* "Paid up to Month 2" line on member cards */
+
+.member-progress {
+    display: block;
+
+    margin-top: 2px;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    color: var(--text-soft);
+}
+
+
 /* draw winner badge on member cards */
 
 .won-badge {
