@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     form.addEventListener('change', function (event) {
 
-        if (['method', 'group', 'from', 'to', 'partner', 'supplier', 'view'].includes(event.target.name)) {
+        if (['method', 'group', 'from', 'to', 'partner', 'supplier', 'view', 'age'].includes(event.target.name)) {
             refresh();
         }
 

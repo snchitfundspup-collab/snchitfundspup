@@ -14,6 +14,9 @@
     $customer = $sale->customer;
     $paidNow = $sale->paidAtSale();
     $credit = round($sale->total_amount - $paidNow, 2);
+    $costed = $sale->items->filter(fn ($item) => $item->cost_rate !== null);
+    $profit = round($costed->sum(fn ($item) => $item->profit()), 2);
+    $uncosted = $sale->items->reject(fn ($item) => $item->cost_rate !== null)->map(fn ($item) => $item->variety->name)->unique();
 @endphp
 
 @section('content')
@@ -61,6 +64,19 @@
         </form>
 
     </div>
+
+
+    {{-- for the shop only: never on the printed invoice --}}
+    <p class="sale-profit-note no-print">
+        @if ($costed->isNotEmpty())
+            <span data-i18n="profit_on_sale">Profit on this sale</span>
+            <strong @class(['is-loss' => $profit < 0])><x-rupees :amount="$profit" /></strong>
+            <small>(<span data-i18n="cost_word">cost</span> <x-rupees :amount="$costed->sum(fn ($item) => $item->bags * $item->cost_rate)" />)</small>
+        @endif
+        @if ($uncosted->isNotEmpty())
+            <small><span data-i18n="no_purchase_price_for">No purchase price was set for</span> {{ $uncosted->implode(', ') }}.</small>
+        @endif
+    </p>
 
 
     @include('traders.partials.bill-card', [

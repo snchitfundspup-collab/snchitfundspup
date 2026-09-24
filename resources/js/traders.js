@@ -2,8 +2,10 @@
 |--------------------------------------------------------------------------
 | SN TRADERS — PAGE-SPECIFIC JAVASCRIPT
 |--------------------------------------------------------------------------
-| - Rice bill lines (purchase / sale): add and remove lines; amount =
-|   bags × rate per bag; running total. Sale lines show the bags left.
+| - Rice bill lines (purchase / sale): add and remove lines; choosing a
+|   variety fills its selling (sale) or purchase price; amount = bags ×
+|   rate per bag; running total. Sale lines show the bags left and the
+|   profit against the purchase price.
 | - "Received now" → Full fills the invoice total.
 | - Customer picker: typing filters the customer list.
 */
@@ -36,6 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const template = document.getElementById('billLineTemplate');
     const totalOut = document.getElementById('billTotal');
     const bagsOut = document.getElementById('billBags');
+    const profitOut = document.getElementById('billProfit');
     const receivedInput = document.getElementById('received_amount');
     const fullButton = document.getElementById('receivedFull');
     const receivedHint = document.getElementById('receivedHint');
@@ -50,6 +53,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const bags = Math.floor(toNumber(row.querySelector('[data-field="bags"]').value));
         const rate = toNumber(row.querySelector('[data-field="rate"]').value);
         const amount = bags * rate;
+        const cost = option && option.value && option.dataset.cost ? parseFloat(option.dataset.cost) : null;
+        const profit = cost === null ? null : Math.round((amount - bags * cost) * 100) / 100;
 
         row.querySelector('[data-out="amount"]').textContent = amount ? '₹' + rupees.format(Math.round(amount * 100) / 100) : '—';
 
@@ -66,7 +71,16 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        return { bags: bags, amount: Math.round(amount * 100) / 100 };
+        const lineProfitOut = row.querySelector('[data-out="profit"]');
+
+        if (lineProfitOut) {
+            lineProfitOut.textContent = profit === null || !bags || !rate
+                ? ''
+                : '· Profit ₹' + rupees.format(profit) + ' (₹' + rupees.format(Math.round((rate - cost) * 100) / 100) + ' a bag)';
+            lineProfitOut.classList.toggle('is-loss', profit !== null && profit < 0);
+        }
+
+        return { bags: bags, amount: Math.round(amount * 100) / 100, profit: profit };
 
     }
 
@@ -75,17 +89,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let total = 0;
         let bags = 0;
+        let profit = 0;
+        let profitKnown = false;
 
         body.querySelectorAll('[data-line]').forEach(function (row) {
             const line = computeRow(row);
             total += line.amount;
             bags += line.bags;
+
+            if (line.profit !== null && line.amount) {
+                profit += line.profit;
+                profitKnown = true;
+            }
         });
 
         billTotal = Math.round(total * 100) / 100;
 
         totalOut.textContent = '₹' + rupees.format(billTotal);
         bagsOut.textContent = bagsText(bags);
+
+        if (profitOut) {
+            profit = Math.round(profit * 100) / 100;
+            profitOut.textContent = profitKnown ? 'Profit ₹' + rupees.format(profit) : '';
+            profitOut.classList.toggle('is-loss', profit < 0);
+        }
 
         describeReceived();
 
@@ -130,9 +157,32 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    editor.addEventListener('change', computeAll);
+    editor.addEventListener('change', function (event) {
 
-    editor.addEventListener('input', computeAll);
+        /* a variety fills its price, unless a rate was typed by hand */
+        if (event.target.dataset.field === 'variety') {
+            const option = event.target.selectedOptions[0];
+            const rate = event.target.closest('[data-line]').querySelector('[data-field="rate"]');
+
+            if (option && option.dataset.price && (rate.value.trim() === '' || rate.dataset.auto === '1')) {
+                rate.value = option.dataset.price;
+                rate.dataset.auto = '1';
+            }
+        }
+
+        computeAll();
+
+    });
+
+    editor.addEventListener('input', function (event) {
+
+        if (event.target.dataset.field === 'rate') {
+            event.target.dataset.auto = '';
+        }
+
+        computeAll();
+
+    });
 
     editor.addEventListener('click', function (event) {
 

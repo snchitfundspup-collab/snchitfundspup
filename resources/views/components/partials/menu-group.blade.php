@@ -1,5 +1,5 @@
 {{-- A side-menu group with a submenu (same markup as the Chit Funds groups).
-     $group: id, icon, colour, i18n, label, items [[route, icon, i18n, label]], active (route pattern[s]). --}}
+     $group: id, icon, colour, i18n, label, items [[route, icon, i18n, label, params?]], active (route pattern[s]). --}}
 
 @php
     $isOpen = request()->routeIs(...(array) $group['active']);
@@ -29,10 +29,16 @@
         class="menu-submenu"
         id="{{ $group['id'] }}"
     >
-        @foreach ($group['items'] as [$itemRoute, $itemIcon, $itemI18n, $itemLabel])
+        @foreach ($group['items'] as $item)
+            @php
+                [$itemRoute, $itemIcon, $itemI18n, $itemLabel] = $item;
+                $itemParams = $item[4] ?? [];
+                $itemActive = request()->routeIs($itemRoute)
+                    && collect($itemParams)->every(fn ($value, $key) => (string) request()->route($key) === (string) $value);
+            @endphp
             <a
-                href="{{ route($itemRoute) }}"
-                @class(['menu-subitem', 'active' => request()->routeIs($itemRoute)])
+                href="{{ route($itemRoute, $itemParams) }}"
+                @class(['menu-subitem', 'active' => $itemActive])
             >
                 <x-icon :name="$itemIcon" />
                 <span data-i18n="{{ $itemI18n }}">{{ $itemLabel }}</span>

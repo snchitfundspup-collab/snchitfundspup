@@ -419,6 +419,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/customers/{customer}/account', [Traders\CustomerAccountController::class, 'show'])->name('accounts.show');
         Route::get('/customers/{customer}/account.pdf', [Traders\CustomerAccountController::class, 'pdf'])->name('accounts.pdf');
 
+        /* reports: rice sales, profit & loss, customer dues, day book */
+        Route::get('/reports/customer-statement', [Traders\ReportController::class, 'customerStatement'])->name('reports.customer');
+        Route::get('/reports/{report}', [Traders\ReportController::class, 'show'])->name('reports.show')->whereIn('report', array_keys(Traders\ReportController::REPORTS));
+        Route::get('/reports/{report}/print', [Traders\ReportController::class, 'printReport'])->name('reports.print')->whereIn('report', array_keys(Traders\ReportController::REPORTS));
+        Route::get('/reports/{report}/pdf', [Traders\ReportController::class, 'pdf'])->name('reports.pdf')->whereIn('report', array_keys(Traders\ReportController::REPORTS));
+
         /* expenses & balance sheet (its own tables) */
         Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
         Route::get('/expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');

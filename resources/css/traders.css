@@ -91,10 +91,33 @@ html.light .bill-line-amount {
 }
 
 
-.bill-line-stock.is-error {
+.bill-line-stock .is-error {
     color: #f87171;
 
     font-weight: 700;
+}
+
+
+.bill-line-profit {
+    color: #22c55e;
+
+    font-weight: 700;
+}
+
+
+.bill-line-profit.is-loss {
+    color: #f87171;
+}
+
+
+html.light .bill-line-profit {
+    color: #15803d;
+}
+
+
+html.light .bill-line-profit.is-loss,
+html.light .bill-line-stock .is-error {
+    color: #b91c1c;
 }
 
 
@@ -362,7 +385,7 @@ html.light .stock-negative {
 .master-row-form {
     display: grid;
 
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 
     gap: 8px;
 
@@ -414,6 +437,164 @@ html.light .stock-negative {
 
     .bill-line-amount {
         text-align: left;
+    }
+
+}
+
+
+/* =========================================================
+   SALE — PROFIT NOTE (shop only, not printed)
+========================================================= */
+
+.sale-profit-note {
+    max-width: 760px;
+
+    margin: 0 auto 12px;
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: baseline;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    font-size: 14px;
+
+    color: var(--text-soft);
+}
+
+
+.sale-profit-note strong {
+    font-size: 18px;
+
+    color: #22c55e;
+}
+
+
+.sale-profit-note strong.is-loss {
+    color: #f87171;
+}
+
+
+html.light .sale-profit-note strong {
+    color: #15803d;
+}
+
+
+html.light .sale-profit-note strong.is-loss {
+    color: #b91c1c;
+}
+
+
+/* =========================================================
+   REPORTS
+========================================================= */
+
+.report-columns {
+    display: grid;
+
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+
+    gap: 18px;
+
+    margin-bottom: 18px;
+}
+
+
+.report-columns .group-panel {
+    margin-bottom: 0;
+}
+
+
+.profit-statement th {
+    text-align: left;
+
+    font-weight: 600;
+}
+
+
+.profit-statement th small {
+    display: block;
+}
+
+
+.profit-subtotal th,
+.profit-subtotal td,
+.profit-total th,
+.profit-total td {
+    border-top: 2px solid var(--input-border);
+}
+
+
+.profit-total th,
+.profit-total td {
+    font-size: 17px;
+
+    font-weight: 800;
+}
+
+
+.traders-note {
+    margin: 0 0 16px;
+
+    font-size: 13px;
+
+    color: var(--text-soft);
+}
+
+
+.traders-note.is-warning {
+    padding: 10px 14px;
+
+    border-radius: 12px;
+
+    background: rgba(254, 105, 30, 0.12);
+
+    color: #ff8a45;
+}
+
+
+html.light .traders-note.is-warning {
+    color: #c2410c;
+}
+
+
+/* receive + call stacked, so they fit the narrow action column */
+.traders-page .dues-actions .master-actions {
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+
+/* rice varieties: the edit row, labelled, on one line when there is room */
+.variety-edit-form {
+    grid-template-columns: minmax(120px, 1.6fr) repeat(3, minmax(80px, 1fr)) auto auto;
+
+    align-items: end;
+}
+
+
+.master-field .bill-line-label {
+    display: block;
+
+    margin-bottom: 4px;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    color: var(--text-soft);
+}
+
+
+@media (max-width: 900px) {
+
+    .variety-edit-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
 }

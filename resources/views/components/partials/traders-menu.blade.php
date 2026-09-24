@@ -21,6 +21,14 @@
         ], ['traders.receipts.*', 'traders.balances.*', 'traders.accounts.*']),
     ];
 
+    $reports = $menuGroup('tradersReportsSubmenu', 'chart', 'purple', 'menu_reports', 'Reports', [
+        ['traders.reports.show', 'chart', 'rice_sales_report', 'Rice Sales', ['report' => 'rice-sales']],
+        ['traders.reports.show', 'scale', 'profit_loss', 'Profit & Loss', ['report' => 'profit']],
+        ['traders.reports.show', 'info', 'customer_dues', 'Customer Dues', ['report' => 'dues']],
+        ['traders.reports.customer', 'users', 'customer_statement', 'Customer Statement'],
+        ['traders.reports.show', 'calendar', 'day_book', 'Day Book', ['report' => 'day-book']],
+    ], 'traders.reports.*');
+
     $management = $menuGroup('tradersExpensesSubmenu', 'wallet', 'green', 'menu_expenses', 'Expenses', [
         ['traders.expenses.create', 'plus', 'add_expense', 'Add Expense'],
         ['traders.expenses.index', 'wallet', 'all_expenses', 'All Expenses'],
@@ -45,7 +53,7 @@
 </a>
 
 
-@foreach (array_merge($groups, ['stock']) as $group)
+@foreach (array_merge($groups, ['stock', $reports]) as $group)
 
     @if ($group === 'stock')
 

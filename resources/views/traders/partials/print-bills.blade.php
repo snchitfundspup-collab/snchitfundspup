@@ -98,7 +98,6 @@
             <tr>
                 <th>Variety</th>
                 <th class="amount">Bags</th>
-                <th class="amount">Bags</th>
                 <th class="amount">Amount</th>
             </tr>
         </thead>
@@ -106,7 +105,6 @@
             @foreach ($summary['by_variety'] as $byVariety)
                 <tr>
                     <td>{{ $byVariety['name'] }}</td>
-                    <td class="amount">{{ $byVariety['bags'] }}</td>
                     <td class="amount">{{ $byVariety['bags'] }}</td>
                     <td class="amount"><x-rupees :amount="$byVariety['amount']" /></td>
                 </tr>

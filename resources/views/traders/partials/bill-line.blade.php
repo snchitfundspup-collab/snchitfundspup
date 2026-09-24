@@ -9,7 +9,8 @@
             @foreach ($varieties as $variety)
                 <option
                     value="{{ $variety->id }}"
-                    @if ($isSale) data-stock="{{ (float) ($stock[$variety->id] ?? 0) }}" @endif
+                    data-price="{{ $isSale ? $variety->selling_price : $variety->purchase_price }}"
+                    @if ($isSale) data-stock="{{ (int) ($stock[$variety->id] ?? 0) }}" data-cost="{{ $variety->purchase_price }}" @endif
                     @selected((string) ($line['variety_id'] ?? '') === (string) $variety->id)
                 >{{ $variety->name }}</option>
             @endforeach
@@ -33,7 +34,10 @@
     </button>
 
     @if ($isSale)
-        <span class="bill-line-stock" data-out="stock"></span>
+        <span class="bill-line-stock">
+            <span data-out="stock"></span>
+            <span class="bill-line-profit" data-out="profit"></span>
+        </span>
     @endif
 
 </div>

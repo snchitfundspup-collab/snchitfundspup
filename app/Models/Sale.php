@@ -35,7 +35,8 @@ class Sale extends Model
 
     /**
      * Save a sale with its lines, number the invoice (S000001 …) and record
-     * any amount received now as a receipt.
+     * any amount received now as a receipt. Each line keeps the variety's
+     * purchase price at the time, for profit.
      *
      * @param  array{customer_id: int, sold_on: string, notes?: ?string}  $details
      * @param  list<array{variety_id: int, bags: int, bag_kg: float, loose_kg: float, rate: float, rate_per: string}>  $lines
@@ -47,11 +48,12 @@ class Sale extends Model
             $sale = self::create([...$details, 'recorded_by' => $recordedBy?->id]);
 
             $total = 0;
+            $costs = RiceVariety::query()->whereKey(array_column($lines, 'variety_id'))->pluck('purchase_price', 'id');
 
             foreach ($lines as $line) {
                 $totals = RiceVariety::lineTotals((int) $line['bags'], (float) $line['bag_kg'], (float) $line['loose_kg'], (float) $line['rate'], $line['rate_per']);
 
-                $sale->items()->create([...$line, ...$totals]);
+                $sale->items()->create([...$line, ...$totals, 'cost_rate' => $costs[$line['variety_id']] ?? null]);
 
                 $total += $totals['amount'];
             }

@@ -38,6 +38,9 @@
             <span data-i18n="total_word">Total</span>
             <strong id="billTotal">₹0</strong>
             <span id="billBags">0 bags</span>
+            @if ($isSale)
+                <span class="bill-line-profit" id="billProfit"></span>
+            @endif
         </div>
 
     </div>

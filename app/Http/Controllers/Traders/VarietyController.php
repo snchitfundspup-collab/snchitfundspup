@@ -55,13 +55,15 @@ class VarietyController extends Controller
     }
 
     /**
-     * @return array{name: string, bag_kg: float}
+     * @return array{name: string, bag_kg: float, purchase_price: ?float, selling_price: ?float}
      */
     private function validated(Request $request, ?RiceVariety $variety = null): array
     {
         return $request->validate([
             'name' => ['required', 'string', 'max:80', Rule::unique('trader_varieties', 'name')->ignore($variety)],
             'bag_kg' => ['required', 'numeric', 'min:1', 'max:200'],
+            'purchase_price' => ['nullable', 'numeric', 'min:0', 'max:1000000'],
+            'selling_price' => ['nullable', 'numeric', 'min:0', 'max:1000000'],
         ], [
             'name.unique' => 'That variety already exists.',
         ]);

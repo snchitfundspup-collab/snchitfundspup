@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * A rice variety SN Traders buys and sells (e.g. Ponni 26 kg bag).
+ * A rice variety SN Traders buys and sells (e.g. Ponni 26 kg bag), with
+ * its purchase and selling price per bag. The purchase price follows the
+ * latest purchase bill.
  */
 class RiceVariety extends Model
 {
@@ -18,7 +20,7 @@ class RiceVariety extends Model
 
     protected $table = 'trader_varieties';
 
-    protected $fillable = ['name', 'bag_kg', 'is_active'];
+    protected $fillable = ['name', 'bag_kg', 'purchase_price', 'selling_price', 'is_active'];
 
     /**
      * @return array<string, string>
@@ -27,6 +29,8 @@ class RiceVariety extends Model
     {
         return [
             'bag_kg' => 'decimal:2',
+            'purchase_price' => 'float',
+            'selling_price' => 'float',
             'is_active' => 'boolean',
         ];
     }
@@ -54,6 +58,18 @@ class RiceVariety extends Model
             : $kg * $rate;
 
         return ['kg' => $kg, 'amount' => round($amount, 2)];
+    }
+
+    /**
+     * Profit on one bag at the set prices (null until both are set).
+     */
+    public function profitPerBag(): ?float
+    {
+        if ($this->purchase_price === null || $this->selling_price === null) {
+            return null;
+        }
+
+        return round($this->selling_price - $this->purchase_price, 2);
     }
 
     /**
