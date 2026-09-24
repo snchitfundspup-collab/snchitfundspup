@@ -2771,3 +2771,102 @@ html.light .page-footer {
     }
 
 }
+
+
+/* =========================================================
+   BUSINESS SWITCH (top of the side menu):
+   SN Chit Funds  |  SN Traders
+========================================================= */
+
+.business-switch {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 6px;
+
+    margin: 0 0 16px;
+
+    padding: 5px;
+
+    border-radius: 16px;
+
+    background: rgba(255, 255, 255, 0.06);
+
+    border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+
+html.light .business-switch {
+    background: rgba(255, 255, 255, 0.55);
+
+    border-color: rgba(35, 50, 95, 0.10);
+}
+
+
+.business-switch-option {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    padding: 9px 8px;
+
+    border-radius: 12px;
+
+    color: inherit;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    text-decoration: none;
+
+    opacity: 0.75;
+
+    transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+
+.business-switch-option:hover {
+    opacity: 1;
+}
+
+
+.business-switch-option.active {
+    background: linear-gradient(180deg, #ff8a45, #FE691E);
+
+    color: #ffffff;
+
+    opacity: 1;
+
+    box-shadow: 0 3px 0 #c94f10;
+}
+
+
+.business-switch-sn {
+    font-weight: 800;
+}
+
+
+.business-switch-option:not(.active) .business-switch-sn {
+    color: #FE691E;
+}
+
+
+/* the other business, as a button on each dashboard */
+
+.business-jump {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+.business-jump .business-switch-sn {
+    color: #FE691E;
+}

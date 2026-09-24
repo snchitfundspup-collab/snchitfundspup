@@ -89,6 +89,7 @@ class PaymentLedgerController extends Controller
                 'cells' => collect($monthNumbers)->mapWithKeys(fn (int $month) => [$month => $ledger[$month]])->all(),
                 'paid' => collect($monthNumbers)->sum(fn (int $month) => $ledger[$month]['paid']),
                 'balance_due' => $member->balanceDue(),
+                'pending' => $member->collectionStatus()['pending'],
                 'won' => $drawsByWinner->get($member->id),
             ];
         });
@@ -107,6 +108,7 @@ class PaymentLedgerController extends Controller
             'toMonth' => $toMonth,
             'totalPaid' => $rows->sum('paid'),
             'totalDue' => $rows->sum('balance_due'),
+            'totalPending' => $rows->sum('pending'),
             'totalPrizes' => (int) $group->draws->sum(fn ($draw) => $draw->prizeAmount()),
         ];
     }

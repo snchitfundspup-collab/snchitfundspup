@@ -56,7 +56,7 @@
                     class="group-hero-meta"
                     data-i18n="collect_payment_subtitle"
                 >
-                    Pick a member who still owes, then record a full month or any partial amount.
+                    Pick a member, choose the month and record the payment.
                 </p>
 
             </div>
@@ -122,13 +122,41 @@
                 id="paymentSearchResults"
             >
 
+                @if ($search === '')
+
+                    {{-- Pending: past the due date · Due: 1st of the month until the due date --}}
+
+                    <nav class="status-tabs collect-tabs" aria-label="Members to collect">
+
+                        @foreach ([
+                            'pending' => ['collect_state_pending', 'Pending'],
+                            'due' => ['collect_state_due', 'Due'],
+                        ] as $tabName => [$tabKey, $tabLabel])
+
+                            <a
+                                href="{{ route('payments.create', $tabName === 'due' ? ['tab' => 'due'] : []) }}"
+                                @class(['status-tab', 'collect-tab-'.$tabName, 'active' => $tab === $tabName])
+                                @if ($tab === $tabName) aria-current="page" @endif
+                            >
+                                <span data-i18n="{{ $tabKey }}">{{ $tabLabel }}</span>
+                                <span class="status-tab-count">{{ $tabCounts[$tabName] }}</span>
+                            </a>
+
+                        @endforeach
+
+                    </nav>
+
+                @endif
+
                 @if ($results->isEmpty())
 
                     <p class="members-empty">
-                        @if ($search === '')
-                            <span data-i18n="nothing_to_collect">Nothing to collect — every member is paid up for this month.</span>
+                        @if ($search !== '')
+                            <span data-i18n="payment_search_none_any">No members match your search.</span>
+                        @elseif ($tab === 'due')
+                            <span data-i18n="nothing_due">No members are due right now. Search to find anyone else.</span>
                         @else
-                            <span data-i18n="payment_search_none">No members with dues match your search.</span>
+                            <span data-i18n="nothing_pending">No pending members right now. Search to find anyone else.</span>
                         @endif
                     </p>
 
@@ -136,16 +164,24 @@
 
                     <p class="collect-list-count">
                         <strong>{{ $results->total() }}</strong>
-                        <span data-i18n="seats_to_collect">to collect</span>
+                        @if ($search !== '')
+                            <span data-i18n="seats_found">found</span>
+                        @elseif ($tab === 'due')
+                            <span data-i18n="seats_due">due — search to find anyone else</span>
+                        @else
+                            <span data-i18n="seats_pending">pending — search to find anyone else</span>
+                        @endif
                     </p>
 
                     @foreach ($results as $seat)
 
                         @php $status = $seat->collection_status; @endphp
 
+                        <div class="member-result payment-customer-result collect-row">
+
                         <a
                             href="{{ route('payments.create', ['customer' => $seat->customer_id, 'member' => $seat->id]) }}#collect"
-                            class="member-result payment-customer-result"
+                            class="collect-row-link"
                         >
 
                             <x-customer-avatar :customer="$seat->customer" />
@@ -162,7 +198,11 @@
 
                                 <span class="member-card-identification">
                                     <span class="collect-group-name">{{ $seat->chitGroup->name }}</span>
-                                    · <span data-i18n="month_number">Month</span> {{ $status['month'] }}
+                                    @if (count($status['months']) > 1)
+                                        · <span data-i18n="months_word">Months</span> {{ implode(', ', $status['months']) }}
+                                    @elseif ($status['month'] > 0)
+                                        · <span data-i18n="month_number">Month</span> {{ $status['month'] }}
+                                    @endif
                                     · {{ $seat->customer->phone }}
                                 </span>
 
@@ -175,12 +215,14 @@
                                     'due-badge-due' => $status['state'] === 'pending',
                                     'due-badge-part' => $status['state'] === 'partial',
                                     'due-badge-month' => $status['state'] === 'due',
+                                    'due-badge-upcoming' => $status['state'] === 'upcoming',
+                                    'due-badge-ok' => $status['state'] === 'clear',
                                 ])>
-                                    <span data-i18n="collect_state_{{ $status['state'] }}">{{ ['pending' => 'Pending', 'partial' => 'Part paid', 'due' => 'Due'][$status['state']] }}</span>
+                                    <span data-i18n="collect_state_{{ $status['state'] }}">{{ ['pending' => 'Pending', 'partial' => 'Part paid', 'due' => 'Due', 'upcoming' => 'Upcoming', 'clear' => 'Paid up'][$status['state']] }}</span>
                                 </span>
 
                                 <strong class="collect-amount">
-                                    <x-rupees :amount="$status['amount_due']" />
+                                    <x-rupees :amount="$status['state'] === 'upcoming' ? $status['next_balance'] : $status['amount_due']" />
                                 </strong>
 
                             </span>
@@ -188,6 +230,38 @@
                             <x-icon name="chevron-right" class="payment-result-arrow" />
 
                         </a>
+
+                        @if ($status['state'] !== 'clear')
+                            <button
+                                type="button"
+                                class="quick-collect-button"
+                                data-quick-collect
+                                data-member="{{ $seat->id }}"
+                                data-name="{{ $seat->customer->name }}{{ filled($seat->customer->remarks) ? ' ('.$seat->customer->remarks.')' : '' }}"
+                                data-code="{{ $seat->member_code }}"
+                                data-group="{{ $seat->chitGroup->name }}"
+                                data-full-form="{{ route('payments.create', ['customer' => $seat->customer_id, 'member' => $seat->id]) }}#collect"
+                                data-months="{{ json_encode($seat->collectableMonths()) }}"
+                                aria-label="Collect from {{ $seat->customer->name }}"
+                                title="Collect"
+                            >
+                                <x-icon name="rupee" />
+                            </button>
+                        @endif
+
+                        @if ($seat->customer->phone)
+                            <a
+                                href="tel:{{ preg_replace('/[^\d+]/', '', $seat->customer->phone) }}"
+                                class="member-call-button collect-call-button"
+                                aria-label="Call {{ $seat->customer->name }} on {{ $seat->customer->phone }}"
+                                title="Call {{ $seat->customer->phone }}"
+                            >
+                                <x-icon name="phone" />
+                                <span data-i18n="call">Call</span>
+                            </a>
+                        @endif
+
+                        </div>
 
                     @endforeach
 
@@ -199,6 +273,8 @@
             </div>
 
         </section>
+
+        @include('payments.partials.quick-collect-modal')
 
     @else
 
@@ -250,6 +326,27 @@
             </div>
 
 
+            @php
+                /* one seat → no seat step: the form opens straight away */
+                $showSeats = $customer->memberships->count() > 1;
+            @endphp
+
+            @unless ($showSeats)
+                @php $onlySeat = $customer->memberships->first(); @endphp
+                @if ($onlySeat)
+                    <p class="payment-single-seat">
+                        <span class="member-card-code">{{ $onlySeat->member_code }}</span>
+                        <strong>{{ $onlySeat->chitGroup->name }}</strong>
+                        · <x-rupees :amount="$onlySeat->chitGroup->installment_amount" />/<span data-i18n="month_word">month</span>
+                        @unless ($onlySeat->chitGroup->isRunning())
+                            · <x-group-status :status="$onlySeat->chitGroup->status" />
+                        @endunless
+                    </p>
+                @endif
+            @endunless
+
+            @if ($showSeats)
+
             <h2 class="payment-seats-title">
                 <span class="step-number">2</span>
                 <span data-i18n="choose_seat">Choose the seat</span>
@@ -263,6 +360,7 @@
                     @php
                         $isRunning = $seat->chitGroup->isRunning();
                         $balanceDue = $seat->balanceDue();
+                        $seatState = $isRunning ? $seat->collectionStatus()['state'] : null;
                         $nextMonth = $seat->nextUnpaidMonth();
                     @endphp
 
@@ -290,9 +388,20 @@
                             @if (! $isRunning)
                                 <x-group-status :status="$seat->chitGroup->status" />
                             @elseif ($balanceDue > 0)
-                                <span class="due-badge due-badge-due">
+                                <span @class([
+                                    'due-badge',
+                                    'due-badge-due' => $seatState === 'pending',
+                                    'due-badge-month' => in_array($seatState, ['due', 'partial'], true),
+                                    'due-badge-upcoming' => $seatState === 'upcoming',
+                                ])>
                                     <x-rupees :amount="$balanceDue" />
-                                    <span data-i18n="due">due</span>
+                                    @if ($seatState === 'pending')
+                                        <span data-i18n="pending_word">pending</span>
+                                    @elseif ($seatState === 'upcoming')
+                                        <span data-i18n="upcoming_word">upcoming</span>
+                                    @else
+                                        <span data-i18n="due">due</span>
+                                    @endif
                                 </span>
                             @elseif ($nextMonth === null)
                                 <span class="due-badge due-badge-done" data-i18n="fully_paid">Fully paid</span>
@@ -326,12 +435,14 @@
 
             </div>
 
+            @endif
+
         </section>
 
 
         @if ($member)
 
-            @include('payments.partials.collect-form', ['member' => $member])
+            @include('payments.partials.collect-form', ['member' => $member, 'stepNumber' => $showSeats ? 3 : 2])
 
         @endif
 

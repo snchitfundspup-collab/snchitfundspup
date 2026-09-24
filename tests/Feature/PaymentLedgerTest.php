@@ -14,7 +14,7 @@ beforeEach(function () {
 
     $this->actingAs(User::factory()->create());
 
-    /* started 15 Jan 2026 → months 1–3 due on 20 Mar 2026 */
+    /* started 15 Jan 2026 → months 1–3 are past their due dates on 20 Mar 2026 */
     $this->group = ChitGroup::factory()->running()->create([
         'name' => 'Ledger Group',
         'start_date' => '2026-01-15',

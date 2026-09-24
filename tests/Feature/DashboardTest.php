@@ -26,7 +26,7 @@ test('the dashboard is the home page after login', function () {
 test('the dashboard shows collections and groups, not customer details', function () {
     $this->travelTo(now()->setDate(2026, 3, 20)->setTime(10, 0));
 
-    /* running since 15 Jan → months 1–3 due on 20 Mar */
+    /* running since 15 Jan → months 1–3 are past their due dates on 20 Mar */
     $group = ChitGroup::factory()->running()->create([
         'name' => 'Dash Group',
         'start_date' => '2026-01-15',
@@ -60,8 +60,8 @@ test('the dashboard shows collections and groups, not customer details', functio
         ->assertViewHas('todayReceipts', 1)
         ->assertViewHas('monthCollection', 40000)
         ->assertViewHas('monthReceipts', 2)
-        /* second member owes months 2–3 minus the ₹1,000 → ₹19,000; month 2 is overdue */
-        ->assertViewHas('pending', ['amount' => 19000, 'members' => 1, 'overdue' => 9000])
+        /* second member: months 2–3 are past due, minus the ₹1,000 → ₹19,000 pending */
+        ->assertViewHas('pending', ['amount' => 19000, 'members' => 1])
         ->assertViewHas('groupCards', function (array $cards) {
             $running = collect($cards)->firstWhere('group.name', 'Dash Group');
 
@@ -119,7 +119,9 @@ test('the dashboard works with no groups or payments', function () {
         ->get(route('dashboard'))
         ->assertOk()
         ->assertViewHas('todayCollection', 0)
-        ->assertViewHas('pending', ['amount' => 0, 'members' => 0, 'overdue' => 0])
+        ->assertViewHas('pending', ['amount' => 0, 'members' => 0])
+        ->assertViewHas('due', ['amount' => 0, 'members' => 0])
+        ->assertSee('Due collections')
         ->assertSee('No groups yet')
         ->assertSee('No draws due right now.');
 });
@@ -144,4 +146,26 @@ test('the customers menu has all customers and add customer only', function () {
         ->assertSee(route('customers.create'))
         ->assertDontSee('Edit Customer')
         ->assertDontSee(route('customers.index', ['edit' => 1]));
+});
+
+test('the dashboard due tile counts members inside their due window', function () {
+    $this->travelTo(now()->setDate(2026, 10, 5)->setTime(10, 0));
+
+    $group = ChitGroup::factory()->running()->create(['start_date' => '2026-09-15', 'installment_amount' => 5000]);
+
+    $due = ChitGroupMember::factory()->create(['chit_group_id' => $group->id]);
+    Payment::record($due->load('chitGroup', 'allocations'), ['amount' => 5000, 'paid_at' => '2026-09-15 10:00', 'method' => 'cash', 'month_number' => 1]);
+
+    $partial = ChitGroupMember::factory()->create(['chit_group_id' => $group->id]);
+    Payment::record($partial->load('chitGroup', 'allocations'), ['amount' => 5000, 'paid_at' => '2026-09-15 10:00', 'method' => 'cash', 'month_number' => 1]);
+    Payment::record($partial->fresh()->load('chitGroup', 'allocations'), ['amount' => 1500, 'paid_at' => '2026-09-20 10:00', 'method' => 'cash', 'month_number' => 2]);
+
+    /* month 1 unpaid → pending, not due */
+    ChitGroupMember::factory()->create(['chit_group_id' => $group->id]);
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('dashboard'))
+        ->assertViewHas('due', ['amount' => 8500, 'members' => 2])
+        ->assertViewHas('pending', ['amount' => 5000, 'members' => 1])
+        ->assertSee(route('payments.create', ['tab' => 'due']));
 });

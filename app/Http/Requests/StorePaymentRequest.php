@@ -6,11 +6,13 @@ use App\Models\ChitGroupMember;
 use App\Models\Payment;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
 
 /**
- * Collect Payment form: which member seat, how much (full months or a
- * partial amount — the screen fills the amount for "full"), how and when.
+ * Collect Payment form: which member seat and month, how much (the full
+ * month or — from month 2 — a partial amount, never more than the month's
+ * balance), how and when.
  */
 class StorePaymentRequest extends FormRequest
 {
@@ -46,6 +48,7 @@ class StorePaymentRequest extends FormRequest
     {
         return [
             'chit_group_member_id' => ['required', 'integer', Rule::exists('chit_group_members', 'id')],
+            'month_number' => ['required', 'integer', 'min:1'],
             'amount' => ['required', 'integer', 'min:1'],
             'paid_at' => ['required', 'date', 'before_or_equal:'.now(config('app.business_timezone'))->format('Y-m-d H:i:59')],
             'method' => ['required', Rule::in(array_keys(Payment::METHODS))],
@@ -67,8 +70,20 @@ class StorePaymentRequest extends FormRequest
                     return;
                 }
 
-                if (! $this->member()->chitGroup->isRunning()) {
+                $member = $this->member();
+
+                if (! $member->chitGroup->isRunning()) {
                     $validator->errors()->add('chit_group_member_id', 'Payments can only be recorded for groups that have started.');
+
+                    return;
+                }
+
+                try {
+                    $member->allocateToMonth((int) $this->input('amount'), (int) $this->input('month_number'));
+                } catch (ValidationException $exception) {
+                    foreach ($exception->errors() as $field => $messages) {
+                        $validator->errors()->add($field, $messages[0]);
+                    }
                 }
             },
         ];

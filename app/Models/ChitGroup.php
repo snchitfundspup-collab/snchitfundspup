@@ -96,7 +96,12 @@ class ChitGroup extends Model
      */
     public function nextDrawMonth(): ?int
     {
-        $next = (int) $this->draws()->max('month_number') + 1;
+        /* withMax('draws', 'month_number') saves a query per group */
+        $lastDrawn = array_key_exists('draws_max_month_number', $this->attributes)
+            ? $this->attributes['draws_max_month_number']
+            : $this->draws()->max('month_number');
+
+        $next = (int) $lastDrawn + 1;
 
         return $next <= $this->months ? $next : null;
     }
@@ -154,11 +159,29 @@ class ChitGroup extends Model
     */
 
     /**
+     * Month start dates and month numbers already worked out for this group
+     * (keyed by start date, so an edited start date never reuses them). The
+     * Collect list and dashboard ask for these for every member.
+     *
+     * @var array<string, mixed>
+     */
+    private array $monthCache = [];
+
+    /**
      * First day of a group month (1 = the start date).
      */
     public function dateForMonth(int $monthNumber): Carbon
     {
-        return $this->start_date->copy()->addMonthsNoOverflow($monthNumber - 1);
+        $key = 'start|'.$this->startDateKey().'|'.$monthNumber;
+
+        $this->monthCache[$key] ??= $this->start_date->copy()->addMonthsNoOverflow($monthNumber - 1);
+
+        return $this->monthCache[$key]->copy();
+    }
+
+    private function startDateKey(): string
+    {
+        return (string) ($this->attributes['start_date'] ?? '');
     }
 
     /**
@@ -174,6 +197,12 @@ class ChitGroup extends Model
      */
     public function monthPeriodLabel(int $monthNumber, bool $withYear = true): string
     {
+        return $this->monthCache['label|'.$this->startDateKey().'|'.$monthNumber.'|'.(int) $withYear]
+            ??= $this->buildMonthPeriodLabel($monthNumber, $withYear);
+    }
+
+    private function buildMonthPeriodLabel(int $monthNumber, bool $withYear): string
+    {
         $start = $this->dateForMonth($monthNumber);
         $end = $this->monthEndDate($monthNumber);
 
@@ -187,7 +216,34 @@ class ChitGroup extends Model
     }
 
     /**
-     * Which group month today falls in (0 before the start date or when
+     * First day a month counts as "due": the 1st of the calendar month its
+     * due date falls in (due 15 Sep → due from 1 Sep; pending from 16 Sep).
+     */
+    public function dueWindowStart(int $monthNumber): Carbon
+    {
+        return $this->dateForMonth($monthNumber)->startOfMonth();
+    }
+
+    /**
+     * How many months' due dates have passed by a date. A month falls due
+     * on its start date (month 1 on the group start date), so an unpaid
+     * month is overdue — "pending" — from the next day.
+     * E.g. start 15 Sep: on 15 Sep → 0, 16 Sep – 15 Oct → 1, 16 Oct → 2.
+     */
+    public function overdueMonthCount(?Carbon $asOf = null): int
+    {
+        if (! $this->isRunning()) {
+            return 0;
+        }
+
+        $date = ($asOf ?? now(config('app.business_timezone')))->toDateString();
+
+        return $this->monthCache['overdue|'.$this->startDateKey().'|'.$this->months.'|'.$date]
+            ??= $this->currentMonthNumber(Carbon::parse($date)->subDay());
+    }
+
+    /**
+     * Which group month a date falls in (0 before the start date or when
      * the group is not running; never more than the number of months).
      */
     public function currentMonthNumber(?Carbon $asOf = null): int
@@ -196,19 +252,22 @@ class ChitGroup extends Model
             return 0;
         }
 
-        $asOf = Carbon::parse(($asOf ?? now(config('app.business_timezone')))->toDateString());
+        $date = ($asOf ?? now(config('app.business_timezone')))->toDateString();
 
-        $current = 0;
+        return $this->monthCache['number|'.$this->startDateKey().'|'.$this->months.'|'.$date] ??= (function () use ($date) {
+            $current = 0;
 
-        foreach (range(1, $this->months) as $monthNumber) {
-            if ($this->dateForMonth($monthNumber)->startOfDay()->gt($asOf)) {
-                break;
+            /* Y-m-d strings compare in date order */
+            foreach (range(1, $this->months) as $monthNumber) {
+                if ($this->dateForMonth($monthNumber)->toDateString() > $date) {
+                    break;
+                }
+
+                $current = $monthNumber;
             }
 
-            $current = $monthNumber;
-        }
-
-        return $current;
+            return $current;
+        })();
     }
 
     /**

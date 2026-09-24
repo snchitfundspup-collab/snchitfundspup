@@ -90,6 +90,10 @@
         font-weight: bold;
     }
 
+    .open-text {
+        color: #c2410c;
+    }
+
     .due-text {
         color: #b91c1c;
     }
@@ -148,7 +152,7 @@
             <td><span class="label">Monthly installment</span><strong><x-rupees :amount="$group->installment_amount" /></strong></td>
             <td><span class="label">Months</span><strong>{{ $fromMonth }}–{{ $toMonth }} of {{ $group->months }}</strong></td>
             <td><span class="label">Collected</span><strong><x-rupees :amount="$totalPaid" /></strong></td>
-            <td><span class="label">Due now</span><strong class="due-text"><x-rupees :amount="$totalDue" /></strong></td>
+            <td><span class="label">Due now</span><strong class="{{ $totalPending > 0 ? 'due-text' : 'open-text' }}"><x-rupees :amount="$totalDue" /></strong></td>
         </tr>
     </table>
 
@@ -201,7 +205,7 @@
                     @endforeach
 
                     <td class="total"><x-rupees :amount="$row['paid']" /></td>
-                    <td class="total {{ $row['balance_due'] > 0 ? 'due-text' : '' }}"><x-rupees :amount="$row['balance_due']" /></td>
+                    <td class="total {{ $row['pending'] > 0 ? 'due-text' : ($row['balance_due'] > 0 ? 'open-text' : '') }}"><x-rupees :amount="$row['balance_due']" /></td>
                     <td class="prize">
                         @if ($row['won'])
                             <x-rupees :amount="$row['won']->prizeAmount()" />
@@ -225,7 +229,7 @@
                     </td>
                 @endforeach
                 <td class="total"><x-rupees :amount="$totalPaid" /></td>
-                <td class="total due-text"><x-rupees :amount="$totalDue" /></td>
+                <td class="total {{ $totalPending > 0 ? 'due-text' : 'open-text' }}"><x-rupees :amount="$totalDue" /></td>
                 <td class="prize"><x-rupees :amount="$totalPrizes" /></td>
             </tr>
         </tfoot>
@@ -236,7 +240,7 @@
     <div class="key">
         <span class="paid">Paid</span>
         <span class="partial">Part paid</span>
-        <span class="due">— Due</span>
+        <span class="due">— Pending</span>
         <span class="won won-mark">+ Prize money won that month</span>
         Amounts in ₹. Month totals show collected / expected.
     </div>

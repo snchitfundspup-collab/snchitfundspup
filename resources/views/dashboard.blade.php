@@ -80,6 +80,14 @@
                 <span data-i18n="run_draw">Run Draw</span>
             </a>
 
+            <a
+                href="{{ route('traders.dashboard') }}"
+                class="dashboard-action business-jump"
+            >
+                <x-icon name="package" />
+                <span><span class="business-switch-sn">SN</span> Traders</span>
+            </a>
+
         </div>
 
     </section>
@@ -94,7 +102,7 @@
         {{-- today --}}
 
         <a
-            href="{{ route('payments.index', ['date' => $today]) }}"
+            href="{{ route('payments.index') }}"
             class="stat-tile glass"
         >
             <span class="stat-icon icon-3d icon-3d-green">
@@ -114,7 +122,7 @@
         {{-- this month --}}
 
         <a
-            href="{{ route('payments.index') }}"
+            href="{{ route('payments.index', ['range' => 'month']) }}"
             class="stat-tile glass"
         >
             <span class="stat-icon icon-3d icon-3d-blue">
@@ -148,10 +156,27 @@
                 <span class="stat-label" data-i18n="pending_collections">Pending collections</span>
                 <span class="stat-value stat-value-due"><x-rupees :amount="$pending['amount']" /></span>
                 <span class="stat-note">
-                    {{ $pending['members'] }} <span data-i18n="members_owe">members to collect from</span>
-                    @if ($pending['overdue'] > 0)
-                        · <x-rupees :amount="$pending['overdue']" /> <span data-i18n="overdue_earlier">overdue from earlier months</span>
-                    @endif
+                    {{ $pending['members'] }} <span data-i18n="members_pending">members past their due date</span>
+                </span>
+            </span>
+        </a>
+
+
+        {{-- due (1st of the month until the due date) --}}
+
+        <a
+            href="{{ route('payments.create', ['tab' => 'due']) }}"
+            class="stat-tile glass"
+        >
+            <span class="stat-icon icon-3d icon-3d-orange">
+                <x-icon name="calendar" />
+            </span>
+
+            <span class="stat-body">
+                <span class="stat-label" data-i18n="due_collections">Due collections</span>
+                <span class="stat-value stat-value-open"><x-rupees :amount="$due['amount']" /></span>
+                <span class="stat-note">
+                    {{ $due['members'] }} <span data-i18n="members_due">members due this month</span>
                 </span>
             </span>
         </a>
@@ -401,7 +426,7 @@
                                 </div>
 
                                 <div>
-                                    <dt data-i18n="due_now">Due now</dt>
+                                    <dt data-i18n="collect_state_pending">Pending</dt>
                                     <dd @class(['is-due' => $card['due_now'] > 0])><x-rupees :amount="$card['due_now']" /></dd>
                                 </div>
 
