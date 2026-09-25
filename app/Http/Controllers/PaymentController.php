@@ -7,7 +7,7 @@ use App\Models\ChitGroup;
 use App\Models\ChitGroupMember;
 use App\Models\Customer;
 use App\Models\Payment;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Support\ReportPdf as Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

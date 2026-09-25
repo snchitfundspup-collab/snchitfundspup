@@ -9,7 +9,8 @@
         $menuGroup('tradersSalesSubmenu', 'rupee', 'green', 'menu_sales', 'Sales', [
             ['traders.sales.create', 'plus', 'new_sale', 'New Sale'],
             ['traders.sales.index', 'chart', 'all_sales', 'All Sales'],
-        ], 'traders.sales.*'),
+            ['traders.orders.index', 'package', 'customer_orders', 'Customer Orders'],
+        ], ['traders.sales.*', 'traders.orders.*']),
         $menuGroup('tradersPurchasesSubmenu', 'package', 'blue', 'menu_purchases', 'Purchases', [
             ['traders.purchases.create', 'plus', 'new_purchase', 'New Purchase'],
             ['traders.purchases.index', 'chart', 'all_purchases', 'All Purchases'],

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ChitGroup;
 use App\Models\Draw;
 use App\Models\Payment;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Support\ReportPdf as Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

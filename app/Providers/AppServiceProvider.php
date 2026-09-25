@@ -22,6 +22,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         /* the Usage dashboard is for Sathiya only */
-        Gate::define('view-usage', fn (User $user): bool => $user->can_view_usage === true);
+        Gate::define('view-usage', fn (mixed $user): bool => $user instanceof User && $user->can_view_usage === true);
     }
 }

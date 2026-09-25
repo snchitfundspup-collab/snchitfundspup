@@ -113,11 +113,11 @@
     <table class="meta">
         <tr>
             <td>
-                <div class="label">Receipt No.</div>
+                <div class="label">{{ __('Receipt No.') }}</div>
                 <div class="value">{{ $payment->receipt_number }}</div>
             </td>
             <td class="right">
-                <div class="label">Date &amp; time</div>
+                <div class="label">{{ __('Date & time') }}</div>
                 <div class="value">{{ $payment->paid_at->format('d M Y, h:i A') }}</div>
             </td>
         </tr>
@@ -126,7 +126,7 @@
 
     <table class="lines">
         <tr>
-            <th>Received from</th>
+            <th>{{ __('Received from') }}</th>
             <td>
                 {{ $payment->customer->name }}
                 @if (filled($payment->customer->remarks))
@@ -135,37 +135,37 @@
             </td>
         </tr>
         <tr>
-            <th>Customer ID</th>
+            <th>{{ __('Customer ID') }}</th>
             <td>{{ $payment->customer->customer_code }}</td>
         </tr>
         <tr>
-            <th>Phone</th>
+            <th>{{ __('Phone') }}</th>
             <td>{{ $payment->customer->phone }}</td>
         </tr>
         <tr>
-            <th>Group</th>
+            <th>{{ __('Group') }}</th>
             <td>{{ $payment->chitGroup->name }}</td>
         </tr>
         <tr>
-            <th>Member ID</th>
+            <th>{{ __('Member ID') }}</th>
             <td>{{ $payment->member->member_code }}</td>
         </tr>
         <tr>
-            <th>For</th>
+            <th>{{ __('For') }}</th>
             <td>
                 @foreach ($payment->allocations as $allocation)
-                    Month {{ $allocation->month_number }}
+                    {{ __('Month') }} {{ $allocation->month_number }}
                     ({{ $payment->chitGroup->monthPeriodLabel($allocation->month_number) }}):
                     <x-rupees :amount="$allocation->amount" />
                     @if ($allocation->amount < $payment->chitGroup->installment_amount)
-                        <span class="ident">(part)</span>
+                        <span class="ident">{{ __('(part)') }}</span>
                     @endif
                     <br>
                 @endforeach
             </td>
         </tr>
         <tr>
-            <th>Payment method</th>
+            <th>{{ __('Payment method') }}</th>
             <td>
                 {{ $payment->methodLabel() }}
                 @if ($payment->reference)
@@ -175,7 +175,7 @@
         </tr>
         @if ($payment->notes)
             <tr>
-                <th>Notes</th>
+                <th>{{ __('Notes') }}</th>
                 <td>{{ $payment->notes }}</td>
             </tr>
         @endif
@@ -184,7 +184,7 @@
 
     <table class="amount-box">
         <tr>
-            <td class="amount-label">Amount received</td>
+            <td class="amount-label">{{ __('Amount received') }}</td>
             <td class="amount-figure"><x-rupees :amount="$payment->amount" /></td>
         </tr>
         <tr>
@@ -199,19 +199,19 @@
     <table class="footer">
         <tr>
             <td style="width: 32%;">
-                <span class="label">Balance due now</span>
+                <span class="label">{{ __('Balance due now') }}</span>
                 <strong @class(['due' => $hasPending ?? false, 'open' => ! ($hasPending ?? false) && $balanceNow > 0])><x-rupees :amount="$balanceNow" /></strong>
             </td>
             <td style="width: 32%;">
-                <span class="label">Recorded by</span>
+                <span class="label">{{ __('Recorded by') }}</span>
                 <strong>{{ $payment->recorder?->name ?? '—' }}</strong>
             </td>
             <td>
-                <div class="signature">Authorised signature</div>
+                <div class="signature">{{ __('Authorised signature') }}</div>
             </td>
         </tr>
     </table>
 
-    <div class="thanks">Thank you for your payment.</div>
+    <div class="thanks">{{ __('Thank you for your payment.') }}</div>
 
 @endsection

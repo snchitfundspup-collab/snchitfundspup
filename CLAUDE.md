@@ -11,7 +11,19 @@ One Laravel 13 / PHP 8.4 app (Blade, per-page CSS/JS through Vite, DomPDF) runni
 
 Customers are **shared** by both businesses; everything else (transactions, expenses, settlements) is separate. `App\Http\Middleware\SetBusinessContext` decides the business from the route (`traders.*` → Traders; `customers.*`, `password.*`, `usage.*` keep the last one; everything else → Chit Funds) and shares `$business` with every view (header, menu, footer, page titles). The dashboard of each business has a button to switch to the other.
 
-Only staff sign in (`users` table, username + password; seeded by `AdminUserSeeder`: `narayanan`, `sathiya`). Customers cannot sign in yet — a customer page is planned.
+Two separate sign-ins, with no links between the two login pages:
+- **Staff** at `/login/admin` (`web` guard, `users` table, username + password; seeded by `AdminUserSeeder`: `narayanan`, `sathiya`). `/login` redirects there. Office routes use `auth:web`.
+- **Customers** at `/login/customer` (`customer` guard, `Customer` is Authenticatable) with their **phone number** (last 10 digits matched) and password. `customers.password` null = the default password `snchitfunds` (`Customer::DEFAULT_PASSWORD`). Signed in with the default password or one the office typed in (`must_change_password`), the customer sees **only Change Password** until they choose their own (`EnsureCustomerChoseOwnPassword`; the default can't be chosen). Forgotten password → the customer **calls the office**, which uses **Reset to default** (or sets one) in the customer edit pop-up; there is no self-service reset. Family members sharing a phone pick their account after signing in. Inactive customers cannot sign in.
+
+## Customer portal (/my) — keep it very simple
+
+- Menu: Home · SN Chit Funds (My Groups, Upcoming Groups) · SN Traders (Rice & Order, My Orders, Bills & Statement) · Call office · Change Password · Logout. Controllers `app/Http/Controllers/Portal/*`, views `resources/views/portal/*`, `layouts/portal.blade.php`, `resources/css/portal.css`, `resources/js/portal.js`.
+- Customers only ever see their own seats, receipts, orders and bills (404 otherwise), never other members' names.
+- Home: greeting → My Groups first (months completed / remaining, next due) → Upcoming Groups → SN Traders (rice balance, orders, rice cards). No number tiles. On customer pages show **one date per month** ("Month 2 · 15 Oct 2026"), never the "15 Sep – 14 Oct" range. Withdrawal plan: single dates, folds away, months already withdrawn muted/Done. Every page has a back link; tables become cards on phones.
+- **Call office** buttons use `config('app.office_phone')` (`OFFICE_PHONE`, default 9842510159).
+- Upcoming (forming) groups: the customer can say **"I'm interested"** (seats + note) → `ChitJoinRequest`. Only the office decides: Groups → **Join Requests** (`JoinRequestController`) adds the seats or dismisses with a reply.
+- Rice orders (`TraderOrder`, O000001…) at the selling price of the day → office **Traders → Sales → Customer Orders**; "Make sale" opens New Sale filled from the order and saving it completes the order. Both dashboards show waiting requests / new orders.
+- **Theme:** dark is the default everywhere (light only when a person switches).
 
 ## Business rules (decided by the owners — do not change without asking)
 
@@ -51,6 +63,8 @@ Only staff sign in (`users` table, username + password; seeded by `AdminUserSeed
 - Side menus: `resources/views/components/menu.blade.php` (Chit Funds) and `components/partials/traders-menu.blade.php`; groups use `components/partials/menu-group.blade.php` (items `[route, icon, i18n, label, params?]`).
 - Printing: screen print pages extend `layouts/print.blade.php`; PDFs extend `pdf/layout.blade.php`. Both take `$companyName` ('Chit Funds' / 'Traders').
 - Translations: English and Tamil strings live in `resources/js/app.js` (two dictionaries). Every visible label has `data-i18n="key"`; add the key to **both** dictionaries.
+- **Reports follow the language too.** app.js keeps the choice in the `sn_language` cookie (not encrypted); `SetLanguage` middleware sets the app locale. Print pages and PDFs use `__('English text')` with Tamil in `lang/ta.json` — wrap every new report/PDF label and add it there. Payment-method and "Month N" labels come from the models via `__()`.
+- **PDFs:** controllers use `App\Support\ReportPdf` (aliased `Pdf`, same `loadView()->setPaper()->download()` API). English → DomPDF as before; Tamil → **mPDF** (DomPDF cannot join Tamil letters) with the **Hind Madurai** font in `resources/fonts` (OFL; Noto Sans Tamil crashes mPDF's shaping). Amounts in words stay English.
 - Per-page CSS/JS: add new files to `vite.config.js` inputs and load them with `@vite` in the page's `@push`.
 - Live filters on list pages come from `resources/js/payments.js` (`#paymentFilterForm`, `#paymentsResults`, `#paymentRanges`); add new filter field names to its list.
 - Dates: use `config('app.business_timezone')` (Asia/Kolkata) for "today"; the app timezone is UTC. When counting days between dates, compare plain dates (`Carbon::parse($date->toDateString())`) to avoid off-by-one errors.
@@ -58,7 +72,7 @@ Only staff sign in (`users` table, username + password; seeded by `AdminUserSeed
 ## Working on it
 
 - Local: MySQL database `snchitfunds` (`.env`, not in git — each computer has its own). Run `composer run dev` (or `php artisan serve` + `npm run dev`); site at http://localhost:8000. After pulling: `composer install`, `npm install`, `php artisan migrate`, `npm run build`.
-- Tests: Pest, SQLite in memory. SQLite stores dates with a time, so filter dates with `whereBetween(col, [$from.' 00:00:00', $to.' 23:59:59'])` or `whereDate`, not `where(col, 'Y-m-d')`. Run `php artisan test --compact` (about 255 tests, all passing).
+- Tests: Pest, SQLite in memory. SQLite stores dates with a time, so filter dates with `whereBetween(col, [$from.' 00:00:00', $to.' 23:59:59'])` or `whereDate`, not `where(col, 'Y-m-d')`. Run `php artisan test --compact` (about 270 tests, all passing).
 - Before finishing PHP changes: `vendor/bin/pint --dirty --format agent`; after CSS/JS changes: `npm run build`.
 - Commit or push only when asked. Never commit `.env` or `.claude/`.
 - On Windows use PowerShell for `php` / `npm`; for multi-line file edits from the shell, write a script file rather than a heredoc.

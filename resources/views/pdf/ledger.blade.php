@@ -148,11 +148,11 @@
 
     <table class="info">
         <tr>
-            <td><span class="label">Group</span><strong>{{ $group->name }}</strong></td>
-            <td><span class="label">Monthly installment</span><strong><x-rupees :amount="$group->installment_amount" /></strong></td>
-            <td><span class="label">Months</span><strong>{{ $fromMonth }}–{{ $toMonth }} of {{ $group->months }}</strong></td>
-            <td><span class="label">Collected</span><strong><x-rupees :amount="$totalPaid" /></strong></td>
-            <td><span class="label">Due now</span><strong class="{{ $totalPending > 0 ? 'due-text' : 'open-text' }}"><x-rupees :amount="$totalDue" /></strong></td>
+            <td><span class="label">{{ __('Group') }}</span><strong>{{ $group->name }}</strong></td>
+            <td><span class="label">{{ __('Monthly installment') }}</span><strong><x-rupees :amount="$group->installment_amount" /></strong></td>
+            <td><span class="label">{{ __('Months') }}</span><strong>{{ $fromMonth }}–{{ $toMonth }} of {{ $group->months }}</strong></td>
+            <td><span class="label">{{ __('Collected') }}</span><strong><x-rupees :amount="$totalPaid" /></strong></td>
+            <td><span class="label">{{ __('Due now') }}</span><strong class="{{ $totalPending > 0 ? 'due-text' : 'open-text' }}"><x-rupees :amount="$totalDue" /></strong></td>
         </tr>
     </table>
 
@@ -162,16 +162,16 @@
         <thead>
             <tr>
                 <th>#</th>
-                <th class="member">Member</th>
+                <th class="member">{{ __('Member') }}</th>
                 @foreach ($monthNumbers as $month)
                     <th>
                         M{{ $month }}
                         <span class="month-date">{{ $group->dateForMonth($month)->format('j M') }}–<br>{{ $group->monthEndDate($month)->format('j M') }}</span>
                     </th>
                 @endforeach
-                <th>Paid</th>
-                <th>Due now</th>
-                <th>Prize won</th>
+                <th>{{ __('Paid') }}</th>
+                <th>{{ __('Due now') }}</th>
+                <th>{{ __('Prize won') }}</th>
             </tr>
         </thead>
 
@@ -209,7 +209,7 @@
                     <td class="prize">
                         @if ($row['won'])
                             <x-rupees :amount="$row['won']->prizeAmount()" />
-                            <small>M{{ $row['won']->month_number }} · {{ $row['won']->isPaidOut() ? 'Paid out' : 'Awaiting payout' }}</small>
+                            <small>M{{ $row['won']->month_number }} · {{ __($row['won']->isPaidOut() ? 'Paid out' : 'Awaiting payout') }}</small>
                         @else
                             —
                         @endif
@@ -221,7 +221,7 @@
         <tfoot>
             <tr>
                 <th></th>
-                <th class="member">Total</th>
+                <th class="member">{{ __('Total') }}</th>
                 @foreach ($monthNumbers as $month)
                     <td>
                         {{ \Illuminate\Support\Number::format($monthTotals[$month]['paid'], locale: 'en_IN') }}
@@ -238,11 +238,11 @@
 
 
     <div class="key">
-        <span class="paid">Paid</span>
-        <span class="partial">Part paid</span>
-        <span class="due">— Pending</span>
-        <span class="won won-mark">+ Prize money won that month</span>
-        Amounts in ₹. Month totals show collected / expected.
+        <span class="paid">{{ __('Paid') }}</span>
+        <span class="partial">{{ __('Part paid') }}</span>
+        <span class="due">— {{ __('Pending') }}</span>
+        <span class="won won-mark">{{ __('+ Prize money won that month') }}</span>
+        {{ __('Amounts in ₹. Month totals show collected / expected.') }}
     </div>
 
 @endsection

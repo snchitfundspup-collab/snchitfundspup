@@ -148,7 +148,7 @@ class Payment extends Model
 
     public function methodLabel(): string
     {
-        return self::METHODS[$this->method] ?? ucfirst($this->method);
+        return __(self::METHODS[$this->method] ?? ucfirst($this->method));
     }
 
     /**
@@ -163,8 +163,8 @@ class Payment extends Model
         }
 
         return $months->count() === 1
-            ? 'Month '.$months->first()
-            : 'Months '.$months->first().'–'.$months->last();
+            ? __('Month').' '.$months->first()
+            : __('Months').' '.$months->first().'–'.$months->last();
     }
 
     /**

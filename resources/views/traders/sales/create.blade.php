@@ -93,7 +93,22 @@
 
             <h2 class="member-groups-title" data-i18n="rice_sold">Rice sold</h2>
 
-            @include('traders.partials.bill-lines', ['isSale' => true])
+            @if ($order)
+                <input type="hidden" name="order_id" value="{{ old('order_id', $order->id) }}">
+                <p class="partial-only-note">
+                    <x-icon name="info" />
+                    <span>
+                        <span data-i18n="from_customer_order">From the customer's order</span>
+                        <strong>{{ $order->order_number }}</strong> ({{ $order->created_at->timezone(config('app.business_timezone'))->format('d M, h:i A') }}).
+                        <span data-i18n="order_prices_today">Prices are today's; change anything before saving.</span>
+                        @if ($order->notes)
+                            <br><span data-i18n="customer_note">Customer's note:</span> “{{ $order->notes }}”
+                        @endif
+                    </span>
+                </p>
+            @endif
+
+            @include('traders.partials.bill-lines', ['isSale' => true, 'prefillLines' => $orderLines])
 
 
             <h2 class="member-groups-title" data-i18n="received_now">Received now</h2>

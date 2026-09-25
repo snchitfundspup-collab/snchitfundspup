@@ -2,27 +2,27 @@
 
 <table class="info">
     <tr>
-        <td><span class="label">Period</span><strong>@include('traders.reports.partials.period-text')</strong></td>
-        <td><span class="label">Sales</span><strong><x-rupees :amount="$summary['sales']" /></strong></td>
-        <td><span class="label">Money in</span><strong><x-rupees :amount="$summary['received']" /></strong></td>
-        <td><span class="label">Money out</span><strong><x-rupees :amount="$summary['purchases'] + $summary['expenses']" /></strong></td>
-        <td><span class="label">Net</span><strong class="{{ $summary['net'] < 0 ? 'pending' : '' }}"><x-rupees :amount="$summary['net']" /></strong></td>
+        <td><span class="label">{{ __('Period') }}</span><strong>@include('traders.reports.partials.period-text')</strong></td>
+        <td><span class="label">{{ __('Sales') }}</span><strong><x-rupees :amount="$summary['sales']" /></strong></td>
+        <td><span class="label">{{ __('Money in') }}</span><strong><x-rupees :amount="$summary['received']" /></strong></td>
+        <td><span class="label">{{ __('Money out') }}</span><strong><x-rupees :amount="$summary['purchases'] + $summary['expenses']" /></strong></td>
+        <td><span class="label">{{ __('Net') }}</span><strong class="{{ $summary['net'] < 0 ? 'pending' : '' }}"><x-rupees :amount="$summary['net']" /></strong></td>
     </tr>
 </table>
 
 <table class="grid">
     <thead>
         <tr>
-            <th>Date</th>
-            <th class="amount">Sales</th>
-            <th class="amount">Invoices</th>
+            <th>{{ __('Date') }}</th>
+            <th class="amount">{{ __('Sales') }}</th>
+            <th class="amount">{{ __('Invoices') }}</th>
             @foreach ($methods as $methodLabel)
-                <th class="amount">{{ $methodLabel }}</th>
+                <th class="amount">{{ __($methodLabel) }}</th>
             @endforeach
-            <th class="amount">Money in</th>
-            <th class="amount">Purchases</th>
-            <th class="amount">Expenses</th>
-            <th class="amount">Net</th>
+            <th class="amount">{{ __('Money in') }}</th>
+            <th class="amount">{{ __('Purchases') }}</th>
+            <th class="amount">{{ __('Expenses') }}</th>
+            <th class="amount">{{ __('Net') }}</th>
         </tr>
     </thead>
     <tbody>
@@ -43,7 +43,7 @@
     </tbody>
     <tfoot>
         <tr>
-            <th>Total ({{ $rows->count() }} days)</th>
+            <th>{{ __('Total') }} ({{ $rows->count() }} {{ __('days') }})</th>
             <td class="amount"><x-rupees :amount="$summary['sales']" /></td>
             <td class="amount">{{ $summary['invoices'] }}</td>
             @foreach (array_keys($methods) as $method)
@@ -57,4 +57,4 @@
     </tfoot>
 </table>
 
-<p class="muted">Money in is what customers paid that day (at a sale or later). Money out is rice purchased plus expenses.</p>
+<p class="muted">{{ __('Money in is what customers paid that day (at a sale or later). Money out is rice purchased plus expenses.') }}</p>

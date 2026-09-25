@@ -7,14 +7,14 @@
 
 <table class="info">
     <tr>
-        <td><span class="label">As on</span><strong>{{ $today->format('D, d M Y') }}</strong></td>
-        <td><span class="label">Customers owe</span><strong class="pending"><x-rupees :amount="$summary['total']" /></strong></td>
-        <td><span class="label">Customers</span><strong>{{ $summary['count'] }}</strong></td>
-        <td><span class="label">Showing</span><strong>{{ $ageLabels[$age] }}</strong></td>
+        <td><span class="label">{{ __('As on') }}</span><strong>{{ $today->format('D, d M Y') }}</strong></td>
+        <td><span class="label">{{ __('Customers owe') }}</span><strong class="pending"><x-rupees :amount="$summary['total']" /></strong></td>
+        <td><span class="label">{{ __('Customers') }}</span><strong>{{ $summary['count'] }}</strong></td>
+        <td><span class="label">{{ __('Showing') }}</span><strong>{{ __($ageLabels[$age]) }}</strong></td>
     </tr>
     @if ($search !== '')
         <tr>
-            <td colspan="4" class="muted">Search: “{{ $search }}”</td>
+            <td colspan="4" class="muted">{{ __('Search') }}: “{{ $search }}”</td>
         </tr>
     @endif
 </table>
@@ -23,14 +23,14 @@
     <thead>
         <tr>
             <th>#</th>
-            <th>Customer</th>
-            <th>Phone</th>
-            <th>Oldest unpaid</th>
-            <th>Last paid</th>
+            <th>{{ __('Customer') }}</th>
+            <th>{{ __('Phone') }}</th>
+            <th>{{ __('Oldest unpaid') }}</th>
+            <th>{{ __('Last paid') }}</th>
             @foreach ($bucketLabels as $bucketLabel)
-                <th class="amount">{{ $bucketLabel }}</th>
+                <th class="amount">{{ __($bucketLabel) }}</th>
             @endforeach
-            <th class="amount">Balance</th>
+            <th class="amount">{{ __('Balance') }}</th>
         </tr>
     </thead>
     <tbody>
@@ -49,7 +49,7 @@
                 <td class="nowrap">
                     @if ($row['oldest_unpaid'])
                         {{ \Illuminate\Support\Carbon::parse($row['oldest_unpaid'])->format('d M Y') }}
-                        <span class="{{ $row['days'] > 30 ? 'pending' : 'due-open' }}">({{ $row['days'] }} days)</span>
+                        <span class="{{ $row['days'] > 30 ? 'pending' : 'due-open' }}">({{ $row['days'] }} {{ __('days') }})</span>
                     @else
                         —
                     @endif
@@ -64,7 +64,7 @@
     </tbody>
     <tfoot>
         <tr>
-            <th colspan="5">Total ({{ $rows->count() }})</th>
+            <th colspan="5">{{ __('Total') }} ({{ $rows->count() }})</th>
             @foreach (array_keys($bucketLabels) as $bucket)
                 <td class="amount"><x-rupees :amount="$rows->sum(fn ($row) => $row['buckets'][$bucket])" /></td>
             @endforeach

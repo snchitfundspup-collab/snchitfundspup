@@ -1,13 +1,13 @@
 {{-- Shell for printable lists (payments, pending & due): the letterhead
      and plain black-on-white table styles, opening the print dialog. --}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @include('components.partials.site-icons')
 
-    <title>@yield('title') | SN {{ $companyName ?? 'Chit Funds' }}</title>
+    <title>{{ __(html_entity_decode(trim($__env->yieldContent('title')), ENT_QUOTES)) }} | SN {{ $companyName ?? 'Chit Funds' }}</title>
 
     <style>
         @page {
@@ -117,8 +117,8 @@
 <body>
 
     <div class="print-bar">
-        <button type="button" onclick="window.print()">Print</button>
-        <button type="button" onclick="window.close()">Close</button>
+        <button type="button" onclick="window.print()">{{ __('Print') }}</button>
+        <button type="button" onclick="window.close()">{{ __('Close') }}</button>
     </div>
 
     <table class="letterhead">
@@ -128,10 +128,10 @@
             </td>
             <td>
                 <div class="company"><span class="sn">SN</span> {{ $companyName ?? 'Chit Funds' }}</div>
-                <div class="tagline">{{ ($companyName ?? '') === 'Traders' ? 'Quality Rice · Fair Price' : 'Trust · Growth · Together' }}</div>
+                <div class="tagline">{{ __(($companyName ?? '') === 'Traders' ? 'Quality Rice · Fair Price' : 'Trust · Growth · Together') }}</div>
             </td>
             <td class="doc-title">
-                <strong>@yield('doc_title')</strong>
+                <strong>{{ __(html_entity_decode(trim($__env->yieldContent('doc_title')), ENT_QUOTES)) }}</strong>
                 <span>{{ now(config('app.business_timezone'))->format('d M Y, h:i A') }}</span>
             </td>
         </tr>

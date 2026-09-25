@@ -441,6 +441,21 @@ document.addEventListener('DOMContentLoaded', function () {
             'editCustomerActive'
         );
 
+    const editCustomerPassword =
+        document.getElementById(
+            'editCustomerPassword'
+        );
+
+    const editCustomerPasswordStatus =
+        document.getElementById(
+            'editCustomerPasswordStatus'
+        );
+
+    const resetCustomerPassword =
+        document.getElementById(
+            'resetCustomerPassword'
+        );
+
     const customerFormError =
         document.getElementById(
             'customerFormError'
@@ -512,7 +527,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 element.dataset.customerAddress || '',
 
             is_active:
-                element.dataset.customerActive === '1'
+                element.dataset.customerActive === '1',
+
+            password_state:
+                element.dataset.customerPasswordState || 'default'
 
         };
 
@@ -635,6 +653,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         editCustomerActive.checked =
             Boolean(customer.is_active);
+
+
+        showPasswordStatus(
+            customer.password_state
+        );
+
+
+        if (editCustomerPassword) {
+            editCustomerPassword.value = '';
+        }
 
 
         hideFormError();
@@ -949,6 +977,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 );
 
 
+                if (
+                    editCustomerPassword &&
+                    editCustomerPassword.value.trim() !== ''
+                ) {
+
+                    formData.append(
+                        'password',
+                        editCustomerPassword.value.trim()
+                    );
+
+                }
+
+
                 try {
 
                     const response =
@@ -1013,6 +1054,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         );
 
 
+                        markPasswordState(
+                            data.customer.id,
+                            data.password_state
+                        );
+
+
                         closeCustomerModal();
 
 
@@ -1049,6 +1096,145 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     customerSaveLoading.style.display =
                         'none';
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =========================================================
+       CUSTOMER LOGIN PASSWORD
+       Default password, or one set by the office; the office can
+       reset it to the default.
+    ========================================================= */
+
+    const PASSWORD_STATES = {
+        default: 'default (snchitfunds) — they choose their own when they sign in',
+        office: 'set by the office — they choose their own when they sign in',
+        own: 'their own password'
+    };
+
+
+    function showPasswordStatus(
+        state
+    ) {
+
+        if (!editCustomerPasswordStatus) {
+            return;
+        }
+
+        editCustomerPasswordStatus.textContent =
+            PASSWORD_STATES[state] || PASSWORD_STATES.default;
+
+    }
+
+
+    function markPasswordState(
+        customerId,
+        state
+    ) {
+
+        document
+            .querySelectorAll(
+                `[data-customer-id="${customerId}"]`
+            )
+            .forEach(function (element) {
+
+                if (element.dataset.customerPasswordState !== undefined) {
+                    element.dataset.customerPasswordState = state;
+                }
+
+            });
+
+    }
+
+
+    if (resetCustomerPassword) {
+
+        resetCustomerPassword.addEventListener(
+            'click',
+            async function () {
+
+                const customerId =
+                    editCustomerId.value;
+
+                if (
+                    !customerId ||
+                    !window.confirm(
+                        'Reset this customer\'s password to the default (snchitfunds)?'
+                    )
+                ) {
+                    return;
+                }
+
+                const csrfToken =
+                    document.querySelector(
+                        'meta[name="csrf-token"]'
+                    )?.getAttribute(
+                        'content'
+                    );
+
+                resetCustomerPassword.disabled = true;
+
+                try {
+
+                    const response =
+                        await fetch(
+                            `/customers/${customerId}/password`,
+                            {
+                                method: 'DELETE',
+
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'X-CSRF-TOKEN': csrfToken || ''
+                                }
+                            }
+                        );
+
+                    const data =
+                        await response.json();
+
+                    if (!response.ok || !data.success) {
+                        showFormError(
+                            data.message ||
+                            'Unable to reset the password.'
+                        );
+                        return;
+                    }
+
+                    showPasswordStatus('default');
+
+                    markPasswordState(
+                        customerId,
+                        'default'
+                    );
+
+                    if (editCustomerPassword) {
+                        editCustomerPassword.value = '';
+                    }
+
+                    showSuccessPopup(
+                        data.message
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        'Password reset error:',
+                        error
+                    );
+
+                    showFormError(
+                        'Something went wrong. Please try again.'
+                    );
+
+                } finally {
+
+                    resetCustomerPassword.disabled = false;
 
                 }
 

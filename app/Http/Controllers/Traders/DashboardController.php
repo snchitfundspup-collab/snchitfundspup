@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Traders;
 use App\Http\Controllers\Controller;
 use App\Models\Purchase;
 use App\Models\Sale;
+use App\Models\TraderOrder;
 use App\Models\TraderReceipt;
 use Illuminate\View\View;
 
@@ -37,6 +38,7 @@ class DashboardController extends Controller
             'topOwing' => $balances->filter(fn ($row) => $row['balance'] >= 0.01)->take(5)->values(),
             'stock' => $stock,
             'recentSales' => Sale::with('customer')->latest('sold_on')->latest('id')->take(6)->get(),
+            'newOrders' => TraderOrder::query()->open()->count(),
         ]);
     }
 }

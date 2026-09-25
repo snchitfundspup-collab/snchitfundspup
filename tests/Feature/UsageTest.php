@@ -132,7 +132,7 @@ test('who used the app recently lists staff and customers, latest first', functi
 test('the customers tab explains when no customer has used the app', function () {
     $this->actingAs($this->sathiya)->get(route('usage.index', ['who' => 'customers']))
         ->assertOk()
-        ->assertSeeText('Customers will appear here once they can sign in.');
+        ->assertSeeText('No customer has signed in yet.');
 });
 
 test('page detail is kept for a month, while the daily counts keep the charts for a year', function () {

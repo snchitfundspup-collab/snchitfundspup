@@ -8,7 +8,7 @@ use App\Models\PartnerSettlement;
 use App\Models\TraderExpense;
 use App\Models\TraderPartnerSettlement;
 use App\Models\User;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Support\ReportPdf as Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;

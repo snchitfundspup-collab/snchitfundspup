@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Sale;
 use App\Models\TraderReceipt;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Support\ReportPdf as Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
@@ -40,12 +40,12 @@ class CustomerAccountController extends Controller
 
     public function show(Customer $customer): View
     {
-        return view('traders.account', $this->statement($customer));
+        return view('traders.account', self::statement($customer));
     }
 
     public function pdf(Customer $customer): Response
     {
-        return Pdf::loadView('pdf.traders.account', $this->statement($customer))
+        return Pdf::loadView('pdf.traders.account', self::statement($customer))
             ->setPaper('a4', 'portrait')
             ->download('Account-'.$customer->customer_code.'.pdf');
     }
@@ -129,7 +129,7 @@ class CustomerAccountController extends Controller
      *
      * @return array<string, mixed>
      */
-    private function statement(Customer $customer): array
+    public static function statement(Customer $customer): array
     {
         $sales = $customer->traderSales()->with('items.variety')->get()->map(fn (Sale $sale) => [
             'date' => $sale->sold_on->toDateString(),

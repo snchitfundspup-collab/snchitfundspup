@@ -6,7 +6,7 @@ use App\Http\Requests\StoreExpenseRequest;
 use App\Models\Expense;
 use App\Models\TraderExpense;
 use App\Models\User;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Support\ReportPdf as Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

@@ -82,7 +82,7 @@ class Purchase extends Model
 
     public function methodLabel(): string
     {
-        return Payment::METHODS[$this->method] ?? ucfirst((string) $this->method);
+        return __(Payment::METHODS[$this->method] ?? ucfirst((string) $this->method));
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class CustomerController extends Controller
@@ -241,6 +242,14 @@ class CustomerController extends Controller
                 'boolean',
             ],
 
+            /* optional: a new password for the customer's own sign-in */
+            'password' => [
+                'nullable',
+                'string',
+                'min:6',
+                'max:100',
+            ],
+
         ]);
 
         /*
@@ -262,6 +271,10 @@ class CustomerController extends Controller
 
         ]);
 
+        if (filled($validated['password'] ?? null)) {
+            $customer->setPasswordByOffice($validated['password']);
+        }
+
         /*
          * Return JSON for JavaScript/AJAX.
          */
@@ -273,6 +286,25 @@ class CustomerController extends Controller
 
             'customer' => $customer->fresh(),
 
+            'uses_default_password' => $customer->usesDefaultPassword(),
+
+            'password_state' => $customer->passwordState(),
+
+        ]);
+    }
+
+    /**
+     * Put the customer's sign-in back to the default password.
+     */
+    public function resetPassword(Customer $customer): JsonResponse
+    {
+        $customer->resetPassword();
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$customer->name} can sign in again with the default password.",
+            'uses_default_password' => true,
+            'password_state' => 'default',
         ]);
     }
 }

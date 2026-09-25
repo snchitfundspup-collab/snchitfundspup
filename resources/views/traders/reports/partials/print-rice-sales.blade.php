@@ -7,29 +7,29 @@
 
 <table class="info">
     <tr>
-        <td><span class="label">Period</span><strong>@include('traders.reports.partials.period-text')</strong></td>
-        <td><span class="label">Bags sold</span><strong>{{ $summary['bags'] }}</strong></td>
-        <td><span class="label">Sales</span><strong><x-rupees :amount="$summary['amount']" /></strong></td>
-        <td><span class="label">Invoices</span><strong>{{ $summary['invoices'] }}</strong></td>
-        <td><span class="label">Bags a day</span><strong>{{ $trim($summary['per_day']) }}</strong></td>
+        <td><span class="label">{{ __('Period') }}</span><strong>@include('traders.reports.partials.period-text')</strong></td>
+        <td><span class="label">{{ __('Bags sold') }}</span><strong>{{ $summary['bags'] }}</strong></td>
+        <td><span class="label">{{ __('Sales') }}</span><strong><x-rupees :amount="$summary['amount']" /></strong></td>
+        <td><span class="label">{{ __('Invoices') }}</span><strong>{{ $summary['invoices'] }}</strong></td>
+        <td><span class="label">{{ __('Bags a day') }}</span><strong>{{ $trim($summary['per_day']) }}</strong></td>
     </tr>
 </table>
 
-<h3 class="list-title">Fastest selling rice</h3>
+<h3 class="list-title">{{ __('Fastest selling rice') }}</h3>
 
 <table class="grid">
     <thead>
         <tr>
             <th>#</th>
-            <th>Rice variety</th>
-            <th class="amount">Bags sold</th>
-            <th class="amount">Share</th>
-            <th class="amount">Sales</th>
-            <th class="amount">Avg rate / bag</th>
-            <th class="amount">Bags / day</th>
-            <th class="amount">In stock</th>
-            <th class="amount">Stock lasts</th>
-            <th>Speed</th>
+            <th>{{ __('Rice variety') }}</th>
+            <th class="amount">{{ __('Bags sold') }}</th>
+            <th class="amount">{{ __('Share') }}</th>
+            <th class="amount">{{ __('Sales') }}</th>
+            <th class="amount">{{ __('Avg rate / bag') }}</th>
+            <th class="amount">{{ __('Bags / day') }}</th>
+            <th class="amount">{{ __('In stock') }}</th>
+            <th class="amount">{{ __('Stock lasts') }}</th>
+            <th>{{ __('Speed') }}</th>
         </tr>
     </thead>
     <tbody>
@@ -43,14 +43,14 @@
                 <td class="amount">@if ($row['bags'] > 0)<x-rupees :amount="$row['average_rate']" />@else — @endif</td>
                 <td class="amount">{{ $trim($row['per_day']) }}</td>
                 <td class="amount {{ $row['stock_bags'] < 0 ? 'pending' : '' }}">{{ $row['stock_bags'] }}</td>
-                <td class="amount">{{ $row['days_left'] !== null ? $row['days_left'].' days' : '—' }}</td>
-                <td>{{ $speedLabels[$row['speed']] }}</td>
+                <td class="amount">{{ $row['days_left'] !== null ? $row['days_left'].' '.__('days') : '—' }}</td>
+                <td>{{ __($speedLabels[$row['speed']]) }}</td>
             </tr>
         @endforeach
     </tbody>
     <tfoot>
         <tr>
-            <th colspan="2">Total</th>
+            <th colspan="2">{{ __('Total') }}</th>
             <td class="amount">{{ $summary['bags'] }}</td>
             <td></td>
             <td class="amount"><x-rupees :amount="$summary['amount']" /></td>
@@ -63,15 +63,15 @@
 </table>
 
 @if ($topCustomers->isNotEmpty())
-    <h3 class="list-title">Top customers</h3>
+    <h3 class="list-title">{{ __('Top customers') }}</h3>
     <table class="grid">
         <thead>
             <tr>
                 <th>#</th>
-                <th>Customer</th>
-                <th class="amount">Invoices</th>
-                <th class="amount">Bags</th>
-                <th class="amount">Sales</th>
+                <th>{{ __('Customer') }}</th>
+                <th class="amount">{{ __('Invoices') }}</th>
+                <th class="amount">{{ __('Bags') }}</th>
+                <th class="amount">{{ __('Sales') }}</th>
             </tr>
         </thead>
         <tbody>

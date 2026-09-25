@@ -1,9 +1,10 @@
 {{-- Rice bill lines (purchase / sale): variety, bags and rate per bag;
      amount and total worked out by traders.js.
-     $varieties, $isSale, $stock (sale: variety id → bags in stock). --}}
+     $varieties, $isSale, $stock (sale: variety id → bags in stock),
+     $prefillLines (optional: lines from a customer's order). --}}
 
 @php
-    $lines = old('lines', [['variety_id' => '', 'bags' => '', 'rate' => '']]);
+    $lines = old('lines', ($prefillLines ?? null) ?: [['variety_id' => '', 'bags' => '', 'rate' => '']]);
     $stock = $stock ?? collect();
 @endphp
 

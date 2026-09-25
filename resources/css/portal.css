@@ -1,0 +1,1074 @@
+/*
+|--------------------------------------------------------------------------
+| CUSTOMER PAGES (/my) — STYLES
+|--------------------------------------------------------------------------
+| Simple cards for seats, upcoming groups and rice; everything else reuses
+| the office pages' components (dashboard.css, groups.css, payments.css).
+*/
+
+
+/* pages never grow wider than the screen */
+.portal-main {
+    min-width: 0;
+
+    max-width: 100%;
+
+    overflow-x: hidden;
+}
+
+
+/* ---------- flash / notes ---------- */
+
+.portal-flash {
+    width: min(1130px, calc(100% - 32px));
+
+    margin: 0 auto 18px;
+
+    padding: 12px 16px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    border-radius: 16px;
+
+    font-weight: 700;
+}
+
+
+.portal-flash-icon {
+    width: 34px;
+
+    height: 34px;
+
+    flex: 0 0 auto;
+}
+
+
+.portal-error {
+    margin: 0 0 16px;
+
+    padding: 12px 16px;
+
+    border-radius: 14px;
+
+    color: #f87171;
+
+    font-weight: 700;
+}
+
+
+html.light .portal-error {
+    color: #b91c1c;
+}
+
+
+.portal-password-note {
+    position: relative;
+
+    margin: 14px 0 0;
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: 13px;
+
+    color: #ff8a45;
+}
+
+
+.portal-password-note svg {
+    width: 16px;
+
+    height: 16px;
+}
+
+
+.portal-password-note a {
+    color: inherit;
+
+    font-weight: 800;
+}
+
+
+html.light .portal-password-note {
+    color: #c2410c;
+}
+
+
+/* ---------- sections & grid ---------- */
+
+.portal-section {
+    margin-top: 26px;
+}
+
+
+.portal-section-head {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 12px;
+}
+
+
+.portal-section-head h2 {
+    margin: 0;
+
+    font-size: 20px;
+}
+
+
+.portal-see-all {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    color: #fe691e;
+
+    font-weight: 700;
+
+    font-size: 14px;
+
+    text-decoration: none;
+}
+
+
+.portal-see-all svg {
+    width: 16px;
+
+    height: 16px;
+}
+
+
+.portal-grid {
+    display: grid;
+
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+
+    gap: 16px;
+}
+
+
+.portal-empty {
+    margin: 0;
+
+    padding: 18px;
+
+    border-radius: 18px;
+
+    color: var(--text-soft);
+}
+
+
+/* ---------- cards ---------- */
+
+.portal-card {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 14px;
+
+    padding: 18px;
+
+    border-radius: 22px;
+
+    color: inherit;
+
+    text-decoration: none;
+
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+
+a.portal-card:hover {
+    transform: translateY(-2px);
+}
+
+
+.portal-card-top {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 12px;
+}
+
+
+.portal-card-icon {
+    width: 42px;
+
+    height: 42px;
+
+    flex: 0 0 auto;
+}
+
+
+.portal-card-title {
+    flex: 1 1 auto;
+
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.portal-card-title strong {
+    font-size: 16px;
+}
+
+
+.portal-card-title small {
+    color: var(--text-soft);
+
+    font-size: 12px;
+}
+
+
+.portal-card-facts,
+.portal-facts {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 10px 22px;
+}
+
+
+.portal-card-facts span,
+.portal-facts span {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.portal-card-facts small,
+.portal-facts small {
+    font-size: 11px;
+
+    font-weight: 700;
+
+    color: var(--text-soft);
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.03em;
+}
+
+
+.portal-card-facts strong {
+    font-size: 16px;
+}
+
+
+.portal-facts {
+    margin-top: 18px;
+}
+
+
+.portal-facts strong {
+    font-size: 18px;
+}
+
+
+.portal-card-note {
+    margin: 0;
+
+    font-size: 12px;
+
+    color: var(--text-soft);
+}
+
+
+.portal-card-won {
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    color: #ff8a45;
+
+    font-weight: 700;
+}
+
+
+.portal-card-won svg {
+    width: 16px;
+
+    height: 16px;
+}
+
+
+html.light .portal-card-won {
+    color: #c2410c;
+}
+
+
+.portal-row-icon {
+    width: 40px;
+
+    height: 40px;
+
+    flex: 0 0 auto;
+}
+
+
+.portal-prize {
+    margin-bottom: 18px;
+}
+
+
+.portal-plan-mine td {
+    background: rgba(34, 197, 94, 0.08);
+}
+
+
+.portal-join-note {
+    margin: 18px 0 0;
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: 14px;
+
+    color: var(--text-soft);
+}
+
+
+.portal-join-note svg {
+    width: 16px;
+
+    height: 16px;
+}
+
+
+/* ---------- rice cards & order ---------- */
+
+.rice-card.is-out {
+    opacity: 0.65;
+}
+
+
+.rice-card.is-chosen {
+    border-color: #22c55e;
+
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.35);
+}
+
+
+.rice-card-price {
+    display: flex;
+
+    align-items: baseline;
+
+    gap: 6px;
+}
+
+
+.rice-card-price strong {
+    font-size: 24px;
+
+    font-weight: 800;
+
+    color: #22c55e;
+}
+
+
+html.light .rice-card-price strong {
+    color: #15803d;
+}
+
+
+.rice-card-price small {
+    color: var(--text-soft);
+}
+
+
+.rice-card-order {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    font-weight: 700;
+}
+
+
+.rice-card-stepper {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+}
+
+
+.rice-card-stepper .input {
+    width: 70px;
+
+    min-height: 42px;
+
+    text-align: center;
+
+    padding: 0 6px;
+}
+
+
+.rice-step {
+    width: 42px;
+
+    height: 42px;
+
+    border-radius: 12px;
+
+    border: 1px solid var(--input-border);
+
+    background: var(--input-bg);
+
+    color: inherit;
+
+    font-size: 22px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+.rice-step:hover {
+    border-color: #fe691e;
+}
+
+
+.portal-order-box {
+    margin-top: 18px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+
+.portal-order-total {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 14px;
+}
+
+
+.portal-order-total > span {
+    display: flex;
+
+    align-items: baseline;
+
+    gap: 10px;
+}
+
+
+.portal-order-total strong {
+    font-size: 26px;
+
+    font-weight: 800;
+
+    color: #22c55e;
+}
+
+
+html.light .portal-order-total strong {
+    color: #15803d;
+}
+
+
+.portal-order-total small {
+    color: var(--text-soft);
+}
+
+
+.portal-order-total button:disabled {
+    opacity: 0.5;
+
+    cursor: not-allowed;
+}
+
+
+.portal-order-row .payment-row-main small {
+    color: var(--text-soft);
+}
+
+
+.portal-order-side {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-end;
+
+    gap: 8px;
+}
+
+
+.portal-cancel-button {
+    min-height: 34px;
+
+    padding: 0 12px;
+
+    font-size: 13px;
+}
+
+
+/* ---------- menu: log out button looks like a menu item ---------- */
+
+.menu-item-button {
+    width: 100%;
+
+    border: 0;
+
+    background: transparent;
+
+    color: inherit;
+
+    font: inherit;
+
+    text-align: left;
+
+    cursor: pointer;
+}
+
+
+@media (max-width: 640px) {
+
+    .portal-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .portal-order-side {
+        align-items: flex-start;
+    }
+
+}
+
+
+/* ---------- call the office ---------- */
+
+.portal-call-button {
+    text-decoration: none;
+
+    white-space: nowrap;
+}
+
+
+.portal-call-compact {
+    width: 40px;
+
+    height: 40px;
+
+    padding: 0;
+
+    justify-content: center;
+}
+
+
+.portal-call-compact span {
+    display: none;
+}
+
+
+.menu-item-phone {
+    display: block;
+
+    font-size: 11px;
+
+    opacity: 0.65;
+}
+
+
+/* ---------- join a forming group ---------- */
+
+.portal-join-box {
+    margin-top: 18px;
+
+    padding: 16px;
+
+    border-radius: 18px;
+
+    background: var(--input-bg);
+
+    border: 1px solid var(--input-border);
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+
+.portal-join-box .portal-join-note {
+    margin: 0;
+}
+
+
+.portal-join-fields {
+    display: grid;
+
+    grid-template-columns: 120px minmax(0, 1fr);
+
+    gap: 12px;
+}
+
+
+.portal-join-actions {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+@media (max-width: 560px) {
+
+    .portal-join-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .portal-call-compact {
+        width: 36px;
+
+        height: 36px;
+    }
+
+}
+
+
+/* ---------- must choose their own password ---------- */
+
+.portal-password-required {
+    display: flex;
+
+    gap: 12px;
+
+    align-items: flex-start;
+
+    margin-bottom: 18px;
+
+    padding: 14px 16px;
+
+    border-radius: 14px;
+
+    background: rgba(254, 105, 30, 0.12);
+
+    border: 1px solid rgba(254, 105, 30, 0.4);
+}
+
+
+.portal-password-required svg {
+    width: 20px;
+
+    height: 20px;
+
+    flex: 0 0 auto;
+
+    color: #ff8a45;
+}
+
+
+.portal-password-required div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+
+    font-size: 14px;
+}
+
+
+.portal-password-required span {
+    color: var(--text-soft);
+}
+
+
+/* ---------- key facts on a group ---------- */
+
+.portal-key-facts {
+    padding-top: 16px;
+
+    border-top: 1px solid var(--input-border);
+}
+
+
+/* ---------- withdrawal plan (folds open / closed) ---------- */
+
+.portal-plan > summary {
+    list-style: none;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    cursor: pointer;
+}
+
+
+.portal-plan > summary::-webkit-details-marker {
+    display: none;
+}
+
+
+.portal-plan-title {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+
+    font-size: 18px;
+
+    font-weight: 800;
+}
+
+
+.portal-plan-title small {
+    font-size: 12px;
+
+    font-weight: 600;
+
+    color: var(--text-soft);
+}
+
+
+.portal-plan-caret {
+    width: 22px;
+
+    height: 22px;
+
+    transition: transform 0.2s ease;
+}
+
+
+.portal-plan[open] .portal-plan-caret {
+    transform: rotate(180deg);
+}
+
+
+.portal-plan[open] > summary {
+    margin-bottom: 14px;
+}
+
+
+/* months whose withdrawal is over: muted */
+.portal-plan-over td {
+    opacity: 0.5;
+}
+
+
+.portal-plan-over td:last-child {
+    opacity: 1;
+}
+
+
+.portal-plan-mine td {
+    background: rgba(34, 197, 94, 0.14);
+}
+
+
+/* ---------- phones: table rows become cards ---------- */
+
+@media (max-width: 640px) {
+
+    .portal-page .group-hero,
+    .portal-page .group-panel {
+        padding: 16px;
+    }
+
+    .portal-page .group-hero-main {
+        flex-wrap: wrap;
+    }
+
+    .portal-page .ledger-actions {
+        width: 100%;
+
+        flex-wrap: wrap;
+    }
+
+    .portal-page .ledger-actions > * {
+        flex: 1 1 auto;
+
+        justify-content: center;
+    }
+
+    .portal-facts {
+        display: grid;
+
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .portal-table,
+    .portal-table tbody,
+    .portal-table tr,
+    .portal-table td {
+        display: block;
+
+        width: 100%;
+    }
+
+    .portal-table thead {
+        display: none;
+    }
+
+    .portal-table tr {
+        margin-bottom: 10px;
+
+        padding: 10px 12px;
+
+        border-radius: 14px;
+
+        background: var(--input-bg);
+
+        border: 1px solid var(--input-border);
+    }
+
+    .portal-table td {
+        padding: 6px 0;
+
+        border: 0;
+
+        text-align: right;
+
+        white-space: normal;
+
+        overflow-wrap: anywhere;
+    }
+
+    /* the label on the left, the value on the right */
+    .portal-table td::before {
+        content: attr(data-label);
+
+        float: left;
+
+        margin-right: 12px;
+
+        font-size: 12px;
+
+        font-weight: 700;
+
+        color: var(--text-soft);
+
+        text-align: left;
+    }
+
+    .portal-table td::after {
+        content: '';
+
+        display: block;
+
+        clear: both;
+    }
+
+    .portal-page .ledger-table-wrapper {
+        overflow: visible;
+    }
+
+    /* the header call button: the menu and pages have one */
+    .portal-call-compact {
+        display: none;
+    }
+
+    .portal-page .payment-row {
+        flex-wrap: wrap;
+    }
+
+    .portal-order-side {
+        width: 100%;
+
+        flex-direction: row;
+
+        justify-content: space-between;
+
+        align-items: center;
+    }
+
+    .portal-table td:not([data-label])::before {
+        content: none;
+    }
+
+    .portal-table td > small {
+        display: block;
+    }
+
+    .portal-plan-mine td {
+        background: transparent;
+    }
+
+    .portal-plan-mine {
+        background: rgba(34, 197, 94, 0.14) !important;
+    }
+
+    .portal-order-total {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .portal-order-total button {
+        justify-content: center;
+    }
+
+    .rice-card-stepper .input {
+        width: 60px;
+    }
+
+}
+
+
+
+
+/* ---------- home: SN Traders summary ---------- */
+
+.portal-traders-summary {
+    display: grid;
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    gap: 12px;
+
+    margin-bottom: 16px;
+
+    padding: 14px;
+
+    border-radius: 20px;
+}
+
+
+.portal-traders-fact {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+
+    padding: 10px 12px;
+
+    border-radius: 14px;
+
+    background: var(--input-bg);
+
+    border: 1px solid var(--input-border);
+
+    color: inherit;
+
+    text-decoration: none;
+}
+
+
+.portal-traders-fact small {
+    font-size: 11px;
+
+    font-weight: 700;
+
+    color: var(--text-soft);
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.03em;
+}
+
+
+.portal-traders-fact strong {
+    font-size: 22px;
+
+    font-weight: 800;
+}
+
+
+.portal-traders-fact > span {
+    font-size: 12px;
+
+    color: var(--text-soft);
+}
+
+
+.portal-traders-link {
+    flex-direction: row;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    font-weight: 800;
+}
+
+
+.portal-traders-link svg {
+    width: 18px;
+
+    height: 18px;
+}
+
+
+.portal-traders-link > span {
+    font-size: 14px;
+
+    color: inherit;
+}
+
+
+@media (max-width: 640px) {
+
+    .portal-traders-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .portal-traders-link {
+        grid-column: 1 / -1;
+    }
+
+}
+

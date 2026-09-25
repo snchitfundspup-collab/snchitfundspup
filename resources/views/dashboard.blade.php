@@ -93,6 +93,32 @@
     </section>
 
 
+    {{-- things customers asked for, waiting for the office --}}
+
+    @if ($waitingJoinRequests > 0)
+        <a href="{{ route('groups.requests.index') }}" class="action-alert glass">
+            <span class="stat-icon icon-3d icon-3d-purple"><x-icon name="users" /></span>
+            <span>
+                <strong>{{ $waitingJoinRequests }}</strong>
+                <span data-i18n="{{ $waitingJoinRequests === 1 ? 'join_request_waiting' : 'join_requests_waiting' }}">{{ $waitingJoinRequests === 1 ? 'customer wants to join a group' : 'customers want to join a group' }}</span>
+            </span>
+            <x-icon name="arrow-right" />
+        </a>
+    @endif
+
+    @if ($newRiceOrders > 0)
+        <a href="{{ route('traders.orders.index') }}" class="action-alert glass">
+            <span class="stat-icon icon-3d icon-3d-orange"><x-icon name="package" /></span>
+            <span>
+                <strong>{{ $newRiceOrders }}</strong>
+                <span data-i18n="{{ $newRiceOrders === 1 ? 'new_order_waiting' : 'new_orders_waiting' }}">{{ $newRiceOrders === 1 ? 'new order from a customer' : 'new orders from customers' }}</span>
+                · <span class="business-switch-sn">SN</span> Traders
+            </span>
+            <x-icon name="arrow-right" />
+        </a>
+    @endif
+
+
     {{-- =====================================================
          COLLECTION CARDS
     ====================================================== --}}

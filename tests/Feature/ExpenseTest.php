@@ -132,7 +132,7 @@ test('the expense list prints and downloads as a pdf', function () {
 
     $this->get(route('expenses.print', ['range' => 'month']))
         ->assertOk()
-        ->assertSeeTextInOrder(['01 Sep 2026 – 24 Sep 2026', 'Total spent', '₹12,000', 'September rent', 'BILL-9', 'Narayanan', 'Total (1 expense)'])
+        ->assertSeeTextInOrder(['01 Sep 2026 – 24 Sep 2026', 'Total spent', '₹12,000', 'September rent', 'BILL-9', 'Narayanan', 'Total (1)'])
         ->assertSee('window.print()', false);
 
     $response = $this->get(route('expenses.pdf', ['range' => 'month']))

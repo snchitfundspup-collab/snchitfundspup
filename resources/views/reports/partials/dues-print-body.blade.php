@@ -3,13 +3,13 @@
 
 <table class="info">
     <tr>
-        <td><span class="label">As on</span><strong>{{ $today->format('D, d M Y') }}</strong></td>
-        <td><span class="label">Group</span><strong>{{ $group?->name ?? 'All running groups' }}</strong></td>
+        <td><span class="label">{{ __('As on') }}</span><strong>{{ $today->format('D, d M Y') }}</strong></td>
+        <td><span class="label">{{ __('Group') }}</span><strong>{{ $group?->name ?? __('All running groups') }}</strong></td>
         @if ($type !== 'due')
-            <td><span class="label">Pending</span><strong class="pending"><x-rupees :amount="$pending->sum('amount')" /></strong> <span class="muted">({{ $pending->count() }})</span></td>
+            <td><span class="label">{{ __('Pending') }}</span><strong class="pending"><x-rupees :amount="$pending->sum('amount')" /></strong> <span class="muted">({{ $pending->count() }})</span></td>
         @endif
         @if ($type !== 'pending')
-            <td><span class="label">Due</span><strong class="due-open"><x-rupees :amount="$due->sum('amount')" /></strong> <span class="muted">({{ $due->count() }})</span></td>
+            <td><span class="label">{{ __('Due') }}</span><strong class="due-open"><x-rupees :amount="$due->sum('amount')" /></strong> <span class="muted">({{ $due->count() }})</span></td>
         @endif
     </tr>
 </table>
@@ -19,26 +19,26 @@
     @continue($type !== 'all' && $type !== $listName)
 
     <h3 class="list-title {{ $listName === 'pending' ? 'pending' : 'due-open' }}">
-        {{ $listName === 'pending' ? 'Pending — past the due date' : 'Due — due this month' }}
+        {{ __($listName === 'pending' ? 'Pending — past the due date' : 'Due — due this month') }}
         ({{ $rows->count() }})
     </h3>
 
     @if ($rows->isEmpty())
-        <p class="muted">No members.</p>
+        <p class="muted">{{ __('No members.') }}</p>
     @else
         <table class="grid">
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>Member</th>
-                    <th>Phone</th>
-                    <th>Group</th>
-                    <th>Month(s)</th>
-                    <th>Due date</th>
+                    <th>{{ __('Member') }}</th>
+                    <th>{{ __('Phone') }}</th>
+                    <th>{{ __('Group') }}</th>
+                    <th>{{ __('Month(s)') }}</th>
+                    <th>{{ __('Due date') }}</th>
                     @if ($listName === 'pending')
-                        <th class="amount">Days overdue</th>
+                        <th class="amount">{{ __('Days overdue') }}</th>
                     @endif
-                    <th class="amount">Amount</th>
+                    <th class="amount">{{ __('Amount') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -55,9 +55,9 @@
                         <td class="nowrap">{{ $row['member']->customer->phone ?: '—' }}</td>
                         <td>{{ $row['group'] }}</td>
                         <td class="nowrap">
-                            {{ count($row['months']) > 1 ? 'Months' : 'Month' }} {{ implode(', ', $row['months']) }}
+                            {{ __(count($row['months']) > 1 ? 'Months' : 'Month') }} {{ implode(', ', $row['months']) }}
                             @if ($row['part_paid'] > 0)
-                                <span class="muted">(<x-rupees :amount="$row['part_paid']" /> paid)</span>
+                                <span class="muted">(<x-rupees :amount="$row['part_paid']" /> {{ __('paid') }})</span>
                             @endif
                         </td>
                         <td class="nowrap">{{ \Illuminate\Support\Carbon::parse($row['due_date'])->format('d M Y') }}</td>
@@ -70,7 +70,7 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <th colspan="{{ $listName === 'pending' ? 7 : 6 }}">Total ({{ $rows->count() }} {{ \Illuminate\Support\Str::plural('member', $rows->count()) }})</th>
+                    <th colspan="{{ $listName === 'pending' ? 7 : 6 }}">{{ __('Total') }} ({{ $rows->count() }})</th>
                     <td class="amount"><x-rupees :amount="$rows->sum('amount')" /></td>
                 </tr>
             </tfoot>
@@ -80,17 +80,17 @@
 @endforeach
 
 @if ($group === null && $byGroup->count() > 1)
-    <h3 class="list-title">By group</h3>
+    <h3 class="list-title">{{ __('By group') }}</h3>
 
     <table class="grid">
         <thead>
             <tr>
-                <th>Group</th>
+                <th>{{ __('Group') }}</th>
                 @if ($type !== 'due')
-                    <th class="amount">Pending</th>
+                    <th class="amount">{{ __('Pending') }}</th>
                 @endif
                 @if ($type !== 'pending')
-                    <th class="amount">Due</th>
+                    <th class="amount">{{ __('Due') }}</th>
                 @endif
             </tr>
         </thead>

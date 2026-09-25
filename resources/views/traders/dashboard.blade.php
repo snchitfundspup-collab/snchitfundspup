@@ -77,6 +77,18 @@
     </section>
 
 
+    @if ($newOrders > 0)
+        <a href="{{ route('traders.orders.index') }}" class="action-alert glass">
+            <span class="stat-icon icon-3d icon-3d-orange"><x-icon name="package" /></span>
+            <span>
+                <strong>{{ $newOrders }}</strong>
+                <span data-i18n="{{ $newOrders === 1 ? 'new_order_waiting' : 'new_orders_waiting' }}">{{ $newOrders === 1 ? 'new order from a customer' : 'new orders from customers' }}</span>
+            </span>
+            <x-icon name="arrow-right" />
+        </a>
+    @endif
+
+
     {{-- =====================================================
          MONEY CARDS
     ====================================================== --}}

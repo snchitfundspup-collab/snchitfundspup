@@ -41,6 +41,9 @@ export default defineConfig({
 
                 'resources/css/usage.css',
 
+                'resources/css/portal.css',
+                'resources/js/portal.js',
+
             ],
 
             refresh: true,

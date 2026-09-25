@@ -4,10 +4,10 @@
      The logo is a small 240px copy (sn-chit-funds-logo-pdf.png) so each
      PDF stays light instead of embedding the 1 MB original. --}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
-    <title>@yield('title')</title>
+    <title>{{ __(html_entity_decode(trim($__env->yieldContent('title')), ENT_QUOTES)) }}</title>
 
     <style>
         @page {
@@ -117,10 +117,10 @@
             </td>
             <td style="padding-bottom: 8px;">
                 <div class="company"><span class="sn">SN</span> {{ $companyName ?? 'Chit Funds' }}</div>
-                <div class="tagline">{{ ($companyName ?? '') === 'Traders' ? 'Quality Rice · Fair Price' : 'Trust · Growth · Together' }}</div>
+                <div class="tagline">{{ __(($companyName ?? '') === 'Traders' ? 'Quality Rice · Fair Price' : 'Trust · Growth · Together') }}</div>
             </td>
             <td class="doc-title" style="padding-bottom: 8px;">
-                <strong>@yield('doc_title')</strong>
+                <strong>{{ __(html_entity_decode(trim($__env->yieldContent('doc_title')), ENT_QUOTES)) }}</strong>
                 <span>@yield('doc_subtitle')</span>
             </td>
         </tr>

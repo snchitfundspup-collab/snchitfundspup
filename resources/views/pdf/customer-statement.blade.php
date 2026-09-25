@@ -1,4 +1,4 @@
-@extends('pdf.layout')
+@extends($layout ?? 'pdf.layout')
 
 @section('title', 'Customer Statement – '.$customer->name)
 
@@ -142,23 +142,23 @@
     <table class="info">
         <tr>
             <td>
-                <span class="label">Name</span>
+                <span class="label">{{ __('Name') }}</span>
                 <strong>{{ $customer->name }}</strong>
                 @if (filled($customer->remarks))
                     <span class="ident">({{ $customer->remarks }})</span>
                 @endif
             </td>
-            <td><span class="label">Customer ID</span><strong>{{ $customer->customer_code }}</strong></td>
-            <td><span class="label">Phone</span><strong>{{ $customer->phone ?: '—' }}</strong></td>
-            <td><span class="label">Total paid</span><strong><x-rupees :amount="$seats->sum('total_paid')" /></strong></td>
-            <td><span class="label">Pending</span><strong class="pending"><x-rupees :amount="$seats->sum('pending')" /></strong></td>
+            <td><span class="label">{{ __('Customer ID') }}</span><strong>{{ $customer->customer_code }}</strong></td>
+            <td><span class="label">{{ __('Phone') }}</span><strong>{{ $customer->phone ?: '—' }}</strong></td>
+            <td><span class="label">{{ __('Total paid') }}</span><strong><x-rupees :amount="$seats->sum('total_paid')" /></strong></td>
+            <td><span class="label">{{ __('Pending') }}</span><strong class="pending"><x-rupees :amount="$seats->sum('pending')" /></strong></td>
             @if ($seats->contains(fn ($seat) => $seat['member']->wonDraw))
-                <td><span class="label">Prizes won</span><strong class="prize"><x-rupees :amount="$seats->sum(fn ($seat) => $seat['member']->wonDraw?->prizeAmount() ?? 0)" /></strong></td>
+                <td><span class="label">{{ __('Prizes won') }}</span><strong class="prize"><x-rupees :amount="$seats->sum(fn ($seat) => $seat['member']->wonDraw?->prizeAmount() ?? 0)" /></strong></td>
             @endif
         </tr>
         @if ($customer->address)
             <tr>
-                <td colspan="5"><span class="label">Address</span>{{ $customer->address }}</td>
+                <td colspan="5"><span class="label">{{ __('Address') }}</span>{{ $customer->address }}</td>
             </tr>
         @endif
     </table>
@@ -173,13 +173,12 @@
         <div class="seat-title">
             {{ $group->name }}
             <small>
-                · {{ $member->member_code }} · <x-rupees :amount="$group->installment_amount" />/month
-                · Paid <x-rupees :amount="$seat['total_paid']" />
+                · {{ $member->member_code }} · <x-rupees :amount="$group->installment_amount" />/{{ __('month') }} · {{ __('Paid') }} <x-rupees :amount="$seat['total_paid']" />
                 @if ($seat['pending'] > 0)
-                    · <span class="pending">Pending <x-rupees :amount="$seat['pending']" /></span>
+                    · <span class="pending">{{ __('Pending') }} <x-rupees :amount="$seat['pending']" /></span>
                 @endif
                 @if ($member->wonDraw)
-                    · Won <x-rupees :amount="$member->wonDraw->prizeAmount()" /> (M{{ $member->wonDraw->month_number }})
+                    · {{ __('Won') }} <x-rupees :amount="$member->wonDraw->prizeAmount()" /> (M{{ $member->wonDraw->month_number }})
                 @endif
             </small>
         </div>
@@ -189,10 +188,10 @@
             <thead>
                 <tr>
                     <th style="width: 6%;">#</th>
-                    <th>Date &amp; time</th>
-                    <th>Receipt</th>
-                    <th>Method</th>
-                    <th class="amount">Amount</th>
+                    <th>{{ __('Date & time') }}</th>
+                    <th>{{ __('Receipt') }}</th>
+                    <th>{{ __('Method') }}</th>
+                    <th class="amount">{{ __('Amount') }}</th>
                 </tr>
             </thead>
 
@@ -206,10 +205,10 @@
 
                     <tr class="month-head">
                         <th colspan="4">
-                            Month {{ $month['month'] }}
-                            <small>· {{ $month['period'] }} · due {{ $month['due_on']->format('d M Y') }}</small>
+                            {{ __('Month') }} {{ $month['month'] }}
+                            <small>· {{ $month['period'] }} · {{ __('due') }} {{ $month['due_on']->format('d M Y') }}</small>
                         </th>
-                        <th class="amount"><span class="status-{{ $monthStatus }}">{{ $statusLabels[$monthStatus] }}</span></th>
+                        <th class="amount"><span class="status-{{ $monthStatus }}">{{ __($statusLabels[$monthStatus]) }}</span></th>
                     </tr>
 
                     @forelse ($month['entries'] as $entry)
@@ -222,15 +221,14 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="none">No payments yet</td>
+                            <td colspan="5" class="none">{{ __('No payments yet') }}</td>
                         </tr>
                     @endforelse
 
                     <tr class="month-total">
                         <td colspan="4">
-                            Paid <x-rupees :amount="$month['paid']" /> of <x-rupees :amount="$month['installment']" />
-                            @if ($month['balance'] > 0)
-                                · Balance <strong @class(['pending' => $month['status'] === 'due'])><x-rupees :amount="$month['balance']" /></strong>
+                            {{ __('Paid') }} <x-rupees :amount="$month['paid']" /> {{ __('of') }} <x-rupees :amount="$month['installment']" />
+                            @if ($month['balance'] > 0) · {{ __('Balance') }} <strong @class(['pending' => $month['status'] === 'due'])><x-rupees :amount="$month['balance']" /></strong>
                             @endif
                         </td>
                         <td class="amount"><strong><x-rupees :amount="$month['paid']" /></strong></td>
@@ -240,7 +238,7 @@
                 @empty
 
                     <tr>
-                        <td colspan="5" class="none">No payments yet</td>
+                        <td colspan="5" class="none">{{ __('No payments yet') }}</td>
                     </tr>
 
                 @endforelse
@@ -249,7 +247,7 @@
 
             <tfoot>
                 <tr>
-                    <th colspan="4">Total paid</th>
+                    <th colspan="4">{{ __('Total paid') }}</th>
                     <td class="amount"><x-rupees :amount="$seat['total_paid']" /></td>
                 </tr>
             </tfoot>
@@ -260,12 +258,12 @@
             <table class="prize-box">
                 <tr>
                     <td>
-                        <strong>Prize won · Month {{ $wonDraw->month_number }}</strong>
+                        <strong>{{ __('Prize won') }} · {{ __('Month') }} {{ $wonDraw->month_number }}</strong>
                         <span class="meta">({{ $group->monthPeriodLabel($wonDraw->month_number) }}) · Drawn on {{ $wonDraw->drawn_at->format('d M Y, h:i A') }}</span>
                         @if ($wonDraw->isPaidOut())
                             <span class="meta">Paid out {{ $wonDraw->paid_at->format('d M Y, h:i A') }} · {{ $wonDraw->payoutMethodLabel() }}@if ($wonDraw->payout_reference) ({{ $wonDraw->payout_reference }})@endif · Voucher No. {{ $wonDraw->voucher_number }}</span>
                         @else
-                            <span class="meta pending">Awaiting payout</span>
+                            <span class="meta pending">{{ __('Awaiting payout') }}</span>
                         @endif
                     </td>
                     <td class="amount prize">
@@ -278,7 +276,7 @@
 
     @empty
 
-        <p class="none">This customer is not in any started group yet.</p>
+        <p class="none">{{ __('This customer is not in any started group yet.') }}</p>
 
     @endforelse
 

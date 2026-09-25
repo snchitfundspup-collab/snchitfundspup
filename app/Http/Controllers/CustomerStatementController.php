@@ -6,7 +6,7 @@ use App\Models\ChitGroup;
 use App\Models\ChitGroupMember;
 use App\Models\Customer;
 use App\Models\PaymentAllocation;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Support\ReportPdf as Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
@@ -45,7 +45,7 @@ class CustomerStatementController extends Controller
             'search' => $search,
             'customer' => $customer,
             'results' => $results,
-            'seats' => $customer ? $this->seatsFor($customer) : collect(),
+            'seats' => $customer ? self::seatsFor($customer) : collect(),
         ]);
     }
 
@@ -56,7 +56,7 @@ class CustomerStatementController extends Controller
     {
         return Pdf::loadView('pdf.customer-statement', [
             'customer' => $customer,
-            'seats' => $this->seatsFor($customer),
+            'seats' => self::seatsFor($customer),
         ])
             ->setPaper('a4', 'portrait')
             ->download('Statement-'.$customer->customer_code.'-'.Str::slug($customer->name).'.pdf');
@@ -69,7 +69,7 @@ class CustomerStatementController extends Controller
      *
      * @return Collection<int, array{member: ChitGroupMember, group: ChitGroup, months: list<array<string, mixed>>, total_paid: int, pending: int, state: string}>
      */
-    private function seatsFor(Customer $customer): Collection
+    public static function seatsFor(Customer $customer): Collection
     {
         return $customer->memberships()
             ->with(['chitGroup', 'allocations.payment', 'wonDraw'])

@@ -2546,3 +2546,173 @@ html.light .member-group-link {
     }
 
 }
+
+
+/* =========================================================
+   JOIN REQUESTS — customers asking to join a forming group
+========================================================= */
+
+.join-request-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+
+.join-request {
+    padding: 18px;
+
+    border-radius: 20px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+
+.join-request-head {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+
+.join-request-who {
+    flex: 1 1 auto;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.join-request-who span {
+    font-size: 13px;
+
+    color: var(--text-soft);
+}
+
+
+.join-request-facts {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 10px 26px;
+}
+
+
+.join-request-facts span {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.join-request-facts small {
+    font-size: 11px;
+
+    font-weight: 700;
+
+    color: var(--text-soft);
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.03em;
+}
+
+
+.join-request-note,
+.join-request-decided {
+    margin: 0;
+
+    font-size: 14px;
+
+    color: var(--text-soft);
+}
+
+
+.join-request-warning {
+    margin: 0;
+
+    font-weight: 700;
+
+    color: #f87171;
+}
+
+
+html.light .join-request-warning {
+    color: #b91c1c;
+}
+
+
+.join-request-actions {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    align-items: center;
+}
+
+
+.join-request-approve,
+.join-request-dismiss {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.join-request-approve label {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    font-weight: 700;
+}
+
+
+.join-request-approve .input {
+    width: 72px;
+
+    min-height: 42px;
+}
+
+
+.join-request-dismiss {
+    flex: 1 1 280px;
+}
+
+
+.join-request-dismiss .input {
+    flex: 1 1 auto;
+
+    min-height: 42px;
+}
+
+
+@media (max-width: 640px) {
+
+    .join-request-dismiss {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+}

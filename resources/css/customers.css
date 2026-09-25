@@ -1780,3 +1780,69 @@ html.light .mobile-card-details {
     }
 
 }
+
+/* =========================================================
+   CUSTOMER LOGIN (edit modal)
+========================================================= */
+
+.modal-login-box {
+    padding: 14px;
+
+    border-radius: 14px;
+
+    background: rgba(61, 115, 255, 0.08);
+
+    border: 1px solid rgba(61, 115, 255, 0.2);
+}
+
+
+.modal-login-title {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    font-weight: 800;
+}
+
+
+.modal-login-title svg {
+    width: 16px;
+
+    height: 16px;
+}
+
+
+.modal-login-text {
+    margin: 0;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+
+    opacity: 0.85;
+
+    word-break: break-word;
+}
+
+
+.modal-login-row {
+    display: flex;
+
+    gap: 10px;
+
+    align-items: center;
+}
+
+
+.modal-login-row input {
+    flex: 1 1 auto;
+}
+
+
+.modal-login-row button {
+    flex: 0 0 auto;
+
+    white-space: nowrap;
+}

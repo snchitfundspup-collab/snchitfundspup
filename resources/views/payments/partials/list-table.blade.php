@@ -5,13 +5,13 @@
     <thead>
         <tr>
             <th>#</th>
-            <th>Date &amp; time</th>
-            <th>Receipt</th>
-            <th>Customer</th>
-            <th>Group</th>
-            <th>Month</th>
-            <th>Method</th>
-            <th class="amount">Amount</th>
+            <th>{{ __('Date & time') }}</th>
+            <th>{{ __('Receipt') }}</th>
+            <th>{{ __('Customer') }}</th>
+            <th>{{ __('Group') }}</th>
+            <th>{{ __('Month') }}</th>
+            <th>{{ __('Method') }}</th>
+            <th class="amount">{{ __('Amount') }}</th>
         </tr>
     </thead>
 
@@ -38,7 +38,7 @@
 
     <tfoot>
         <tr>
-            <th colspan="7">Total ({{ $payments->count() }} receipts)</th>
+            <th colspan="7">{{ __('Total') }} ({{ $payments->count() }})</th>
             <td class="amount"><x-rupees :amount="$payments->sum('amount')" /></td>
         </tr>
     </tfoot>
