@@ -10,31 +10,44 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DrawController;
 use App\Http\Controllers\DuesReportController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\JoinRequestController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentLedgerController;
+use App\Http\Controllers\Portal;
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Traders;
 use App\Http\Controllers\UsageController;
+use App\Http\Middleware\EnsureCustomerChoseOwnPassword;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN LOGIN
+| LOGIN PAGES — staff at /login/admin, customers at /login/customer
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('guest')->group(function () {
+/* old address → staff login */
+Route::redirect('/login', '/login/admin', 301);
+
+Route::middleware('guest:web')->group(function () {
 
     Route::get(
-        '/login',
+        '/login/admin',
         [LoginController::class, 'create']
     )->name('login');
 
     Route::post(
-        '/login',
+        '/login/admin',
         [LoginController::class, 'store']
     )->name('login.store');
 
+});
+
+Route::prefix('login/customer')->name('portal.')->middleware('guest:customer')->group(function () {
+    Route::get('/', [Portal\AuthController::class, 'create'])->name('login');
+    Route::post('/', [Portal\AuthController::class, 'store'])->name('login.store')->middleware('throttle:20,1');
+    Route::get('/choose', [Portal\AuthController::class, 'choose'])->name('choose');
+    Route::post('/choose', [Portal\AuthController::class, 'chosen'])->name('choose.store');
 });
 
 /*
@@ -43,7 +56,7 @@ Route::middleware('guest')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth:web')->group(function () {
 
     Route::get(
         '/',
@@ -79,6 +92,11 @@ Route::middleware('auth')->group(function () {
         '/customers/{customer}',
         [CustomerController::class, 'update']
     )->name('customers.update');
+
+    Route::delete(
+        '/customers/{customer}/password',
+        [CustomerController::class, 'resetPassword']
+    )->name('customers.password.reset');
 
     /*
     |--------------------------------------------------------------------------
@@ -140,6 +158,22 @@ Route::middleware('auth')->group(function () {
         '/groups/{group}/members/{member}',
         [ChitGroupMemberController::class, 'destroy']
     )->scopeBindings()->name('groups.members.destroy');
+
+    /* customers asking to join a forming group: the office decides */
+    Route::get(
+        '/join-requests',
+        [JoinRequestController::class, 'index']
+    )->name('groups.requests.index');
+
+    Route::post(
+        '/join-requests/{joinRequest}/approve',
+        [JoinRequestController::class, 'approve']
+    )->name('groups.requests.approve');
+
+    Route::post(
+        '/join-requests/{joinRequest}/dismiss',
+        [JoinRequestController::class, 'dismiss']
+    )->name('groups.requests.dismiss');
 
     /*
     |--------------------------------------------------------------------------
@@ -425,6 +459,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/customers/{customer}/account', [Traders\CustomerAccountController::class, 'show'])->name('accounts.show');
         Route::get('/customers/{customer}/account.pdf', [Traders\CustomerAccountController::class, 'pdf'])->name('accounts.pdf');
 
+        /* rice orders customers place from their own pages */
+        Route::get('/orders', [Traders\OrderController::class, 'index'])->name('orders.index');
+        Route::post('/orders/{order}/cancel', [Traders\OrderController::class, 'cancel'])->name('orders.cancel');
+
         /* reports: rice sales, profit & loss, customer dues, day book */
         Route::get('/reports/customer-statement', [Traders\ReportController::class, 'customerStatement'])->name('reports.customer');
         Route::get('/reports/{report}', [Traders\ReportController::class, 'show'])->name('reports.show')->whereIn('report', array_keys(Traders\ReportController::REPORTS));
@@ -446,6 +484,49 @@ Route::middleware('auth')->group(function () {
         Route::put('/expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
         Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
 
+    });
+
+});
+
+/*
+|--------------------------------------------------------------------------
+| CUSTOMERS' OWN PAGES (/my) — signed in at /login/customer
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('my')->name('portal.')->group(function () {
+
+    Route::middleware('auth:customer')->group(function () {
+        Route::post('/logout', [Portal\AuthController::class, 'destroy'])->name('logout');
+        Route::get('/password', [Portal\PasswordController::class, 'edit'])->name('password.edit');
+        Route::put('/password', [Portal\PasswordController::class, 'update'])->name('password.update');
+
+        /* everything else waits until the customer has chosen their own password */
+        Route::middleware(EnsureCustomerChoseOwnPassword::class)->group(function () {
+            Route::get('/', [Portal\DashboardController::class, 'index'])->name('dashboard');
+
+            /* SN Chit Funds */
+            Route::get('/groups', [Portal\ChitController::class, 'groups'])->name('groups');
+            Route::get('/groups/{member}', [Portal\ChitController::class, 'seat'])->name('groups.show');
+            Route::get('/receipts/{payment}/pdf', [Portal\ChitController::class, 'receiptPdf'])->name('receipts.pdf');
+            Route::get('/statement/pdf', [Portal\ChitController::class, 'statementPdf'])->name('statement.pdf');
+            Route::get('/statement/print', [Portal\ChitController::class, 'statementPrint'])->name('statement.print');
+            Route::get('/upcoming', [Portal\ChitController::class, 'upcoming'])->name('upcoming');
+            Route::get('/upcoming/{group}', [Portal\ChitController::class, 'upcomingGroup'])->name('upcoming.show');
+            Route::post('/upcoming/{group}/interest', [Portal\ChitController::class, 'showInterest'])->name('upcoming.interest');
+            Route::post('/join-requests/{joinRequest}/withdraw', [Portal\ChitController::class, 'withdrawInterest'])->name('upcoming.withdraw');
+
+            /* SN Traders */
+            Route::get('/rice', [Portal\TradersController::class, 'rice'])->name('rice');
+            Route::get('/orders', [Portal\TradersController::class, 'orders'])->name('orders');
+            Route::post('/orders', [Portal\TradersController::class, 'placeOrder'])->name('orders.store');
+            Route::post('/orders/{order}/cancel', [Portal\TradersController::class, 'cancelOrder'])->name('orders.cancel');
+            Route::get('/bills', [Portal\TradersController::class, 'bills'])->name('bills');
+            Route::get('/bills/statement/pdf', [Portal\TradersController::class, 'statementPdf'])->name('bills.statement.pdf');
+            Route::get('/bills/statement/print', [Portal\TradersController::class, 'statementPrint'])->name('bills.statement.print');
+            Route::get('/bills/invoices/{sale}/pdf', [Portal\TradersController::class, 'invoicePdf'])->name('bills.invoice.pdf');
+            Route::get('/bills/receipts/{receipt}/pdf', [Portal\TradersController::class, 'receiptPdf'])->name('bills.receipt.pdf');
+        });
     });
 
 });

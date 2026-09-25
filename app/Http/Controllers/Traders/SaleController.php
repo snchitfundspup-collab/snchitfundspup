@@ -9,8 +9,9 @@ use App\Models\Customer;
 use App\Models\RiceVariety;
 use App\Models\Sale;
 use App\Models\SaleItem;
+use App\Models\TraderOrder;
 use App\Models\TraderReceipt;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Support\ReportPdf as Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -48,7 +49,12 @@ class SaleController extends Controller
 
     public function create(Request $request): View
     {
-        $customer = $request->filled('customer') ? Customer::find($request->integer('customer')) : null;
+        /* "Make sale" from a customer's order fills in the customer and rice */
+        $order = $request->filled('order')
+            ? TraderOrder::query()->open()->with('items.variety')->find($request->integer('order'))
+            : null;
+
+        $customer = $order?->customer ?? ($request->filled('customer') ? Customer::find($request->integer('customer')) : null);
 
         return view('traders.sales.create', [
             'customers' => Customer::query()->orderBy('name')->get(['id', 'customer_code', 'name', 'phone', 'remarks']),
@@ -56,6 +62,12 @@ class SaleController extends Controller
             'selectedCustomer' => $customer,
             'customerBalance' => $customer?->traderBalance(),
             'stock' => StockController::stockByVariety()->pluck('stock_bags', 'id'),
+            'order' => $order,
+            'orderLines' => $order?->items->map(fn ($item) => [
+                'variety_id' => $item->variety_id,
+                'bags' => $item->bags,
+                'rate' => $item->variety->selling_price ?? $item->rate,
+            ])->all(),
         ]);
     }
 
@@ -74,6 +86,12 @@ class SaleController extends Controller
             ] : null,
             $request->user(),
         );
+
+        $order = $request->filled('order_id') ? TraderOrder::query()->open()->find($request->integer('order_id')) : null;
+
+        if ($order && $order->customer_id === $sale->customer_id) {
+            $order->complete($sale);
+        }
 
         return redirect()
             ->route('traders.sales.show', $sale)

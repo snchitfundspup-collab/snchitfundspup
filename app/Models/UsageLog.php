@@ -62,6 +62,16 @@ class UsageLog extends Model
         'traders.reports.customer' => 'Customer statement',
         'traders.expenses.index' => 'Traders expenses',
         'traders.expenses.balance' => 'Traders balance sheet',
+        'traders.orders.index' => 'Customer orders',
+        'portal.dashboard' => 'My home',
+        'portal.groups' => 'My groups',
+        'portal.groups.show' => 'My group details',
+        'portal.upcoming' => 'Upcoming groups',
+        'portal.upcoming.show' => 'Upcoming group details',
+        'portal.rice' => 'Rice & order',
+        'portal.orders' => 'My orders',
+        'portal.bills' => 'Bills & statement',
+        'portal.password.edit' => 'Change password (customer)',
     ];
 
     protected $fillable = ['user_id', 'customer_id', 'event', 'business', 'route_name', 'path', 'device', 'ip', 'visited_on'];

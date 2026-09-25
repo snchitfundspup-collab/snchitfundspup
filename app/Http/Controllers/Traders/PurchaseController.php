@@ -9,7 +9,7 @@ use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\RiceVariety;
 use App\Models\Supplier;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Support\ReportPdf as Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

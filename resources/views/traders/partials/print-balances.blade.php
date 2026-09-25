@@ -2,12 +2,12 @@
 
 <table class="info">
     <tr>
-        <td><span class="label">As on</span><strong>{{ $today->format('D, d M Y') }}</strong></td>
-        <td><span class="label">Customers owe</span><strong class="pending"><x-rupees :amount="$totalOwing" /></strong> <span class="muted">({{ $owingCount }})</span></td>
+        <td><span class="label">{{ __('As on') }}</span><strong>{{ $today->format('D, d M Y') }}</strong></td>
+        <td><span class="label">{{ __('Customers owe') }}</span><strong class="pending"><x-rupees :amount="$totalOwing" /></strong> <span class="muted">({{ $owingCount }})</span></td>
         @if ($totalAdvance > 0)
-            <td><span class="label">Advances held</span><strong><x-rupees :amount="$totalAdvance" /></strong></td>
+            <td><span class="label">{{ __('Advances held') }}</span><strong><x-rupees :amount="$totalAdvance" /></strong></td>
         @endif
-        <td><span class="label">Showing</span><strong>{{ ['owing' => 'Customers who owe', 'advance' => 'Advances', 'all' => 'All customers'][$view] }}</strong></td>
+        <td><span class="label">{{ __('Showing') }}</span><strong>{{ __(['owing' => 'Customers who owe', 'advance' => 'Advances', 'all' => 'All customers'][$view]) }}</strong></td>
     </tr>
 </table>
 
@@ -15,12 +15,12 @@
     <thead>
         <tr>
             <th>#</th>
-            <th>Customer</th>
-            <th>Phone</th>
-            <th>Last sale</th>
-            <th class="amount">Sales</th>
-            <th class="amount">Received</th>
-            <th class="amount">Balance</th>
+            <th>{{ __('Customer') }}</th>
+            <th>{{ __('Phone') }}</th>
+            <th>{{ __('Last sale') }}</th>
+            <th class="amount">{{ __('Sales') }}</th>
+            <th class="amount">{{ __('Received') }}</th>
+            <th class="amount">{{ __('Balance') }}</th>
         </tr>
     </thead>
     <tbody>
@@ -40,7 +40,7 @@
                 <td class="amount"><x-rupees :amount="$row['received']" /></td>
                 <td class="amount {{ $row['balance'] > 0 ? 'pending' : '' }}">
                     @if ($row['balance'] < 0)
-                        <x-rupees :amount="-$row['balance']" /> advance
+                        <x-rupees :amount="-$row['balance']" /> {{ __('advance') }}
                     @else
                         <x-rupees :amount="$row['balance']" />
                     @endif
@@ -50,7 +50,7 @@
     </tbody>
     <tfoot>
         <tr>
-            <th colspan="4">Total ({{ $rows->count() }})</th>
+            <th colspan="4">{{ __('Total') }} ({{ $rows->count() }})</th>
             <td class="amount"><x-rupees :amount="$rows->sum('sales')" /></td>
             <td class="amount"><x-rupees :amount="$rows->sum('received')" /></td>
             <td class="amount"><x-rupees :amount="$rows->sum('balance')" /></td>

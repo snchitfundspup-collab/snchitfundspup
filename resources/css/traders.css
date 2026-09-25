@@ -598,3 +598,22 @@ html.light .traders-note.is-warning {
     }
 
 }
+
+
+/* =========================================================
+   CUSTOMER ORDERS (office side)
+========================================================= */
+
+.traders-order-row {
+    flex-wrap: wrap;
+}
+
+
+.traders-order-row .payment-row-main small {
+    color: var(--text-soft);
+}
+
+
+.traders-order-actions {
+    align-items: center;
+}

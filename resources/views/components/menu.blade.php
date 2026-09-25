@@ -192,6 +192,14 @@
                     <span data-i18n="add_group">Add Group</span>
                 </a>
 
+                <a
+                    href="{{ route('groups.requests.index') }}"
+                    @class(['menu-subitem', 'active' => request()->routeIs('groups.requests.*')])
+                >
+                    <x-icon name="users" />
+                    <span data-i18n="join_requests">Join Requests</span>
+                </a>
+
             </div>
 
         </div>

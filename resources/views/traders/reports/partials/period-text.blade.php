@@ -1,6 +1,6 @@
 {{-- Plain-text period for printed reports ($filters). --}}
 @if ($filters['range'] === 'all')
-    All time
+    {{ __('All time') }}
 @elseif ($filters['from'] === $filters['to'])
     {{ \Illuminate\Support\Carbon::parse($filters['from'])->format('D, d M Y') }}
 @else

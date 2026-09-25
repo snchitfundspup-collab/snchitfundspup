@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ChitGroup;
 use App\Models\ChitGroupMember;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Support\ReportPdf as Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;

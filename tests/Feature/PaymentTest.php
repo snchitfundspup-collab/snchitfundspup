@@ -681,7 +681,7 @@ test('the filtered payment list prints and downloads as a pdf', function () {
 
     $this->get(route('payments.print', ['from' => '2026-03-01', 'to' => '2026-03-20']))
         ->assertOk()
-        ->assertSeeTextInOrder(['01 Mar 2026 – 20 Mar 2026', 'Total collected', '₹11,200', '19 Mar 2026', '20 Mar 2026', 'Total (3 receipts)', '₹11,200'])
+        ->assertSeeTextInOrder(['01 Mar 2026 – 20 Mar 2026', 'Total collected', '₹11,200', '19 Mar 2026', '20 Mar 2026', 'Total (3)', '₹11,200'])
         ->assertSee('window.print()', false);
 
     $response = $this->get(route('payments.pdf', ['from' => '2026-03-01', 'to' => '2026-03-20']))

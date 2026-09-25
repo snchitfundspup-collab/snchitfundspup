@@ -100,10 +100,10 @@
 
     <table class="info">
         <tr>
-            <td><span class="label">Group</span><strong>{{ $selectedGroup?->name ?? 'All groups' }}</strong></td>
-            <td><span class="label">Draws held</span><strong>{{ $drawCount }}</strong></td>
-            <td><span class="label">Total prize</span><strong><x-rupees :amount="$totalPrize" /></strong></td>
-            <td><span class="label">Paid out</span><strong><x-rupees :amount="$totalPaidOut" /></strong></td>
+            <td><span class="label">{{ __('Group') }}</span><strong>{{ $selectedGroup?->name ?? __('All groups') }}</strong></td>
+            <td><span class="label">{{ __('Draws held') }}</span><strong>{{ $drawCount }}</strong></td>
+            <td><span class="label">{{ __('Total prize') }}</span><strong><x-rupees :amount="$totalPrize" /></strong></td>
+            <td><span class="label">{{ __('Paid out') }}</span><strong><x-rupees :amount="$totalPaidOut" /></strong></td>
         </tr>
     </table>
 
@@ -111,20 +111,20 @@
 
         <div class="group-title">
             {{ $reportGroup->name }}
-            <small>· <x-rupees :amount="$reportGroup->amount" /> · {{ $reportGroup->draws->count() }} of {{ $reportGroup->months }} months drawn</small>
+            <small>· <x-rupees :amount="$reportGroup->amount" /> · {{ __(':drawn of :months months drawn', ['drawn' => $reportGroup->draws->count(), 'months' => $reportGroup->months]) }}</small>
         </div>
 
         <table class="grid">
 
             <thead>
                 <tr>
-                    <th>Month</th>
-                    <th>Period</th>
-                    <th>Winner</th>
-                    <th>Phone</th>
-                    <th class="amount">Prize</th>
-                    <th>Drawn on</th>
-                    <th>Payout</th>
+                    <th>{{ __('Month') }}</th>
+                    <th>{{ __('Period') }}</th>
+                    <th>{{ __('Winner') }}</th>
+                    <th>{{ __('Phone') }}</th>
+                    <th class="amount">{{ __('Prize') }}</th>
+                    <th>{{ __('Drawn on') }}</th>
+                    <th>{{ __('Payout') }}</th>
                 </tr>
             </thead>
 
@@ -145,10 +145,10 @@
                         <td>{{ $draw->drawn_at->format('d M Y') }}</td>
                         <td>
                             @if ($draw->isPaidOut())
-                                <span class="paid">Paid out</span>
+                                <span class="paid">{{ __('Paid out') }}</span>
                                 <span class="meta">{{ $draw->voucher_number }} · {{ $draw->paid_at->format('d M Y') }} · {{ $draw->payoutMethodLabel() }}</span>
                             @else
-                                <span class="pending">Awaiting payout</span>
+                                <span class="pending">{{ __('Awaiting payout') }}</span>
                             @endif
                         </td>
                     </tr>
@@ -157,7 +157,7 @@
 
             <tfoot>
                 <tr>
-                    <th colspan="4">Total</th>
+                    <th colspan="4">{{ __('Total') }}</th>
                     <td class="amount"><x-rupees :amount="$reportGroup->draws->sum(fn ($draw) => $draw->prizeAmount())" /></td>
                     <td colspan="2"></td>
                 </tr>

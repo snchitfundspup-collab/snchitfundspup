@@ -658,3 +658,158 @@ html.light .language-button.active {
     }
 
 }
+
+
+/* =========================================================
+   CUSTOMER LOGIN (/my) — help text, switch links, and the
+   "who is signing in" list for a shared phone number
+========================================================= */
+
+.login-help {
+    margin: 4px 0 0;
+
+    font-size: 0.78rem;
+
+    line-height: 1.5;
+
+    text-align: center;
+
+    opacity: 0.7;
+}
+
+
+.login-footnote-switch {
+    font-size: 0.85rem;
+
+    opacity: 1;
+}
+
+
+.login-switch-link {
+    color: #fe691e;
+
+    font-weight: 700;
+
+    text-decoration: none;
+}
+
+
+.login-switch-link:hover {
+    text-decoration: underline;
+}
+
+
+.choose-account-list {
+    gap: 10px;
+}
+
+
+.choose-account-button {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    width: 100%;
+
+    padding: 12px 14px;
+
+    border-radius: 14px;
+
+    border: 1px solid rgba(255, 255, 255, 0.14);
+
+    background: rgba(255, 255, 255, 0.06);
+
+    color: inherit;
+
+    font: inherit;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+
+.choose-account-button:hover {
+    border-color: #fe691e;
+
+    transform: translateY(-1px);
+}
+
+
+.choose-account-text {
+    flex: 1 1 auto;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.choose-account-text small {
+    opacity: 0.65;
+}
+
+
+.choose-account-button > svg {
+    width: 18px;
+
+    height: 18px;
+
+    opacity: 0.6;
+}
+
+
+html.light .choose-account-button {
+    background: rgba(255, 255, 255, 0.7);
+
+    border-color: rgba(15, 23, 42, 0.1);
+}
+
+
+.login-forgot {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 6px;
+
+    opacity: 1;
+}
+
+
+.login-call-link {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 6px 12px;
+
+    border-radius: 999px;
+
+    background: #22c55e;
+
+    color: #ffffff;
+
+    font-weight: 800;
+
+    text-decoration: none;
+}
+
+
+.login-call-link svg {
+    width: 14px;
+
+    height: 14px;
+}

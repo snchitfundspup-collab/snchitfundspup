@@ -233,6 +233,7 @@
                                 data-customer-remarks="{{ $customer->remarks }}"
                                 data-customer-address="{{ $customer->address }}"
                                 data-customer-active="{{ $customer->is_active ? '1' : '0' }}"
+                                data-customer-password-state="{{ $customer->passwordState() }}"
                             >
 
                                 {{-- CUSTOMER ID --}}
@@ -387,6 +388,7 @@
                         data-customer-remarks="{{ $customer->remarks }}"
                         data-customer-address="{{ $customer->address }}"
                         data-customer-active="{{ $customer->is_active ? '1' : '0' }}"
+                        data-customer-password-state="{{ $customer->passwordState() }}"
                     >
 
                         <div class="mobile-card-top">
@@ -806,6 +808,44 @@
                         </span>
 
                     </label>
+
+
+                    {{-- CUSTOMER LOGIN (their own pages at /my) --}}
+
+                    <div class="modal-field modal-field-full modal-login-box">
+
+                        <span class="modal-login-title">
+                            <x-icon name="lock" />
+                            <span data-i18n="customer_login">Customer login</span>
+                        </span>
+
+                        <p class="modal-login-text">
+                            <span data-i18n="customer_login_help">Signs in at</span>
+                            <strong>{{ route('portal.login') }}</strong>
+                            <span data-i18n="with_phone_number">with the phone number above.</span>
+                            <span data-i18n="password_word">Password</span>:
+                            <strong id="editCustomerPasswordStatus"></strong>
+                        </p>
+
+                        <label for="editCustomerPassword" data-i18n="new_password_optional">
+                            New password (leave empty to keep it)
+                        </label>
+
+                        <div class="modal-login-row">
+                            <input
+                                type="text"
+                                id="editCustomerPassword"
+                                minlength="6"
+                                maxlength="100"
+                                autocomplete="new-password"
+                                placeholder="At least 6 characters"
+                            >
+                            <button type="button" id="resetCustomerPassword" class="modal-cancel-button" data-i18n="reset_to_default">
+                                Reset to default
+                            </button>
+                        </div>
+
+                    </div>
 
 
                     {{-- ERROR --}}

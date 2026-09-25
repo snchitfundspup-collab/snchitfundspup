@@ -7,7 +7,7 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Requests\Traders\StoreTraderReceiptRequest;
 use App\Models\Customer;
 use App\Models\TraderReceipt;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Support\ReportPdf as Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;

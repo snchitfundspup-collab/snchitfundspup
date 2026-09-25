@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\ChitGroup;
 use App\Models\ChitGroupMember;
+use App\Models\ChitJoinRequest;
 use App\Models\Draw;
 use App\Models\Payment;
+use App\Models\TraderOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -36,6 +38,8 @@ class DashboardController extends Controller
         $groups->each(fn (ChitGroup $group) => $group->members->each->setRelation('chitGroup', $group));
 
         return view('dashboard', [
+            'waitingJoinRequests' => ChitJoinRequest::query()->pending()->count(),
+            'newRiceOrders' => TraderOrder::query()->open()->count(),
             'todayCollection' => (int) Payment::whereDate('paid_at', $today)->sum('amount'),
             'todayReceipts' => Payment::whereDate('paid_at', $today)->count(),
             'monthCollection' => (int) $this->paymentsThisMonth($businessNow)->sum('amount'),

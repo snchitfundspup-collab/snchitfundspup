@@ -97,7 +97,7 @@ class Draw extends Model
 
     public function payoutMethodLabel(): string
     {
-        return Payment::METHODS[$this->payout_method] ?? ucfirst((string) $this->payout_method);
+        return __(Payment::METHODS[$this->payout_method] ?? ucfirst((string) $this->payout_method));
     }
 
     /**

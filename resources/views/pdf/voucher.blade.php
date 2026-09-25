@@ -117,11 +117,11 @@
     <table class="meta">
         <tr>
             <td>
-                <div class="label">Voucher No.</div>
+                <div class="label">{{ __('Voucher No.') }}</div>
                 <div class="value">{{ $draw->voucher_number }}</div>
             </td>
             <td class="right">
-                <div class="label">Date &amp; time</div>
+                <div class="label">{{ __('Date & time') }}</div>
                 <div class="value">{{ $draw->paid_at->format('d M Y, h:i A') }}</div>
             </td>
         </tr>
@@ -130,7 +130,7 @@
 
     <table class="lines">
         <tr>
-            <th>Paid to</th>
+            <th>{{ __('Paid to') }}</th>
             <td>
                 {{ $customer->name }}
                 @if (filled($customer->remarks))
@@ -139,30 +139,30 @@
             </td>
         </tr>
         <tr>
-            <th>Customer ID</th>
+            <th>{{ __('Customer ID') }}</th>
             <td>{{ $customer->customer_code }}</td>
         </tr>
         <tr>
-            <th>Phone</th>
+            <th>{{ __('Phone') }}</th>
             <td>{{ $customer->phone }}</td>
         </tr>
         <tr>
-            <th>Group</th>
+            <th>{{ __('Group') }}</th>
             <td>{{ $group->name }}</td>
         </tr>
         <tr>
-            <th>Member ID</th>
+            <th>{{ __('Member ID') }}</th>
             <td>{{ $draw->winner->member_code }}</td>
         </tr>
         <tr>
-            <th>Draw</th>
+            <th>{{ __('Draw') }}</th>
             <td>
-                Month {{ $draw->month_number }} ({{ $group->monthPeriodLabel($draw->month_number) }})
+                {{ __('Month') }} {{ $draw->month_number }} ({{ $group->monthPeriodLabel($draw->month_number) }})
                 · Drawn on {{ $draw->drawn_at->format('d M Y') }}
             </td>
         </tr>
         <tr>
-            <th>Payment method</th>
+            <th>{{ __('Payment method') }}</th>
             <td>
                 {{ $draw->payoutMethodLabel() }}
                 @if ($draw->payout_reference)
@@ -172,7 +172,7 @@
         </tr>
         @if ($draw->payout_notes)
             <tr>
-                <th>Notes</th>
+                <th>{{ __('Notes') }}</th>
                 <td>{{ $draw->payout_notes }}</td>
             </tr>
         @endif
@@ -181,7 +181,7 @@
 
     <table class="amount-box">
         <tr>
-            <td class="amount-label">Amount paid</td>
+            <td class="amount-label">{{ __('Amount paid') }}</td>
             <td class="amount-figure"><x-rupees :amount="$draw->payout_amount" /></td>
         </tr>
         <tr>
@@ -195,17 +195,17 @@
 
     <table class="signatures">
         <tr>
-            <td><div class="signature">Received by (customer signature)</div></td>
+            <td><div class="signature">{{ __('Received by (customer signature)') }}</div></td>
             <td>
                 <div class="recorded">
-                    Recorded by
+                    {{ __('Recorded by') }}
                     <strong>{{ $draw->paidBy?->name ?? '—' }}</strong>
                 </div>
             </td>
-            <td><div class="signature">Authorised signature</div></td>
+            <td><div class="signature">{{ __('Authorised signature') }}</div></td>
         </tr>
     </table>
 
-    <div class="thanks">Congratulations on your winning draw.</div>
+    <div class="thanks">{{ __('Congratulations on your winning draw.') }}</div>
 
 @endsection

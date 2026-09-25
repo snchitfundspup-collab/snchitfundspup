@@ -5,13 +5,15 @@ namespace App\Http\Middleware;
 use App\Models\UsageLog;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 /**
- * Logs each page a signed-in person opens, for the Usage dashboard. Only
- * full page loads count: not form posts, live-filter refreshes, failed
- * pages or file downloads.
+ * Logs each page a signed-in person opens, for the Usage dashboard: staff
+ * on the office pages, customers on their own pages (/my). Only full page
+ * loads count: not form posts, live-filter refreshes, failed pages or file
+ * downloads.
  */
 class RecordUsage
 {
@@ -24,9 +26,16 @@ class RecordUsage
     {
         $response = $next($request);
 
-        if ($this->counts($request, $response)) {
+        if (! $this->counts($request, $response)) {
+            return $response;
+        }
+
+        $customer = $request->is('my', 'my/*') ? Auth::guard('customer')->user() : null;
+        $user = $customer ? null : $request->user();
+
+        if ($customer || $user) {
             try {
-                UsageLog::record($request, $request->user());
+                UsageLog::record($request, $user, $customer);
             } catch (Throwable $exception) {
                 /* usage logging must never break the page */
                 report($exception);
@@ -39,7 +48,6 @@ class RecordUsage
     private function counts(Request $request, Response $response): bool
     {
         return $request->isMethod('GET')
-            && $request->user() !== null
             && ! $request->ajax()
             && $response->getStatusCode() === 200
             && str_contains((string) $response->headers->get('Content-Type'), 'text/html');

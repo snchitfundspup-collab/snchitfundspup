@@ -3,25 +3,25 @@
 
 @php
     $rangeText = $filters['range'] === 'all'
-        ? 'All time'
+        ? __('All time')
         : ($filters['from'] === $filters['to']
             ? \Illuminate\Support\Carbon::parse($filters['from'])->format('D, d M Y')
             : \Illuminate\Support\Carbon::parse($filters['from'])->format('d M Y').' – '.\Illuminate\Support\Carbon::parse($filters['to'])->format('d M Y'));
 
     $filterText = collect([
-        $filters['partner_name'] ? 'Paid by: '.$filters['partner_name'] : null,
-        $filters['q'] !== '' ? 'Search: “'.$filters['q'].'”' : null,
+        $filters['partner_name'] ? __('Paid by').': '.$filters['partner_name'] : null,
+        $filters['q'] !== '' ? __('Search').': “'.$filters['q'].'”' : null,
     ])->filter()->implode(' · ');
 @endphp
 
 <table class="info">
     <tr>
-        <td><span class="label">Period</span><strong>{{ $rangeText }}</strong></td>
-        <td><span class="label">Expenses</span><strong>{{ $summary['count'] }}</strong></td>
-        <td><span class="label">Total spent</span><strong><x-rupees :amount="$summary['total']" /></strong></td>
+        <td><span class="label">{{ __('Period') }}</span><strong>{{ $rangeText }}</strong></td>
+        <td><span class="label">{{ __('Expenses') }}</span><strong>{{ $summary['count'] }}</strong></td>
+        <td><span class="label">{{ __('Total spent') }}</span><strong><x-rupees :amount="$summary['total']" /></strong></td>
         @foreach ($summary['by_partner'] as $byPartner)
             <td>
-                <span class="label">Paid by {{ $byPartner['name'] }}</span>
+                <span class="label">{{ __('Paid by') }} {{ $byPartner['name'] }}</span>
                 <strong><x-rupees :amount="$byPartner['amount']" /></strong>
                 <span class="muted">({{ $byPartner['count'] }})</span>
             </td>
@@ -35,20 +35,20 @@
 </table>
 
 @if ($summary['count'] > $limit)
-    <p class="warning">Showing the first {{ number_format($limit) }} of {{ number_format($summary['count']) }} expenses — narrow the dates or filters to print the rest.</p>
+    <p class="warning">{{ __('Showing the first :shown of :total — narrow the dates or filters to print the rest.', ['shown' => number_format($limit), 'total' => number_format($summary['count'])]) }}</p>
 @endif
 
 <table class="grid">
     <thead>
         <tr>
             <th>#</th>
-            <th>Date</th>
-            <th>What for</th>
-            <th>Paid to</th>
-            <th>Bill no.</th>
-            <th>Paid by</th>
-            <th>Method</th>
-            <th class="amount">Amount</th>
+            <th>{{ __('Date') }}</th>
+            <th>{{ __('What for') }}</th>
+            <th>{{ __('Paid to') }}</th>
+            <th>{{ __('Bill no.') }}</th>
+            <th>{{ __('Paid by') }}</th>
+            <th>{{ __('Method') }}</th>
+            <th class="amount">{{ __('Amount') }}</th>
         </tr>
     </thead>
     <tbody>
@@ -72,7 +72,7 @@
     </tbody>
     <tfoot>
         <tr>
-            <th colspan="7">Total ({{ $expenses->count() }} {{ \Illuminate\Support\Str::plural('expense', $expenses->count()) }})</th>
+            <th colspan="7">{{ __('Total') }} ({{ $expenses->count() }})</th>
             <td class="amount"><x-rupees :amount="$expenses->sum('amount')" /></td>
         </tr>
     </tfoot>

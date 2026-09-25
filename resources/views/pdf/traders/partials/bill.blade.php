@@ -4,15 +4,15 @@
 
 <table class="meta">
     <tr>
-        <td><span class="label">{{ $numberLabel }}</span><strong>{{ $number }}</strong></td>
-        <td class="right"><span class="label">Date</span><strong>{{ $date }}</strong></td>
+        <td><span class="label">{{ __($numberLabel) }}</span><strong>{{ $number }}</strong></td>
+        <td class="right"><span class="label">{{ __('Date') }}</span><strong>{{ $date }}</strong></td>
     </tr>
 </table>
 
 <table class="party">
     @foreach ($partyRows as [$rowLabel, $rowValue])
         <tr>
-            <th>{{ $rowLabel }}</th>
+            <th>{{ __($rowLabel) }}</th>
             <td>{{ $rowValue }}</td>
         </tr>
     @endforeach
@@ -22,10 +22,10 @@
     <thead>
         <tr>
             <th>#</th>
-            <th>Rice</th>
-            <th class="right">Bags</th>
-            <th class="right">Rate / bag</th>
-            <th class="right">Amount</th>
+            <th>{{ __('Rice') }}</th>
+            <th class="right">{{ __('Bags') }}</th>
+            <th class="right">{{ __('Rate / bag') }}</th>
+            <th class="right">{{ __('Amount') }}</th>
         </tr>
     </thead>
     <tbody>
@@ -41,7 +41,7 @@
     </tbody>
     <tfoot>
         <tr>
-            <th colspan="2">Total</th>
+            <th colspan="2">{{ __('Total') }}</th>
             <td class="right">{{ $items->sum('bags') }}</td>
             <td></td>
             <td class="right"><strong><x-rupees :amount="$total" /></strong></td>
@@ -57,7 +57,7 @@
     <table class="party">
         @foreach ($extraRows as [$rowLabel, $rowAmount])
             <tr>
-                <th>{{ $rowLabel }}</th>
+                <th>{{ __($rowLabel) }}</th>
                 <td class="right"><strong><x-rupees :amount="$rowAmount" /></strong></td>
             </tr>
         @endforeach
@@ -66,7 +66,7 @@
 
 <table class="signature">
     <tr>
-        <td>Recorded by: {{ $recordedBy ?? '—' }}</td>
-        <td class="right">Authorised signature</td>
+        <td>{{ __('Recorded by') }}: {{ $recordedBy ?? '—' }}</td>
+        <td class="right">{{ __('Authorised signature') }}</td>
     </tr>
 </table>

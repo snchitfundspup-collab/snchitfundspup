@@ -155,7 +155,7 @@
         @if ($people->isEmpty())
             <p class="members-empty">
                 @if ($who === 'customers')
-                    <span data-i18n="no_customer_usage">No customer has used the app yet. Customers will appear here once they can sign in.</span>
+                    <span data-i18n="no_customer_usage">No customer has signed in yet.</span>
                 @else
                     <span data-i18n="no_usage_yet">Nothing recorded yet.</span>
                 @endif

@@ -75,6 +75,7 @@ class StoreRiceBillRequest extends FormRequest
                 'received_amount' => ['nullable', 'numeric', 'min:0'],
                 'received_method' => ['required', Rule::in(array_keys(Payment::METHODS))],
                 'received_reference' => ['nullable', 'string', 'max:100'],
+                'order_id' => ['nullable', 'integer', Rule::exists('trader_orders', 'id')],
             ];
         }
 

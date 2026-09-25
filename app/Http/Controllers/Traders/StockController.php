@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Traders;
 
 use App\Http\Controllers\Controller;
 use App\Models\RiceVariety;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Support\ReportPdf as Pdf;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;

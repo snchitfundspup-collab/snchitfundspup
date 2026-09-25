@@ -98,7 +98,7 @@ test('the report prints and downloads as a pdf', function () {
 
     $this->get(route('reports.dues.print', ['group' => $this->sepGroup->id]))
         ->assertOk()
-        ->assertSeeTextInOrder(['Mon, 05 Oct 2026', 'Sep Group', 'Pending — past the due date', 'Ravi Pending', 'Total (1 member)', 'Due — due this month', 'Sita Due', 'Tara Part'])
+        ->assertSeeTextInOrder(['Mon, 05 Oct 2026', 'Sep Group', 'Pending — past the due date', 'Ravi Pending', 'Total (1)', 'Due — due this month', 'Sita Due', 'Tara Part'])
         ->assertSee('window.print()', false);
 
     $response = $this->get(route('reports.dues.pdf'))
