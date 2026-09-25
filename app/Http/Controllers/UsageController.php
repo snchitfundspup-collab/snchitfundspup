@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
+use App\Models\UsageDaily;
 use App\Models\UsageLog;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -13,7 +16,8 @@ use Illuminate\View\View;
  * Usage (Sathiya only): how much the app is used — today and this month,
  * day by day for 30 days, month by month for 12 months — who used it
  * recently (staff, and customers once they can sign in) and the latest
- * pages opened.
+ * pages opened. Counts come from the daily totals (kept a year); page,
+ * device and time detail from the usage log (kept a month).
  */
 class UsageController extends Controller
 {
@@ -66,8 +70,10 @@ class UsageController extends Controller
     }
 
     /**
-     * @param  Builder<UsageLog>  $query
-     * @return Builder<UsageLog>
+     * @template TModel of UsageLog|UsageDaily
+     *
+     * @param  Builder<TModel>  $query
+     * @return Builder<TModel>
      */
     private function forWho(Builder $query, string $who): Builder
     {
@@ -83,14 +89,12 @@ class UsageController extends Controller
      */
     private function viewsPerDayAndPerson(string $who, Carbon $since): Collection
     {
-        return $this->forWho(UsageLog::query(), $who)->toBase()
+        return $this->forWho(UsageDaily::query(), $who)->toBase()
             ->where('visited_on', '>=', $since->toDateString())
-            ->selectRaw('visited_on, user_id, customer_id, COUNT(*) as views')
-            ->groupBy('visited_on', 'user_id', 'customer_id')
-            ->get()
+            ->get(['visited_on', 'person', 'views'])
             ->map(fn ($row) => (object) [
                 'day' => substr((string) $row->visited_on, 0, 10),
-                'person' => $row->user_id ? 'u'.$row->user_id : 'c'.$row->customer_id,
+                'person' => $row->person,
                 'views' => (int) $row->views,
             ]);
     }
@@ -141,37 +145,48 @@ class UsageController extends Controller
     }
 
     /**
-     * Everyone who has used the app, most recent first: last seen, the page
-     * and device, and how many pages today / this month / in all.
+     * Everyone who has used the app, most recent first: last seen, the last
+     * page and device (while the month of detail has it), and how many
+     * pages today / this month / in the last year.
      *
-     * @return Collection<int, array{log: UsageLog, today: int, month: int, total: int, days: int}>
+     * @return Collection<int, array{person: User|Customer, log: ?UsageLog, last_day: Carbon, today: int, month: int, total: int, days: int}>
      */
     private function people(string $who, Carbon $today): Collection
     {
-        $totals = $this->forWho(UsageLog::query(), $who)->toBase()
-            ->selectRaw('user_id, customer_id, MAX(id) as last_id, COUNT(*) as total, COUNT(DISTINCT visited_on) as days')
-            ->selectRaw('SUM(CASE WHEN visited_on >= ? THEN 1 ELSE 0 END) as today_views', [$today->toDateString()])
-            ->selectRaw('SUM(CASE WHEN visited_on >= ? THEN 1 ELSE 0 END) as month_views', [$today->copy()->startOfMonth()->toDateString()])
-            ->groupBy('user_id', 'customer_id')
-            ->orderByDesc('last_id')
+        $totals = $this->forWho(UsageDaily::query(), $who)->toBase()
+            ->selectRaw('person, MAX(user_id) as user_id, MAX(customer_id) as customer_id, MAX(visited_on) as last_day, SUM(views) as total, COUNT(*) as days')
+            ->selectRaw('SUM(CASE WHEN visited_on >= ? THEN views ELSE 0 END) as today_views', [$today->toDateString()])
+            ->selectRaw('SUM(CASE WHEN visited_on >= ? THEN views ELSE 0 END) as month_views', [$today->copy()->startOfMonth()->toDateString()])
+            ->groupBy('person')
+            ->orderByDesc('last_day')
             ->limit(self::PEOPLE_LIMIT)
             ->get();
 
+        $lastLogIds = $this->forWho(UsageLog::query(), $who)->toBase()
+            ->selectRaw('MAX(id) as id')
+            ->groupBy('user_id', 'customer_id')
+            ->pluck('id');
+
         $lastLogs = UsageLog::query()
-            ->whereKey($totals->pluck('last_id'))
-            ->with(['user:id,name,username', 'customer:id,customer_code,name,remarks,phone'])
+            ->whereKey($lastLogIds)
             ->get()
-            ->keyBy('id');
+            ->keyBy(fn (UsageLog $log) => UsageDaily::personKey($log->user_id, $log->customer_id));
+
+        $users = User::query()->whereKey($totals->pluck('user_id')->filter())->get(['id', 'name', 'username'])->keyBy('id');
+        $customers = Customer::query()->whereKey($totals->pluck('customer_id')->filter())->get()->keyBy('id');
 
         return $totals
-            ->filter(fn ($row) => $lastLogs->has($row->last_id))
             ->map(fn ($row) => [
-                'log' => $lastLogs[$row->last_id],
+                'person' => $row->user_id ? $users->get($row->user_id) : $customers->get($row->customer_id),
+                'log' => $lastLogs->get($row->person),
+                'last_day' => Carbon::parse(substr((string) $row->last_day, 0, 10)),
                 'today' => (int) $row->today_views,
                 'month' => (int) $row->month_views,
                 'total' => (int) $row->total,
                 'days' => (int) $row->days,
             ])
+            ->filter(fn (array $row) => $row['person'] !== null)
+            ->sortByDesc(fn (array $row) => $row['last_day']->toDateString().'|'.str_pad((string) ($row['log']?->id ?? 0), 12, '0', STR_PAD_LEFT))
             ->values();
     }
 }

@@ -11,7 +11,8 @@ use Illuminate\Support\Str;
 
 /**
  * One page opened (or a sign-in) by a staff member, or by a customer once
- * customers can sign in. Feeds the Usage dashboard; kept for 400 days.
+ * customers can sign in. The detail (page, device, IP) is kept for a month;
+ * each log also adds to that person's UsageDaily count, kept for a year.
  */
 class UsageLog extends Model
 {
@@ -19,7 +20,7 @@ class UsageLog extends Model
 
     public const UPDATED_AT = null;
 
-    private const KEEP_DAYS = 400;
+    private const KEEP_DAYS = 31;
 
     /**
      * Friendly names for the pages people open most.
@@ -74,6 +75,11 @@ class UsageLog extends Model
             'visited_on' => 'date',
             'created_at' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::created(fn (UsageLog $log) => UsageDaily::countLog($log));
     }
 
     /**

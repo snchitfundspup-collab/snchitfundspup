@@ -8,5 +8,5 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-/* remove usage logs older than 400 days */
+/* usage detail older than a month, daily usage counts older than 400 days */
 Schedule::command('model:prune')->daily();

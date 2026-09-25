@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Customer;
+use App\Models\UsageDaily;
 use App\Models\UsageLog;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -116,7 +117,7 @@ test('who used the app recently lists staff and customers, latest first', functi
 
     $people = $this->actingAs($this->sathiya)->get(route('usage.index'))->viewData('people');
 
-    expect($people->map(fn ($person) => $person['log']->personName())->all())->toBe(['Lakshmi', 'Narayanan'])
+    expect($people->map(fn ($person) => $person['person']->name)->all())->toBe(['Lakshmi', 'Narayanan'])
         ->and($people[1]['log']->pageLabel())->toBe('Collect payment')
         ->and($people[1]['month'])->toBe(1);
 
@@ -125,7 +126,7 @@ test('who used the app recently lists staff and customers, latest first', functi
         ->assertSeeText('Teacher');
 
     $this->actingAs($this->sathiya)->get(route('usage.index', ['who' => 'staff']))
-        ->assertViewHas('people', fn ($people) => $people->every(fn ($person) => $person['log']->user_id !== null));
+        ->assertViewHas('people', fn ($people) => $people->every(fn ($person) => $person['person'] instanceof User));
 });
 
 test('the customers tab explains when no customer has used the app', function () {
@@ -134,12 +135,33 @@ test('the customers tab explains when no customer has used the app', function ()
         ->assertSeeText('Customers will appear here once they can sign in.');
 });
 
-test('usage logs older than 400 days are pruned', function () {
-    $old = usageOn('2025-08-01', $this->narayanan);
+test('page detail is kept for a month, while the daily counts keep the charts for a year', function () {
+    $lastYear = usageOn('2025-08-01', $this->narayanan);
+    $lastMonth = usageOn('2026-08-10', $this->narayanan, route: 'payments.create');
+    usageOn('2026-08-10', $this->narayanan);
     $recent = usageOn('2026-09-01', $this->narayanan);
 
-    $this->artisan('model:prune', ['--model' => [UsageLog::class]])->assertSuccessful();
+    expect(UsageDaily::where('person', 'u'.$this->narayanan->id)->orderBy('visited_on')->pluck('views')->all())->toBe([1, 2, 1]);
 
-    expect(UsageLog::whereKey($old->id)->exists())->toBeFalse()
-        ->and(UsageLog::whereKey($recent->id)->exists())->toBeTrue();
+    $this->artisan('model:prune', ['--model' => [UsageLog::class, UsageDaily::class]])->assertSuccessful();
+
+    expect(UsageLog::whereKey([$lastYear->id, $lastMonth->id])->exists())->toBeFalse()
+        ->and(UsageLog::whereKey($recent->id)->exists())->toBeTrue()
+        ->and(UsageDaily::whereDate('visited_on', '2025-08-01')->exists())->toBeFalse();
+
+    $response = $this->actingAs($this->sathiya)->get(route('usage.index', ['who' => 'staff']));
+
+    /* August still counts on the monthly chart; the person's total keeps it too */
+    expect($response->viewData('monthly')->firstWhere(fn ($month) => $month['month']->format('Y-m') === '2026-08')['views'])->toBe(2)
+        ->and($response->viewData('people')->firstWhere(fn ($person) => $person['person']->is($this->narayanan))['total'])->toBe(3);
+});
+
+test('someone seen only before the last month still shows, without page detail', function () {
+    usageOn('2026-07-01', $this->narayanan);
+    UsageLog::query()->delete();
+
+    $this->actingAs($this->sathiya)->get(route('usage.index', ['who' => 'staff']))
+        ->assertOk()
+        ->assertViewHas('people', fn ($people) => $people->firstWhere(fn ($person) => $person['person']->is($this->narayanan))['log'] === null)
+        ->assertSeeText('01 Jul 2026');
 });

@@ -40,7 +40,7 @@ Only staff sign in (`users` table, username + password; seeded by `AdminUserSeed
 - Purchases are treated as paid when entered (no supplier dues).
 - Reports (`Traders\ReportController`): Rice Sales, Profit & Loss (sales − cost of rice sold − expenses, split between partners), Customer Dues (0–30/31–60/61–90/90+ days), Customer Statement finder, Day Book. All print and PDF.
 
-**Usage.** `RecordUsage` middleware logs every full page a signed-in person opens (+ sign-ins) into `usage_logs` (not form posts, live-filter AJAX refreshes, downloads or errors). The Usage page (name menu → Usage) is only for users with `can_view_usage` (Sathiya; gate `view-usage`). Logs older than 400 days are pruned daily by `model:prune` (needs the scheduler).
+**Usage.** `RecordUsage` middleware logs every full page a signed-in person opens (+ sign-ins) into `usage_logs` (not form posts, live-filter AJAX refreshes, downloads or errors). The Usage page (name menu → Usage) is only for users with `can_view_usage` (Sathiya; gate `view-usage`). Each log also adds to that person's daily count in `usage_daily` (`UsageDaily`). The owners want the detailed log (page, device, IP) kept for **one month only**; daily counts are kept 400 days so the daily/monthly charts and totals survive. Both are pruned daily by `model:prune` (needs the scheduler).
 
 **Lists stay small.** All Payments opens on today only; Traders lists open on this month; wider ranges come through filters.
 

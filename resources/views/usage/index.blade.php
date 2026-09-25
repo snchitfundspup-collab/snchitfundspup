@@ -177,30 +177,39 @@
                     <tbody>
                         @foreach ($people as $person)
                             @php
+                                /* the page / device detail is kept for a month only */
                                 $log = $person['log'];
-                                $seen = $log->created_at->timezone($timezone);
-                                [$deviceIcon, $deviceKey, $deviceLabel] = $devices[$log->device] ?? $devices['computer'];
+                                $seen = $log?->created_at->timezone($timezone);
+                                [$deviceIcon, $deviceKey, $deviceLabel] = $devices[$log?->device] ?? $devices['computer'];
                             @endphp
                             <tr>
                                 <td>
-                                    @if ($log->customer)
-                                        <strong><x-customer-name :customer="$log->customer" /></strong>
-                                        <span class="dues-member-code">{{ $log->customer->customer_code }} · <span data-i18n="customer_word">Customer</span></span>
+                                    @if ($person['person'] instanceof \App\Models\Customer)
+                                        <strong><x-customer-name :customer="$person['person']" /></strong>
+                                        <span class="dues-member-code">{{ $person['person']->customer_code }} · <span data-i18n="customer_word">Customer</span></span>
                                     @else
-                                        <strong>{{ $log->personName() }}</strong>
-                                        <span class="dues-member-code">{{ $log->user?->username }} · <span data-i18n="staff_word">Staff</span></span>
+                                        <strong>{{ $person['person']->name }}</strong>
+                                        <span class="dues-member-code">{{ $person['person']->username }} · <span data-i18n="staff_word">Staff</span></span>
                                     @endif
                                 </td>
                                 <td class="nowrap">
-                                    <strong>{{ $seen->diffForHumans() }}</strong>
-                                    <small class="dues-part-paid">{{ $seen->format('d M Y, h:i A') }}</small>
+                                    @if ($seen)
+                                        <strong>{{ $seen->diffForHumans() }}</strong>
+                                        <small class="dues-part-paid">{{ $seen->format('d M Y, h:i A') }}</small>
+                                    @else
+                                        <strong>{{ $person['last_day']->format('d M Y') }}</strong>
+                                    @endif
                                 </td>
                                 <td>
-                                    {{ $log->pageLabel() }}
-                                    <small class="dues-part-paid">
-                                        <span data-i18n="{{ $deviceKey }}">{{ $deviceLabel }}</span>
-                                        @if ($log->business) · {{ $businesses[$log->business] ?? $log->business }} @endif
-                                    </small>
+                                    @if ($log)
+                                        {{ $log->pageLabel() }}
+                                        <small class="dues-part-paid">
+                                            <span data-i18n="{{ $deviceKey }}">{{ $deviceLabel }}</span>
+                                            @if ($log->business) · {{ $businesses[$log->business] ?? $log->business }} @endif
+                                        </small>
+                                    @else
+                                        —
+                                    @endif
                                 </td>
                                 <td class="ledger-col-total">{{ $person['today'] ?: '—' }}</td>
                                 <td class="ledger-col-total">{{ $person['month'] ?: '—' }}</td>
@@ -226,6 +235,7 @@
 
             <div class="group-panel-header">
                 <h2 data-i18n="recent_activity">Recent activity</h2>
+                <span class="usage-chart-note" data-i18n="kept_a_month">Pages opened are kept for a month</span>
             </div>
 
             <div class="ledger-table-wrapper">
