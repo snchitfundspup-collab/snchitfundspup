@@ -37,6 +37,7 @@ class AdminUserSeeder extends Seeder
                 'name' => $name,
                 'username' => $username,
                 'password' => $password,
+                'can_view_usage' => $username === 'sathiya',
             ]);
 
             $this->command?->info("Created admin '{$username}' with password: {$password}");

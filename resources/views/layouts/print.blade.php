@@ -5,6 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @include('components.partials.site-icons')
+
     <title>@yield('title') | SN {{ $companyName ?? 'Chit Funds' }}</title>
 
     <style>

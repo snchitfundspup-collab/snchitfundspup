@@ -1,0 +1,154 @@
+/*
+|--------------------------------------------------------------------------
+| USAGE — PAGE-SPECIFIC STYLES
+|--------------------------------------------------------------------------
+| Daily (30 days) and monthly (12 months) bar charts; tiles and tables
+| come from dashboard.css / payments.css.
+*/
+
+
+.usage-stats {
+    margin-bottom: 18px;
+}
+
+
+.usage-charts {
+    display: grid;
+
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+
+    gap: 18px;
+}
+
+
+.usage-charts .group-panel {
+    margin-bottom: 0;
+}
+
+
+.usage-chart-note {
+    font-size: 12px;
+
+    color: var(--text-soft);
+}
+
+
+.usage-chart {
+    height: 200px;
+
+    display: flex;
+
+    align-items: stretch;
+
+    gap: 4px;
+
+    padding-top: 18px;
+}
+
+
+.usage-bar {
+    flex: 1 1 0;
+
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: flex-end;
+
+    align-items: center;
+
+    position: relative;
+}
+
+
+.usage-bar-fill {
+    width: 100%;
+
+    min-height: 2px;
+
+    border-radius: 6px 6px 2px 2px;
+
+    background: linear-gradient(180deg, #7fa2ff, #3d73ff);
+
+    opacity: 0.75;
+
+    transition: opacity 0.2s ease;
+}
+
+
+.usage-bar:hover .usage-bar-fill,
+.usage-bar.is-today .usage-bar-fill {
+    opacity: 1;
+}
+
+
+.usage-bar.is-today .usage-bar-fill {
+    background: linear-gradient(180deg, #ff8a45, #fe691e);
+}
+
+
+.usage-bar-value {
+    font-size: 10px;
+
+    font-weight: 700;
+
+    color: var(--text-soft);
+
+    margin-bottom: 3px;
+
+    white-space: nowrap;
+}
+
+
+.usage-bar-label {
+    height: 16px;
+
+    margin-top: 6px;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    color: var(--text-soft);
+
+    white-space: nowrap;
+}
+
+
+/* the daily chart has 30 thin bars: values only on hover */
+.usage-chart-daily .usage-bar-value {
+    visibility: hidden;
+}
+
+
+.usage-chart-daily .usage-bar:hover .usage-bar-value,
+.usage-chart-daily .usage-bar.is-today .usage-bar-value {
+    visibility: visible;
+}
+
+
+.usage-chart-monthly {
+    gap: 8px;
+}
+
+
+.usage-ip {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+
+    font-size: 12px;
+}
+
+
+@media (max-width: 900px) {
+
+    .usage-charts {
+        grid-template-columns: 1fr;
+    }
+
+    .usage-chart {
+        gap: 2px;
+    }
+
+}

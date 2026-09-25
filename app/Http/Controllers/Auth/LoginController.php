@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\UsageLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,6 +28,8 @@ class LoginController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+
+        UsageLog::record($request, $request->user(), event: 'login');
 
         return redirect()->intended(route('dashboard'));
     }

@@ -16,6 +16,8 @@
         content="{{ csrf_token() }}"
     >
 
+    @include('components.partials.site-icons')
+
     <title>
         @yield('title', 'SN Chit Funds')
     </title>

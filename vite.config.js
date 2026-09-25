@@ -39,6 +39,8 @@ export default defineConfig({
                 'resources/css/traders.css',
                 'resources/js/traders.js',
 
+                'resources/css/usage.css',
+
             ],
 
             refresh: true,

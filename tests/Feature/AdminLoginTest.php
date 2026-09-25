@@ -13,6 +13,20 @@ test('the login page renders for guests', function () {
         ->assertSee('Password');
 });
 
+test('pages show the SN logo as the site icon', function () {
+    foreach (['favicon.ico', 'icon-192.png', 'apple-touch-icon.png'] as $icon) {
+        expect(filesize(public_path($icon)))->toBeGreaterThan(0);
+    }
+
+    $this->get(route('login'))
+        ->assertSee('rel="icon" href="'.asset('favicon.ico').'"', false)
+        ->assertSee('rel="apple-touch-icon" href="'.asset('apple-touch-icon.png').'"', false);
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('dashboard'))
+        ->assertSee(asset('icon-192.png'), false);
+});
+
 test('guests are redirected to login from admin pages', function (string $routeName) {
     $this->get(route($routeName))->assertRedirect(route('login'));
 })->with(['customers.index', 'customers.create']);
