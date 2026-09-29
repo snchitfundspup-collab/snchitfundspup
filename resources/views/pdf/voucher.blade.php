@@ -202,7 +202,10 @@
                     <strong>{{ $draw->paidBy?->name ?? '—' }}</strong>
                 </div>
             </td>
-            <td><div class="signature">{{ __('Authorised signature') }}</div></td>
+            <td>
+                <x-signature :user="$draw->paidBy" :height="34" />
+                <div class="signature">{{ __('Authorised signature') }}</div>
+            </td>
         </tr>
     </table>
 

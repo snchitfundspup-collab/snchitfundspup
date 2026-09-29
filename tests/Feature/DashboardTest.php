@@ -20,7 +20,7 @@ test('the dashboard is the home page after login', function () {
     $this->post(route('login.store'), ['username' => 'sathiya', 'password' => 'password'])
         ->assertRedirect(route('dashboard'));
 
-    expect(route('dashboard'))->toBe(url('/'));
+    expect(route('dashboard'))->toBe(url('/admin'));
 });
 
 test('the dashboard shows collections and groups, not customer details', function () {

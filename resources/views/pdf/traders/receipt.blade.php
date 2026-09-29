@@ -57,7 +57,10 @@
     <table class="signature">
         <tr>
             <td>{{ __('Recorded by') }}: {{ $receipt->recorder?->name ?? '—' }}</td>
-            <td class="right">{{ __('Authorised signature') }}</td>
+            <td class="right">
+                <x-signature :user="$receipt->recorder" :height="34" /><br>
+                {{ __('Authorised signature') }}
+            </td>
         </tr>
     </table>
 

@@ -26,8 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
         /* the language cookie is written by app.js, so it is not encrypted */
         $middleware->encryptCookies(except: [SetLanguage::COOKIE]);
 
-        /* customers' own pages (/my) have their own sign-in page (/login/customer) */
-        $isCustomerPage = fn (Request $request): bool => $request->is('my', 'my/*', 'login/customer', 'login/customer/*');
+        /* customers' own pages (/my) sign in at the home page (/); staff at /admin */
+        $isCustomerPage = fn (Request $request): bool => $request->is('/', 'choose', 'my', 'my/*');
 
         $middleware->redirectGuestsTo(
             fn (Request $request) => $isCustomerPage($request) ? route('portal.login') : route('login'),

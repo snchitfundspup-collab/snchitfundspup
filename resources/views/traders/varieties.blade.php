@@ -71,70 +71,86 @@
 
         @else
 
-            <div class="ledger-table-wrapper">
-                <table class="ledger-table statement-table">
-                    <thead>
-                        <tr>
-                            <th data-i18n="variety_name">Name</th>
-                            <th class="ledger-col-total" data-i18n="profit_per_bag">Profit / bag</th>
-                            <th class="ledger-col-total" data-i18n="in_stock_bags">In stock (bags)</th>
-                            <th data-i18n="edit">Edit</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($varieties as $variety)
-                            <tr>
-                                <td>
-                                    <strong>{{ $variety->name }}</strong>
-                                    <small class="dues-part-paid">{{ $kg($variety->bag_kg) }} <span data-i18n="kg_bag">kg bag</span>@unless ($variety->is_active) · <span data-i18n="inactive_word">inactive</span>@endunless</small>
-                                </td>
-                                @php $profitPerBag = $variety->profitPerBag(); @endphp
-                                <td @class(['ledger-col-total', 'ledger-total-paid' => $profitPerBag > 0, 'ledger-total-due' => $profitPerBag !== null && $profitPerBag < 0])>
-                                    @if ($profitPerBag !== null)
-                                        <strong><x-rupees :amount="$profitPerBag" /></strong>
-                                    @else
-                                        —
-                                    @endif
-                                </td>
-                                <td class="ledger-col-total">{{ (int) $variety->purchased_bags - (int) $variety->sold_bags }}</td>
-                                <td>
-                                    <form method="POST" action="{{ route('traders.varieties.update', $variety) }}" class="master-row-form variety-edit-form">
-                                        @csrf
-                                        @method('PUT')
-                                        <label class="master-field master-field-name">
-                                            <span class="bill-line-label" data-i18n="variety_name">Name</span>
-                                            <input type="text" name="name" class="input" maxlength="80" required value="{{ $variety->name }}">
-                                        </label>
-                                        <label class="master-field">
-                                            <span class="bill-line-label" data-i18n="bag_kg">Kg / bag</span>
-                                            <input type="number" name="bag_kg" class="input" min="1" max="200" step="0.01" required value="{{ (float) $variety->bag_kg }}">
-                                        </label>
-                                        <label class="master-field">
-                                            <span class="bill-line-label" data-i18n="purchase_price">Purchase price</span>
-                                            <input type="number" name="purchase_price" class="input" min="0" step="0.01" value="{{ $variety->purchase_price }}" placeholder="₹">
-                                        </label>
-                                        <label class="master-field">
-                                            <span class="bill-line-label" data-i18n="selling_price">Selling price</span>
-                                            <input type="number" name="selling_price" class="input" min="0" step="0.01" value="{{ $variety->selling_price }}" placeholder="₹">
-                                        </label>
-                                        <label class="method-option">
-                                            <input type="checkbox" name="is_active" value="1" @checked($variety->is_active)>
-                                            <span data-i18n="active_word">Active</span>
-                                        </label>
-                                        <div class="master-actions">
-                                            <button type="submit" class="group-action" title="Save"><x-icon name="save" /></button>
-                                        </div>
-                                    </form>
-                                    <form method="POST" action="{{ route('traders.varieties.destroy', $variety) }}" onsubmit="return confirm('Delete {{ $variety->name }}?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="balance-delete" title="Delete" aria-label="Delete {{ $variety->name }}"><x-icon name="trash" /></button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            <div class="variety-list">
+                @foreach ($varieties as $variety)
+                    @php $profitPerBag = $variety->profitPerBag(); @endphp
+
+                    <div @class(['variety-card', 'is-inactive' => ! $variety->is_active])>
+
+                        <div class="variety-card-head">
+                            <span class="variety-card-icon icon-3d icon-3d-green"><x-icon name="package" /></span>
+                            <div class="variety-card-title">
+                                <strong>{{ $variety->name }}</strong>
+                                <small>
+                                    {{ $kg($variety->bag_kg) }} <span data-i18n="kg_bag">kg bag</span>
+                                    @unless ($variety->is_active) · <span data-i18n="inactive_word">inactive</span>@endunless
+                                </small>
+                            </div>
+                            <div class="variety-card-facts">
+                                <span>
+                                    <small data-i18n="profit_per_bag">Profit / bag</small>
+                                    <strong @class(['ledger-total-paid' => $profitPerBag > 0, 'ledger-total-due' => $profitPerBag !== null && $profitPerBag < 0])>
+                                        @if ($profitPerBag !== null)<x-rupees :amount="$profitPerBag" />@else — @endif
+                                    </strong>
+                                </span>
+                                <span>
+                                    <small data-i18n="in_stock_bags">In stock (bags)</small>
+                                    <strong>{{ (int) $variety->purchased_bags - (int) $variety->sold_bags }}</strong>
+                                </span>
+                            </div>
+                        </div>
+
+                        <form method="POST" action="{{ route('traders.varieties.update', $variety) }}" class="variety-edit-form">
+                            @csrf
+                            @method('PUT')
+                            <label class="master-field master-field-name">
+                                <span class="bill-line-label" data-i18n="variety_name">Name</span>
+                                <input type="text" name="name" class="input" maxlength="80" required value="{{ $variety->name }}">
+                            </label>
+                            <label class="master-field">
+                                <span class="bill-line-label" data-i18n="bag_kg">Kg / bag</span>
+                                <input type="number" name="bag_kg" class="input" min="1" max="200" step="0.01" required value="{{ (float) $variety->bag_kg }}">
+                            </label>
+                            <label class="master-field">
+                                <span class="bill-line-label" data-i18n="purchase_price">Purchase price</span>
+                                <input type="number" name="purchase_price" class="input" min="0" step="0.01" value="{{ $variety->purchase_price }}" placeholder="₹">
+                            </label>
+                            <label class="master-field">
+                                <span class="bill-line-label" data-i18n="selling_price">Selling price</span>
+                                <input type="number" name="selling_price" class="input" min="0" step="0.01" value="{{ $variety->selling_price }}" placeholder="₹">
+                            </label>
+                            <div class="variety-edit-actions">
+                                <label class="method-option">
+                                    <input type="checkbox" name="is_active" value="1" @checked($variety->is_active)>
+                                    <span data-i18n="active_word">Active</span>
+                                </label>
+                                <button type="submit" class="group-action">
+                                    <x-icon name="save" />
+                                    <span data-i18n="save_word">Save</span>
+                                </button>
+                                <button
+                                    type="submit"
+                                    class="balance-delete"
+                                    form="delete-variety-{{ $variety->id }}"
+                                    title="Delete"
+                                    aria-label="Delete {{ $variety->name }}"
+                                ><x-icon name="trash" /></button>
+                            </div>
+                        </form>
+
+                        <form
+                            id="delete-variety-{{ $variety->id }}"
+                            method="POST"
+                            action="{{ route('traders.varieties.destroy', $variety) }}"
+                            onsubmit="return confirm('Delete {{ $variety->name }}?')"
+                            hidden
+                        >
+                            @csrf
+                            @method('DELETE')
+                        </form>
+
+                    </div>
+                @endforeach
             </div>
 
         @endif

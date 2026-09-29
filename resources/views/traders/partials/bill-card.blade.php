@@ -109,6 +109,7 @@
             <strong>{{ $recordedBy ?? '—' }}</strong>
         </div>
         <div class="receipt-signature">
+            <x-signature :user="$signer ?? null" />
             <span data-i18n="authorised_signature">Authorised signature</span>
         </div>
     </footer>

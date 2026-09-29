@@ -31,7 +31,7 @@ class RecordUsage
         }
 
         $customer = $request->is('my', 'my/*') ? Auth::guard('customer')->user() : null;
-        $user = $customer ? null : $request->user();
+        $user = $customer ? null : Auth::guard('web')->user();
 
         if ($customer || $user) {
             try {

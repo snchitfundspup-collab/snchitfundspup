@@ -97,6 +97,7 @@
             ['Customer owes in total now', $customerBalance, $customerBalance > 0 ? 'due-pending' : 'receive'],
         ])),
         'recordedBy' => $sale->recorder?->name,
+        'signer' => $sale->recorder,
     ])
 
 </div>
