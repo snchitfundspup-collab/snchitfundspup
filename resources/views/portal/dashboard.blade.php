@@ -77,19 +77,24 @@
 
     {{-- UPCOMING GROUPS --}}
 
-    @if ($upcomingGroups->isNotEmpty())
-        <section class="portal-section">
-            <div class="portal-section-head">
-                <h2 data-i18n="upcoming_groups">Upcoming Groups</h2>
+    {{-- always shown, so customers know where new groups appear --}}
+    <section class="portal-section">
+        <div class="portal-section-head">
+            <h2 data-i18n="upcoming_groups">Upcoming Groups</h2>
+            @if ($upcomingGroups->isNotEmpty())
                 <a href="{{ route('portal.upcoming') }}" class="portal-see-all"><span data-i18n="view_all">View all</span> <x-icon name="arrow-right" /></a>
-            </div>
+            @endif
+        </div>
+        @if ($upcomingGroups->isEmpty())
+            <p class="portal-empty glass" data-i18n="no_upcoming_groups">No new groups right now. Please check again later.</p>
+        @else
             <div class="portal-grid">
                 @foreach ($upcomingGroups as $group)
                     @include('portal.partials.upcoming-card', ['joined' => $seats->contains(fn ($seat) => $seat['group']->is($group)), 'joinRequest' => $joinRequests->get($group->id)])
                 @endforeach
             </div>
-        </section>
-    @endif
+        @endif
+    </section>
 
 
     {{-- SN TRADERS: rice balance, orders and the rice to buy --}}

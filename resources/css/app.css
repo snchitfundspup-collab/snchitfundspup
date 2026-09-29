@@ -2919,3 +2919,41 @@ html.light .action-alert strong {
 
     height: 18px;
 }
+
+
+/* =========================================================
+   SIGNATURES on receipts, bills and vouchers
+   (dark ink; shown light on the dark theme, dark when printed)
+========================================================= */
+
+.signature-img {
+    display: block;
+
+    max-width: 100%;
+
+    margin: 0 auto 2px;
+
+    object-fit: contain;
+}
+
+
+html:not(.light) .signature-img {
+    filter: invert(1);
+}
+
+
+@media print {
+
+    html:not(.light) .signature-img {
+        filter: none;
+    }
+
+}
+
+
+/* the signature sits right on the signing line */
+.receipt-signature .signature-img + .receipt-signature-line {
+    height: 0;
+
+    margin-top: 2px;
+}

@@ -103,6 +103,15 @@ test('signed in with the default password, a customer must choose their own befo
     $this->get(route('portal.dashboard'))->assertOk();
 });
 
+test('the home page always has an Upcoming Groups section', function () {
+    $this->forming->update(['status' => ChitGroup::STATUS_RUNNING]);
+
+    $this->actingAs($this->customer, 'customer')
+        ->get(route('portal.dashboard'))
+        ->assertOk()
+        ->assertSeeTextInOrder(['Upcoming Groups', 'No new groups right now. Please check again later.']);
+});
+
 test('the login page tells customers to call the office when they forget their password', function () {
     $this->get(route('portal.login'))
         ->assertOk()
@@ -111,13 +120,22 @@ test('the login page tells customers to call the office when they forget their p
 });
 
 test('staff and customers have separate login pages without links to each other', function () {
-    expect(route('login'))->toEndWith('/login/admin')
-        ->and(route('portal.login'))->toEndWith('/login/customer');
+    expect(route('portal.login'))->toBe(url('/'))
+        ->and(route('dashboard'))->toBe(url('/admin'))
+        ->and(route('login'))->toBe(url('/admin/login'));
 
-    $this->get('/login')->assertRedirect('/login/admin');
+    /* staff type /admin and land on their login page */
+    $this->get('/admin')->assertRedirect(route('login'));
 
-    $this->get(route('login'))->assertOk()->assertDontSee(route('portal.login'));
+    /* old addresses still work */
+    $this->get('/login')->assertRedirect('/admin');
+    $this->get('/login/admin')->assertRedirect('/admin');
+    $this->get('/login/customer')->assertRedirect('/');
+
+    $this->get(route('login'))->assertOk()->assertDontSee('href="'.route('portal.login').'"', false);
     $this->get(route('portal.login'))->assertOk()->assertSeeText('Phone number')->assertDontSee(route('login'));
+    /* a signed-in customer opening the home page goes to their pages */
+    $this->actingAs($this->customer, 'customer')->get('/')->assertRedirect(route('portal.dashboard'));
 });
 
 test('wrong passwords, unknown phones and inactive customers cannot sign in', function () {

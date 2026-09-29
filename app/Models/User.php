@@ -34,6 +34,28 @@ class User extends Authenticatable
     }
 
     /**
+     * This person's signature as a data URI for receipts, bills and PDFs
+     * (resources/signatures/{username}.png), or null when there is none.
+     * Kept out of public/ so it cannot be downloaded by URL.
+     */
+    public function signatureDataUri(): ?string
+    {
+        static $cache = [];
+
+        $username = basename(strtolower((string) $this->username));
+
+        if ($username === '') {
+            return null;
+        }
+
+        return $cache[$username] ??= (function () use ($username) {
+            $path = resource_path('signatures/'.$username.'.png');
+
+            return is_file($path) ? 'data:image/png;base64,'.base64_encode((string) file_get_contents($path)) : null;
+        })();
+    }
+
+    /**
      * Partners share the business spending equally.
      *
      * @param  Builder<User>  $query

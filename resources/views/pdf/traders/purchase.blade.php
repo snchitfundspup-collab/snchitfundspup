@@ -32,6 +32,7 @@
         'total' => $purchase->total_amount,
         'extraRows' => [],
         'recordedBy' => $purchase->recorder?->name,
+        'signer' => $purchase->recorder,
     ])
 
 @endsection

@@ -138,6 +138,7 @@
                 <strong>{{ $receipt->recorder?->name ?? '—' }}</strong>
             </div>
             <div class="receipt-signature">
+                <x-signature :user="$receipt->recorder" />
                 <span data-i18n="authorised_signature">Authorised signature</span>
             </div>
         </footer>

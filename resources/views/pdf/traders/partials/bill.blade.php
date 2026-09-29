@@ -1,6 +1,6 @@
 {{-- PDF body for a rice bill (invoice / purchase): party, lines, totals.
      $numberLabel, $number, $date, $partyRows [[label, value]], $items,
-     $total, $extraRows [[label, amount]] --}}
+     $total, $extraRows [[label, amount]], $recordedBy (name), $signer (User) --}}
 
 <table class="meta">
     <tr>
@@ -67,6 +67,9 @@
 <table class="signature">
     <tr>
         <td>{{ __('Recorded by') }}: {{ $recordedBy ?? '—' }}</td>
-        <td class="right">{{ __('Authorised signature') }}</td>
+        <td class="right">
+            <x-signature :user="$signer ?? null" :height="34" /><br>
+            {{ __('Authorised signature') }}
+        </td>
     </tr>
 </table>

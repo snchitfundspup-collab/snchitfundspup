@@ -22,28 +22,30 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| LOGIN PAGES — staff at /login/admin, customers at /login/customer
+| LOGIN PAGES — customers at the home page (/), staff at /admin
 |--------------------------------------------------------------------------
 */
 
-/* old address → staff login */
-Route::redirect('/login', '/login/admin', 301);
+/* old addresses */
+Route::redirect('/login', '/admin', 301);
+Route::redirect('/login/admin', '/admin', 301);
+Route::redirect('/login/customer', '/', 301);
 
 Route::middleware('guest:web')->group(function () {
 
     Route::get(
-        '/login/admin',
+        '/admin/login',
         [LoginController::class, 'create']
     )->name('login');
 
     Route::post(
-        '/login/admin',
+        '/admin/login',
         [LoginController::class, 'store']
     )->name('login.store');
 
 });
 
-Route::prefix('login/customer')->name('portal.')->middleware('guest:customer')->group(function () {
+Route::name('portal.')->middleware('guest:customer')->group(function () {
     Route::get('/', [Portal\AuthController::class, 'create'])->name('login');
     Route::post('/', [Portal\AuthController::class, 'store'])->name('login.store')->middleware('throttle:20,1');
     Route::get('/choose', [Portal\AuthController::class, 'choose'])->name('choose');
@@ -59,7 +61,7 @@ Route::prefix('login/customer')->name('portal.')->middleware('guest:customer')->
 Route::middleware('auth:web')->group(function () {
 
     Route::get(
-        '/',
+        '/admin',
         [DashboardController::class, 'index']
     )->name('dashboard');
 

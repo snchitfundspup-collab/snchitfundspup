@@ -1,7 +1,11 @@
 <?php
 
-test('the home page sends guests to the login page', function () {
-    $response = $this->get('/');
+test('the home page is the customer login', function () {
+    $this->get('/')
+        ->assertOk()
+        ->assertSeeText('Phone number');
+});
 
-    $response->assertRedirect(route('login'));
+test('staff pages send guests to the staff login', function () {
+    $this->get('/admin')->assertRedirect(route('login'));
 });

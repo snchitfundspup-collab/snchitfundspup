@@ -207,6 +207,7 @@
                 <strong>{{ $payment->recorder?->name ?? '—' }}</strong>
             </td>
             <td>
+                <x-signature :user="$payment->recorder" :height="34" />
                 <div class="signature">{{ __('Authorised signature') }}</div>
             </td>
         </tr>

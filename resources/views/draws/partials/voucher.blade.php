@@ -133,6 +133,7 @@
         </div>
 
         <div class="receipt-signature">
+            <x-signature :user="$draw->paidBy" />
             <span class="receipt-signature-line"></span>
             <span data-i18n="authorised_signature">Authorised signature</span>
         </div>

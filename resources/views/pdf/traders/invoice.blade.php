@@ -39,6 +39,7 @@
             ['Customer owes in total now', $customerBalance],
         ])),
         'recordedBy' => $sale->recorder?->name,
+        'signer' => $sale->recorder,
     ])
 
 @endsection

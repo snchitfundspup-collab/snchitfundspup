@@ -571,10 +571,140 @@ html.light .traders-note.is-warning {
 
 
 /* rice varieties: the edit row, labelled, on one line when there is room */
+/* rice varieties: one card each — details on top, edit fields below */
+.variety-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+
+.variety-card {
+    padding: 14px 16px;
+
+    border-radius: 18px;
+
+    background: var(--input-bg);
+
+    border: 1px solid var(--input-border);
+}
+
+
+.variety-card.is-inactive {
+    opacity: 0.7;
+}
+
+
+.variety-card-head {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 12px;
+}
+
+
+.variety-card-icon {
+    width: 40px;
+
+    height: 40px;
+
+    flex: 0 0 auto;
+}
+
+
+.variety-card-title {
+    flex: 1 1 auto;
+
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.variety-card-title strong {
+    font-size: 16px;
+}
+
+
+.variety-card-title small {
+    color: var(--text-soft);
+}
+
+
+.variety-card-facts {
+    display: flex;
+
+    gap: 20px;
+
+    text-align: right;
+}
+
+
+.variety-card-facts span {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.variety-card-facts small {
+    font-size: 11px;
+
+    font-weight: 700;
+
+    color: var(--text-soft);
+
+    white-space: nowrap;
+}
+
+
+.variety-card-facts strong {
+    font-size: 16px;
+}
+
+
 .variety-edit-form {
-    grid-template-columns: minmax(120px, 1.6fr) repeat(3, minmax(80px, 1fr)) auto auto;
+    display: grid;
+
+    grid-template-columns: minmax(140px, 1.6fr) repeat(3, minmax(90px, 1fr)) auto;
+
+    gap: 10px;
 
     align-items: end;
+}
+
+
+.variety-edit-form .input {
+    width: 100%;
+
+    min-height: 42px;
+
+    box-sizing: border-box;
+}
+
+
+.variety-edit-actions {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+.variety-edit-actions .group-action {
+    min-height: 42px;
 }
 
 
@@ -595,6 +725,27 @@ html.light .traders-note.is-warning {
 
     .variety-edit-form {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .variety-edit-form .master-field-name,
+    .variety-edit-actions {
+        grid-column: 1 / -1;
+    }
+
+    .variety-edit-actions {
+        justify-content: space-between;
+    }
+
+    .variety-card-head {
+        flex-wrap: wrap;
+    }
+
+    .variety-card-facts {
+        width: 100%;
+
+        justify-content: space-between;
+
+        text-align: left;
     }
 
 }
