@@ -47,18 +47,26 @@
             </span>
         </div>
 
-        @if ($joined)
+        {{-- family sharing the phone: each person joins (or asks) separately --}}
+        @php $showNames = $family->count() > 1; @endphp
 
+        @foreach ($joinedCustomers as $person)
             <p class="portal-join-note">
                 <span class="due-badge due-badge-ok" data-i18n="you_joined">You joined</span>
+                @if ($showNames)
+                    @include('portal.partials.owner', ['owner' => $person])
+                @endif
                 <span data-i18n="joined_note">You have a seat in this group. Your first payment is due on the start date.</span>
             </p>
+        @endforeach
 
-        @elseif ($joinRequest?->isPending())
-
+        @foreach ($pendingRequests as $joinRequest)
             <div class="portal-join-box">
                 <p class="portal-join-note">
                     <span class="due-badge due-badge-month" data-i18n="request_sent">Request sent</span>
+                    @if ($showNames)
+                        @include('portal.partials.owner', ['owner' => $joinRequest->customer])
+                    @endif
                     <span>
                         <span data-i18n="request_waiting_note">The office will call you to confirm.</span>
                         ({{ $joinRequest->seats }} {{ $joinRequest->seats === 1 ? 'seat' : 'seats' }},
@@ -76,13 +84,17 @@
                     </form>
                 </div>
             </div>
+        @endforeach
 
-        @elseif ($seatsLeft > 0)
+        @if ($askable->isNotEmpty() && $seatsLeft > 0)
 
-            @if ($joinRequest?->status === 'dismissed')
+            @if ($dismissedRequest)
                 <p class="portal-join-note">
                     <span class="due-badge due-badge-upcoming" data-i18n="request_not_accepted">Not accepted</span>
-                    <span>{{ $joinRequest->reply ?: 'The office could not add you to this group. Please call the office.' }}</span>
+                    @if ($showNames)
+                        @include('portal.partials.owner', ['owner' => $family->firstWhere('id', $dismissedRequest->customer_id)])
+                    @endif
+                    <span>{{ $dismissedRequest->reply ?: 'The office could not add you to this group. Please call the office.' }}</span>
                 </p>
             @endif
 
@@ -90,6 +102,16 @@
                 @csrf
                 <strong data-i18n="want_to_join">Want to join this group?</strong>
                 <div class="portal-join-fields">
+                    @if ($showNames)
+                        <label class="group-field">
+                            <span class="field-label" data-i18n="seats_for">For</span>
+                            <select name="customer" class="input">
+                                @foreach ($askable as $person)
+                                    <option value="{{ $person->id }}" @selected((int) old('customer') === $person->id)>{{ $person->name }} · {{ $person->customer_code }}@if (filled($person->remarks)) ({{ $person->remarks }})@endif</option>
+                                @endforeach
+                            </select>
+                        </label>
+                    @endif
                     <label class="group-field">
                         <span class="field-label" data-i18n="seats_wanted">Seats</span>
                         <select name="seats" class="input">
@@ -113,7 +135,7 @@
                 <p class="portal-card-note" data-i18n="join_decided_by_office">The office confirms every new member and will call you.</p>
             </form>
 
-        @else
+        @elseif ($joinedCustomers->isEmpty() && $pendingRequests->isEmpty())
 
             <p class="portal-join-note">
                 <span class="due-badge due-badge-upcoming" data-i18n="group_full">Full</span>

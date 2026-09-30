@@ -1072,3 +1072,89 @@ html.light .portal-order-total strong {
 
 }
 
+
+/* ---------------------------------------------------------
+   Family sharing a phone: whose seat / order / bill it is
+--------------------------------------------------------- */
+
+.portal-owner {
+    display: inline-flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 6px;
+
+    align-self: flex-start;
+
+    max-width: 100%;
+
+    padding: 4px 10px;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    color: #9cc2ff;
+
+    background: rgba(90, 140, 255, 0.14);
+
+    border: 1px solid rgba(90, 140, 255, 0.3);
+}
+
+.portal-owner svg {
+    width: 14px;
+
+    height: 14px;
+}
+
+.portal-owner small {
+    font-weight: 600;
+
+    opacity: 0.8;
+}
+
+.portal-owner .customer-ident {
+    font-weight: 500;
+
+    opacity: 0.85;
+}
+
+html.light .portal-owner {
+    color: #1f4fb8;
+
+    background: rgba(60, 110, 230, 0.1);
+}
+
+.portal-people {
+    display: grid;
+
+    gap: 12px;
+
+    margin-bottom: 18px;
+}
+
+.portal-person {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 14px 16px;
+
+    border-radius: 18px;
+}
+
+.portal-join-list {
+    display: grid;
+
+    gap: 10px;
+}

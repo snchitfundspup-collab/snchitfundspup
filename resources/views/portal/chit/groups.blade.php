@@ -12,7 +12,7 @@
             <h1 class="groups-title" data-i18n="my_groups">My Groups</h1>
             <p class="groups-subtitle" data-i18n="my_groups_subtitle">The chit groups you are in. Open one to see every month, your receipts and the withdrawal plan.</p>
         </div>
-        @if ($seats->isNotEmpty())
+        @if ($seats->isNotEmpty() && $seats->first()['owner'] === null)
             <div class="ledger-actions">
                 <a href="{{ route('portal.statement.print') }}" class="group-action" target="_blank" rel="noopener">
                     <x-icon name="printer" />
@@ -25,6 +25,27 @@
             </div>
         @endif
     </div>
+
+    {{-- family sharing the phone: one statement for each person --}}
+    @if ($seats->isNotEmpty() && $seats->first()['owner'] !== null)
+        <div class="portal-people">
+            @foreach ($seats->pluck('owner')->unique('id') as $owner)
+                <div class="portal-person glass">
+                    @include('portal.partials.owner')
+                    <div class="ledger-actions">
+                        <a href="{{ route('portal.statement.print', ['customer' => $owner->id]) }}" class="group-action" target="_blank" rel="noopener">
+                            <x-icon name="printer" />
+                            <span data-i18n="print_statement">Print statement</span>
+                        </a>
+                        <a href="{{ route('portal.statement.pdf', ['customer' => $owner->id]) }}" class="add-group-button">
+                            <x-icon name="download" />
+                            <span data-i18n="chit_statement">Chit statement</span>
+                        </a>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
 
     @if ($seats->isEmpty())
         <div class="groups-empty glass">

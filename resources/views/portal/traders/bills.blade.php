@@ -13,17 +13,32 @@
             <p class="groups-subtitle" data-i18n="my_bills_subtitle">Every rice bill and payment with SN Traders, and what is left to pay. Tap a bill to download it.</p>
         </div>
         <div class="ledger-actions">
-            <a href="{{ route('portal.bills.statement.print') }}" class="group-action" target="_blank" rel="noopener">
+            <a href="{{ route('portal.bills.statement.print', ['customer' => $family->count() > 1 ? $customer->id : null]) }}" class="group-action" target="_blank" rel="noopener">
                 <x-icon name="printer" />
                 <span data-i18n="print_statement">Print statement</span>
             </a>
-            <a href="{{ route('portal.bills.statement.pdf') }}" class="add-group-button">
+            <a href="{{ route('portal.bills.statement.pdf', ['customer' => $family->count() > 1 ? $customer->id : null]) }}" class="add-group-button">
                 <x-icon name="download" />
                 <span data-i18n="download_statement">Download statement</span>
             </a>
         </div>
     </div>
 
+
+    {{-- family sharing the phone: each person's bills separately --}}
+    @if ($family->count() > 1)
+        <nav class="status-tabs" aria-label="Whose bills">
+            @foreach ($family as $person)
+                <a
+                    href="{{ route('portal.bills', ['customer' => $person->id]) }}"
+                    @class(['status-tab', 'active' => $person->is($customer)])
+                    @if ($person->is($customer)) aria-current="page" @endif
+                >
+                    {{ $person->name }} <span class="status-tab-count">{{ $person->customer_code }}</span>
+                </a>
+            @endforeach
+        </nav>
+    @endif
 
     <section class="payment-summary-bar glass dues-summary">
         <div class="payment-summary-main">

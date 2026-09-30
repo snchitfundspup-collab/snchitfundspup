@@ -15,6 +15,11 @@ use Illuminate\Support\Facades\Hash;
  * (the "customer" guard) with their phone number; until a password is set
  * the default password works. Signed in with the default password, or one
  * the office typed in, they must choose their own before anything else.
+ *
+ * One person has one customer ID: the same name cannot be saved twice with
+ * the same phone number. Different people (family) may share a phone; they
+ * share one password and, signed in, see all their details together, each
+ * under its own name and ID. To separate them, the office changes a phone.
  */
 class Customer extends Authenticatable
 {
@@ -25,6 +30,11 @@ class Customer extends Authenticatable
      * The password every customer starts with (and gets back on a reset).
      */
     public const DEFAULT_PASSWORD = 'snchitfunds';
+
+    /**
+     * @var Collection<int, Customer>|null
+     */
+    private ?Collection $familyCache = null;
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -60,26 +70,102 @@ class Customer extends Authenticatable
     }
 
     /**
-     * Active customers with this phone number whose password matches. More
-     * than one when family members share a phone.
+     * A name as compared for duplicates: no case, single spaces.
+     */
+    public static function normalizedName(?string $name): string
+    {
+        return mb_strtolower((string) preg_replace('/\s+/u', ' ', trim((string) $name)));
+    }
+
+    /**
+     * Every customer (active or not) with this phone number, oldest ID first.
+     *
+     * @return Collection<int, Customer>
+     */
+    public static function sharingPhone(?string $phone, ?int $exceptId = null): Collection
+    {
+        $digits = self::phoneDigits($phone);
+
+        if ($digits === '') {
+            return collect();
+        }
+
+        return self::query()
+            ->where('phone', 'like', '%'.substr($digits, -4).'%')
+            ->when($exceptId, fn (Builder $query) => $query->whereKeyNot($exceptId))
+            ->orderBy('id')
+            ->get()
+            ->filter(fn (Customer $customer) => self::phoneDigits($customer->phone) === $digits)
+            ->values();
+    }
+
+    /**
+     * The customer already saved with this name and phone number, if any —
+     * the same person must not get a second ID.
+     */
+    public static function duplicateOf(string $name, string $phone, ?int $exceptId = null): ?Customer
+    {
+        $name = self::normalizedName($name);
+
+        return self::sharingPhone($phone, $exceptId)
+            ->first(fn (Customer $customer) => self::normalizedName($customer->name) === $name);
+    }
+
+    /**
+     * Active customers with this phone number whose password matches, oldest
+     * ID first. Family members sharing a phone share the password, so the
+     * first one is signed in and sees the others' details too.
      *
      * @return Collection<int, Customer>
      */
     public static function forLogin(string $phone, string $password): Collection
     {
-        $digits = self::phoneDigits($phone);
-
-        if (strlen($digits) < 10) {
+        if (strlen(self::phoneDigits($phone)) < 10) {
             return collect();
         }
 
-        return self::query()
-            ->where('is_active', true)
-            ->where('phone', 'like', '%'.substr($digits, -4).'%')
-            ->orderBy('name')
-            ->get()
-            ->filter(fn (Customer $customer) => self::phoneDigits($customer->phone) === $digits && $customer->passwordMatches($password))
+        return self::sharingPhone($phone)
+            ->filter(fn (Customer $customer) => $customer->is_active && $customer->passwordMatches($password))
             ->values();
+    }
+
+    /**
+     * This customer and the active customers sharing their phone number
+     * (family), oldest ID first — all shown together on the customer pages.
+     *
+     * @return Collection<int, Customer>
+     */
+    public function family(): Collection
+    {
+        return $this->familyCache ??= self::sharingPhone($this->phone)
+            ->filter(fn (Customer $customer) => $customer->is_active || $customer->is($this))
+            ->map(fn (Customer $customer) => $customer->is($this) ? $this : $customer)
+            ->whenEmpty(fn (Collection $family) => $family->push($this))
+            ->values();
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function familyIds(): array
+    {
+        return $this->family()->pluck('id')->all();
+    }
+
+    /**
+     * A customer added to (or moved to) a phone that others already use
+     * takes that phone's password, so the family keeps one sign-in.
+     */
+    public function adoptPhoneLogin(): void
+    {
+        $sharing = self::sharingPhone($this->phone, $this->id)->first();
+
+        if ($sharing) {
+            $this->forceFill([
+                'password' => $sharing->password,
+                'must_change_password' => $sharing->must_change_password,
+            ])->save();
+        }
     }
 
     public function passwordMatches(string $password): bool
@@ -105,11 +191,11 @@ class Customer extends Authenticatable
 
     /**
      * Back to the default password (the customer chooses a new one when
-     * they next sign in).
+     * they next sign in) — for everyone sharing the phone.
      */
     public function resetPassword(): void
     {
-        $this->forceFill(['password' => null, 'must_change_password' => false, 'remember_token' => null])->save();
+        $this->saveLoginForPhone(['password' => null, 'must_change_password' => false, 'remember_token' => null]);
     }
 
     /**
@@ -118,7 +204,7 @@ class Customer extends Authenticatable
      */
     public function setPasswordByOffice(string $password): void
     {
-        $this->forceFill(['password' => $password, 'must_change_password' => true, 'remember_token' => null])->save();
+        $this->saveLoginForPhone(['password' => Hash::make($password), 'must_change_password' => true, 'remember_token' => null]);
     }
 
     /**
@@ -138,7 +224,20 @@ class Customer extends Authenticatable
      */
     public function choosePassword(string $password): void
     {
-        $this->forceFill(['password' => $password, 'must_change_password' => false])->save();
+        $this->saveLoginForPhone(['password' => Hash::make($password), 'must_change_password' => false]);
+    }
+
+    /**
+     * The password belongs to the phone number: save it for everyone who
+     * shares this phone.
+     *
+     * @param  array<string, mixed>  $attributes
+     */
+    private function saveLoginForPhone(array $attributes): void
+    {
+        foreach (self::sharingPhone($this->phone, $this->id)->prepend($this) as $customer) {
+            $customer->forceFill($attributes)->save();
+        }
     }
 
     /**

@@ -74,10 +74,12 @@
 
             <div class="admin-menu" id="adminMenu" role="menu" hidden>
 
-                <div class="admin-menu-user">
-                    <strong><x-customer-name :customer="$me" /></strong>
-                    <span>{{ $me?->customer_code }} · {{ $me?->phone }}</span>
-                </div>
+                @foreach ($me?->family() ?? [] as $person)
+                    <div class="admin-menu-user">
+                        <strong><x-customer-name :customer="$person" /></strong>
+                        <span>{{ $person->customer_code }} · {{ $person->phone }}</span>
+                    </div>
+                @endforeach
 
                 <a href="{{ route('portal.password.edit') }}" class="admin-menu-item" role="menuitem">
                     <span class="admin-menu-icon icon-3d icon-3d-blue"><x-icon name="lock" /></span>

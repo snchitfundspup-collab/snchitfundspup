@@ -41,8 +41,8 @@ class CustomerLoginRequest extends FormRequest
     }
 
     /**
-     * The customers (one, or several sharing the phone) whose phone number
-     * and password match, throttling repeated failures.
+     * The customers (one, or family sharing the phone) whose phone number
+     * and password match, oldest ID first, throttling repeated failures.
      *
      * @return Collection<int, Customer>
      *

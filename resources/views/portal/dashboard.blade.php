@@ -28,11 +28,14 @@
                 {{ $localNow->format('l, j F Y') }}
             </div>
             <h1 class="dashboard-title">
-                <span data-i18n="{{ $greetingKey }}">{{ $greeting }}</span>, <span class="dashboard-name">{{ $customer->name }}</span>
+                <span data-i18n="{{ $greetingKey }}">{{ $greeting }}</span>, <span class="dashboard-name">{{ $family->pluck('name')->join(', ', ' & ') }}</span>
             </h1>
-            <p class="dashboard-subtitle">
-                {{ $customer->customer_code }}@if (filled($customer->remarks)) · {{ $customer->remarks }}@endif
-            </p>
+            {{-- everyone sharing this phone, each with their own ID --}}
+            @foreach ($family as $person)
+                <p class="dashboard-subtitle">
+                    @if ($family->count() > 1){{ $person->name }} · @endif{{ $person->customer_code }}@if (filled($person->remarks)) · {{ $person->remarks }}@endif
+                </p>
+            @endforeach
         </div>
 
         <div class="dashboard-actions">
@@ -42,7 +45,7 @@
             </a>
             @include('portal.partials.call-office')
             @if ($seats->isNotEmpty())
-                <a href="{{ route('portal.statement.pdf') }}" class="dashboard-action">
+                <a href="{{ $family->count() > 1 ? route('portal.groups') : route('portal.statement.pdf') }}" class="dashboard-action">
                     <x-icon name="download" />
                     <span data-i18n="chit_statement">Chit statement</span>
                 </a>
