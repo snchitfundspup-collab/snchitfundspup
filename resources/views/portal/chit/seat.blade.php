@@ -28,6 +28,9 @@
         <div class="group-hero-main">
             <span class="group-hero-icon icon-3d icon-3d-blue"><x-icon name="layers" /></span>
             <div class="group-hero-text">
+                @if ($owner)
+                    @include('portal.partials.owner')
+                @endif
                 <h1 class="group-hero-title">{{ $group->name }}</h1>
                 <p class="group-hero-meta">
                     {{ $member->member_code }}
@@ -36,11 +39,11 @@
                 </p>
             </div>
             <div class="ledger-actions">
-                <a href="{{ route('portal.statement.print') }}" class="group-action" target="_blank" rel="noopener">
+                <a href="{{ route('portal.statement.print', ['customer' => $owner?->id]) }}" class="group-action" target="_blank" rel="noopener">
                     <x-icon name="printer" />
                     <span data-i18n="print_statement">Print statement</span>
                 </a>
-                <a href="{{ route('portal.statement.pdf') }}" class="add-group-button">
+                <a href="{{ route('portal.statement.pdf', ['customer' => $owner?->id]) }}" class="add-group-button">
                     <x-icon name="download" />
                     <span data-i18n="chit_statement">Chit statement</span>
                 </a>

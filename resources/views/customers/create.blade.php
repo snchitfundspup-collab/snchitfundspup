@@ -288,6 +288,16 @@
                             required
                         >
 
+                        {{-- filled by create.js: who already uses this phone --}}
+                        <div
+                            id="phoneWarning"
+                            class="phone-warning"
+                            data-url="{{ route('customers.phone-check') }}"
+                            role="status"
+                            aria-live="polite"
+                            hidden
+                        ></div>
+
                     </div>
 
                 </div>

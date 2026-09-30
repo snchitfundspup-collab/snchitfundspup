@@ -1054,10 +1054,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         );
 
 
-                        markPasswordState(
-                            data.customer.id,
-                            data.password_state
-                        );
+                        /* the password is shared by everyone on the phone */
+                        (data.phone_customer_ids || [data.customer.id]).forEach(function (id) {
+                            markPasswordState(
+                                id,
+                                data.password_state
+                            );
+                        });
 
 
                         closeCustomerModal();
@@ -1164,7 +1167,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (
                     !customerId ||
                     !window.confirm(
-                        'Reset this customer\'s password to the default (snchitfunds)?'
+                        'Reset this customer\'s password to the default (snchitfunds)? Everyone with the same phone number shares this password.'
                     )
                 ) {
                     return;
@@ -1208,10 +1211,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     showPasswordStatus('default');
 
-                    markPasswordState(
-                        customerId,
-                        'default'
-                    );
+                    (data.phone_customer_ids || [customerId]).forEach(function (id) {
+                        markPasswordState(
+                            id,
+                            'default'
+                        );
+                    });
 
                     if (editCustomerPassword) {
                         editCustomerPassword.value = '';

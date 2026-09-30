@@ -27,7 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->encryptCookies(except: [SetLanguage::COOKIE]);
 
         /* customers' own pages (/my) sign in at the home page (/); staff at /admin */
-        $isCustomerPage = fn (Request $request): bool => $request->is('/', 'choose', 'my', 'my/*');
+        $isCustomerPage = fn (Request $request): bool => $request->is('/', 'my', 'my/*');
 
         $middleware->redirectGuestsTo(
             fn (Request $request) => $isCustomerPage($request) ? route('portal.login') : route('login'),

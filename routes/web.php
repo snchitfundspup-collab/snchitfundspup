@@ -48,8 +48,6 @@ Route::middleware('guest:web')->group(function () {
 Route::name('portal.')->middleware('guest:customer')->group(function () {
     Route::get('/', [Portal\AuthController::class, 'create'])->name('login');
     Route::post('/', [Portal\AuthController::class, 'store'])->name('login.store')->middleware('throttle:20,1');
-    Route::get('/choose', [Portal\AuthController::class, 'choose'])->name('choose');
-    Route::post('/choose', [Portal\AuthController::class, 'chosen'])->name('choose.store');
 });
 
 /*
@@ -84,6 +82,11 @@ Route::middleware('auth:web')->group(function () {
         '/customers/create',
         [CustomerController::class, 'create']
     )->name('customers.create');
+
+    Route::get(
+        '/customers/phone-check',
+        [CustomerController::class, 'phoneCheck']
+    )->name('customers.phone-check');
 
     Route::post(
         '/customers',

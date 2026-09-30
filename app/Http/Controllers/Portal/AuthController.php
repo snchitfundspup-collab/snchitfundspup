@@ -12,16 +12,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 /**
- * Customers sign in to their own pages with their phone number. When family
- * members share a phone, they pick whose account to open.
+ * Customers sign in to their own pages with their phone number. Family
+ * members sharing a phone share the password and see all their details
+ * together, so the oldest customer ID on the phone is signed in.
  */
 class AuthController extends Controller
 {
-    /**
-     * Session key holding the customers who share the phone just signed in.
-     */
-    private const CHOICES = 'portal_login_choices';
-
     public function create(): View
     {
         return view('portal.auth.login');
@@ -29,45 +25,7 @@ class AuthController extends Controller
 
     public function store(CustomerLoginRequest $request): RedirectResponse
     {
-        $customers = $request->customers();
-
-        if ($customers->count() > 1) {
-            $request->session()->put(self::CHOICES, $customers->pluck('id')->all());
-
-            return redirect()->route('portal.choose');
-        }
-
-        return $this->signIn($request, $customers->first());
-    }
-
-    /**
-     * Pick whose account to open (phone shared by several customers).
-     */
-    public function choose(Request $request): View|RedirectResponse
-    {
-        $ids = $request->session()->get(self::CHOICES, []);
-
-        if ($ids === []) {
-            return redirect()->route('portal.login');
-        }
-
-        return view('portal.auth.choose', [
-            'customers' => Customer::query()->whereKey($ids)->orderBy('name')->get(),
-        ]);
-    }
-
-    public function chosen(Request $request): RedirectResponse
-    {
-        $ids = $request->session()->get(self::CHOICES, []);
-        $customer = in_array($request->integer('customer'), $ids, true) ? Customer::find($request->integer('customer')) : null;
-
-        if (! $customer) {
-            return redirect()->route('portal.login');
-        }
-
-        $request->session()->forget(self::CHOICES);
-
-        return $this->signIn($request, $customer);
+        return $this->signIn($request, $request->customers()->first());
     }
 
     public function destroy(Request $request): RedirectResponse

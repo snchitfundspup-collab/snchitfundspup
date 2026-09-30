@@ -148,21 +148,82 @@ test('wrong passwords, unknown phones and inactive customers cannot sign in', fu
     $this->assertGuest('customer');
 });
 
-test('customers sharing a phone choose whose account to open', function () {
-    $sister = Customer::factory()->create(['name' => 'Meena', 'phone' => '98765-43210']);
-    $this->customer->resetPassword();
+test('family sharing a phone sign in together and see all their details, each under their own name and ID', function () {
+    $sister = Customer::factory()->create(['name' => 'Meena', 'phone' => '98765-43210', 'remarks' => 'Tailor']);
+    $sister->adoptPhoneLogin();
+    $sisterSeat = ChitGroupMember::factory()->create(['chit_group_id' => $this->running->id, 'customer_id' => $sister->id]);
+    $sisterSale = Sale::factory()->create(['customer_id' => $sister->id, 'total_amount' => 1500]);
 
-    signIn(password: 'snchitfunds')->assertRedirect(route('portal.choose'));
+    /* one password for the phone: the sister signs in with Lakshmi's */
+    signIn()->assertRedirect(route('portal.dashboard'));
+    $this->assertAuthenticatedAs($this->customer, 'customer');
 
-    $this->get(route('portal.choose'))->assertOk()->assertSeeText('Lakshmi')->assertSeeText('Meena');
+    $this->get(route('portal.dashboard'))
+        ->assertOk()
+        ->assertSeeText('Lakshmi & Meena')
+        ->assertSeeText($sister->customer_code)
+        ->assertSeeText('Meena (Tailor)')
+        ->assertViewHas('seats', fn ($seats) => $seats->count() === 2)
+        ->assertViewHas('traderBalance', 1500.0);
 
-    /* only one of the offered accounts can be picked */
-    $this->post(route('portal.choose.store'), ['customer' => $this->other->id])->assertRedirect(route('portal.login'));
-    $this->assertGuest('customer');
+    $this->get(route('portal.groups.show', $sisterSeat))->assertOk()->assertSeeText('Meena (Tailor)');
 
-    signIn(password: 'snchitfunds');
-    $this->post(route('portal.choose.store'), ['customer' => $sister->id])->assertRedirect(route('portal.password.edit'));
-    $this->assertAuthenticatedAs($sister, 'customer');
+    /* bills are per person */
+    $this->get(route('portal.bills', ['customer' => $sister->id]))->assertOk()->assertSeeText($sisterSale->invoice_number);
+    $this->get(route('portal.statement.print', ['customer' => $sister->id]))->assertOk()->assertSeeText('Meena');
+
+    /* never someone outside the family */
+    $this->get(route('portal.bills', ['customer' => $this->other->id]))->assertNotFound();
+    $this->get(route('portal.bills.invoice.pdf', Sale::factory()->create(['customer_id' => $this->other->id])))->assertNotFound();
+    $this->get(route('portal.groups.show', $this->otherSeat))->assertNotFound();
+    $this->get(route('portal.dashboard'))->assertDontSeeText('Kumar');
+});
+
+test('the password belongs to the phone: choosing or resetting it does it for the whole family', function () {
+    $sister = Customer::factory()->create(['name' => 'Meena', 'phone' => '9876543210']);
+
+    $sister->choosePassword('family2026');
+
+    expect($this->customer->refresh()->passwordMatches('family2026'))->toBeTrue()
+        ->and($this->customer->passwordMatches('lakshmi123'))->toBeFalse();
+
+    $this->actingAs($this->admin, 'web')
+        ->deleteJson(route('customers.password.reset', $this->customer))
+        ->assertOk()
+        ->assertJsonPath('phone_customer_ids', [$this->customer->id, $sister->id]);
+
+    expect($sister->refresh()->usesDefaultPassword())->toBeTrue()
+        ->and(Customer::forLogin('9876543210', 'snchitfunds'))->toHaveCount(2);
+});
+
+test('a family member orders rice or asks to join a group for another member of the family', function () {
+    $sister = Customer::factory()->create(['name' => 'Meena', 'phone' => '9876543210']);
+    $sister->adoptPhoneLogin();
+    $rice = RiceVariety::factory()->create(['selling_price' => 1200]);
+
+    $this->actingAs($this->customer, 'customer');
+
+    $this->get(route('portal.rice'))->assertOk()->assertSeeText('Order for');
+    $this->post(route('portal.orders.store'), ['customer' => $sister->id, 'bags' => [$rice->id => 2]])->assertRedirect(route('portal.orders'));
+    $this->post(route('portal.orders.store'), ['customer' => $this->other->id, 'bags' => [$rice->id => 2]])->assertSessionHasErrors('customer');
+
+    expect(TraderOrder::sole()->customer_id)->toBe($sister->id);
+
+    $this->get(route('portal.orders'))->assertOk()->assertSeeText('Meena');
+
+    /* the family's orders are theirs to cancel too */
+    $this->post(route('portal.orders.cancel', TraderOrder::sole()))->assertRedirect(route('portal.orders'));
+    expect(TraderOrder::sole()->status)->toBe(TraderOrder::STATUS_CANCELLED);
+
+    $this->post(route('portal.upcoming.interest', $this->forming), ['customer' => $sister->id, 'seats' => 1])->assertRedirect();
+
+    expect(ChitJoinRequest::sole()->customer_id)->toBe($sister->id);
+
+    /* Lakshmi can still ask for herself */
+    $this->get(route('portal.upcoming.show', $this->forming))
+        ->assertOk()
+        ->assertSeeText('Request sent')
+        ->assertSeeText("I'm interested");
 });
 
 test('customer pages need a customer sign-in, and a customer cannot open office pages', function () {

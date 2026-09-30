@@ -1,6 +1,7 @@
 {{-- One of the customer's chit seats: group, instalment, where it stands
      (Pending red / Due orange / Part paid orange) and what to pay now.
-     $seat: member, group, status (null unless running), total_paid, won --}}
+     $seat: member, owner (family sharing the phone, else null), group,
+     status (null unless running), total_paid, won --}}
 
 @php
     $group = $seat['group'];
@@ -18,6 +19,10 @@
 @endphp
 
 <a href="{{ route('portal.groups.show', $seat['member']) }}" class="portal-card glass">
+
+    @if ($seat['owner'] ?? null)
+        @include('portal.partials.owner', ['owner' => $seat['owner']])
+    @endif
 
     <div class="portal-card-top">
         <span class="portal-card-icon icon-3d icon-3d-blue"><x-icon name="layers" /></span>

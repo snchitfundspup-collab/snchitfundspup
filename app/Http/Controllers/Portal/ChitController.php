@@ -17,13 +17,15 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
  * SN Chit Funds for a signed-in customer: the groups they are in (month by
  * month payments, receipts, prize and withdrawal plan), the statement, and
  * the groups that are forming (upcoming). On an upcoming group they can say
- * they want to join; the office decides (Join Requests).
+ * they want to join; the office decides (Join Requests). Family members
+ * sharing the phone are shown together, each under their own name and ID.
  */
 class ChitController extends Controller
 {
@@ -36,7 +38,7 @@ class ChitController extends Controller
     {
         $this->ensureOwn($request, $member->customer_id);
 
-        $member->load(['chitGroup.payouts', 'chitGroup.draws', 'allocations', 'payments' => fn ($query) => $query->latest('paid_at'), 'wonDraw']);
+        $member->load(['customer', 'chitGroup.payouts', 'chitGroup.draws', 'allocations', 'payments' => fn ($query) => $query->latest('paid_at'), 'wonDraw']);
         $group = $member->chitGroup;
 
         $collectable = collect($member->collectableMonths())->keyBy('month');
@@ -53,6 +55,7 @@ class ChitController extends Controller
 
         return view('portal.chit.seat', [
             'member' => $member,
+            'owner' => count($this->customer($request)->familyIds()) > 1 ? $member->customer : null,
             'group' => $group,
             'status' => $group->isRunning() ? $member->collectionStatus() : null,
             'months' => $months,
@@ -107,7 +110,7 @@ class ChitController extends Controller
 
     public function statementPdf(Request $request): Response
     {
-        $customer = $this->customer($request);
+        $customer = $this->person($request);
 
         return Pdf::loadView('pdf.customer-statement', [
             'customer' => $customer,
@@ -122,7 +125,7 @@ class ChitController extends Controller
      */
     public function statementPrint(Request $request): View
     {
-        $customer = $this->customer($request);
+        $customer = $this->person($request);
 
         return view('pdf.customer-statement', [
             'layout' => 'layouts.print',
@@ -137,7 +140,7 @@ class ChitController extends Controller
 
         return view('portal.chit.upcoming', [
             'groups' => self::upcomingGroups(),
-            'joinedGroupIds' => $customer->memberships()->pluck('chit_group_id')->all(),
+            'joinedGroupIds' => ChitGroupMember::query()->whereIn('customer_id', $customer->familyIds())->pluck('chit_group_id')->all(),
             'requests' => self::latestRequests($customer),
         ]);
     }
@@ -148,12 +151,36 @@ class ChitController extends Controller
 
         $group->load(['payouts', 'draws'])->loadCount('members');
 
-        $customer = $this->customer($request);
+        $family = $this->customer($request)->family();
+
+        $joinedIds = ChitGroupMember::query()
+            ->where('chit_group_id', $group->id)
+            ->whereIn('customer_id', $family->pluck('id'))
+            ->pluck('customer_id')
+            ->all();
+
+        /* each family member's latest request for this group */
+        $requests = ChitJoinRequest::query()
+            ->where('chit_group_id', $group->id)
+            ->whereIn('customer_id', $family->pluck('id'))
+            ->latest('id')
+            ->get()
+            ->unique('customer_id');
+
+        $pendingRequests = $requests->filter->isPending()->values();
+
+        /* who can still ask: not in the group and no request waiting */
+        $askable = $family
+            ->reject(fn (Customer $person) => in_array($person->id, $joinedIds, true) || $pendingRequests->contains('customer_id', $person->id))
+            ->values();
 
         return view('portal.chit.upcoming-group', [
             'group' => $group,
-            'joined' => $customer->memberships()->where('chit_group_id', $group->id)->exists(),
-            'joinRequest' => self::latestRequests($customer)->get($group->id),
+            'family' => $family,
+            'joinedCustomers' => $family->filter(fn (Customer $person) => in_array($person->id, $joinedIds, true))->values(),
+            'pendingRequests' => $pendingRequests->each(fn (ChitJoinRequest $joinRequest) => $joinRequest->setRelation('customer', $family->firstWhere('id', $joinRequest->customer_id))),
+            'askable' => $askable,
+            'dismissedRequest' => $requests->first(fn (ChitJoinRequest $joinRequest) => $joinRequest->status === ChitJoinRequest::STATUS_DISMISSED && $askable->contains('id', $joinRequest->customer_id)),
             'plan' => self::withdrawalPlan($group),
             'maxSeats' => ChitJoinRequest::MAX_SEATS,
         ]);
@@ -166,19 +193,25 @@ class ChitController extends Controller
     {
         abort_unless($group->isForming(), 404);
 
-        $customer = $this->customer($request);
+        $family = $this->customer($request)->family();
 
         $validated = $request->validate([
+            'customer' => ['nullable', 'integer', Rule::in($family->pluck('id'))],
             'seats' => ['required', 'integer', 'min:1', 'max:'.ChitJoinRequest::MAX_SEATS],
             'note' => ['nullable', 'string', 'max:500'],
         ]);
+
+        /* who the seats are for (family sharing the phone), yourself by default */
+        $customer = $family->firstWhere('id', (int) ($validated['customer'] ?? 0)) ?? $this->customer($request);
 
         $alreadyWaiting = ChitJoinRequest::query()->pending()
             ->where('customer_id', $customer->id)
             ->where('chit_group_id', $group->id)
             ->exists();
 
-        if (! $alreadyWaiting) {
+        $alreadyIn = $customer->memberships()->where('chit_group_id', $group->id)->exists();
+
+        if (! $alreadyWaiting && ! $alreadyIn) {
             ChitJoinRequest::create([
                 'chit_group_id' => $group->id,
                 'customer_id' => $customer->id,
@@ -207,14 +240,14 @@ class ChitController extends Controller
     }
 
     /**
-     * The customer's latest join request for each group.
+     * The latest join request for each group by the customer or their family.
      *
      * @return Collection<int, ChitJoinRequest>
      */
     public static function latestRequests(Customer $customer): Collection
     {
         return ChitJoinRequest::query()
-            ->where('customer_id', $customer->id)
+            ->whereIn('customer_id', $customer->familyIds())
             ->latest('id')
             ->get()
             ->unique('chit_group_id')
@@ -222,20 +255,26 @@ class ChitController extends Controller
     }
 
     /**
-     * The customer's seats, newest group first, with where each stands and
-     * how many of the group's months are done (their due date has come) or
-     * still to come.
+     * The seats of the customer and their family (same phone), newest group
+     * first, with where each stands and how many of the group's months are
+     * done (their due date has come) or still to come. With a family, each
+     * seat names its owner.
      *
-     * @return Collection<int, array{member: ChitGroupMember, group: ChitGroup, status: ?array<string, mixed>, total_paid: int, won: ?Draw, months_done: int, months_left: int}>
+     * @return Collection<int, array{member: ChitGroupMember, owner: ?Customer, group: ChitGroup, status: ?array<string, mixed>, total_paid: int, won: ?Draw, months_done: int, months_left: int}>
      */
     public static function seatsOf(Customer $customer): Collection
     {
-        return $customer->memberships()
-            ->with(['chitGroup', 'allocations', 'wonDraw'])
+        $showOwner = count($customer->familyIds()) > 1;
+
+        return ChitGroupMember::query()
+            ->whereIn('customer_id', $customer->familyIds())
+            ->with(['customer', 'chitGroup', 'allocations', 'wonDraw'])
+            ->orderBy('id')
             ->get()
             ->sortByDesc(fn (ChitGroupMember $member) => [$member->chitGroup->status === ChitGroup::STATUS_RUNNING, $member->chitGroup->start_date?->timestamp])
             ->map(fn (ChitGroupMember $member) => [
                 'member' => $member,
+                'owner' => $showOwner ? $member->customer : null,
                 'group' => $member->chitGroup,
                 'status' => $member->chitGroup->isRunning() ? $member->collectionStatus() : null,
                 'total_paid' => $member->totalPaid(),
@@ -278,10 +317,26 @@ class ChitController extends Controller
     }
 
     /**
-     * Customers only ever see their own seats and receipts.
+     * The family member whose statement to show (?customer=ID), yourself by
+     * default.
+     */
+    private function person(Request $request): Customer
+    {
+        $customer = $this->customer($request);
+
+        if (! $request->filled('customer')) {
+            return $customer;
+        }
+
+        return $customer->family()->firstWhere('id', $request->integer('customer')) ?? abort(404);
+    }
+
+    /**
+     * Customers only ever see their own (and their family's) seats and
+     * receipts.
      */
     private function ensureOwn(Request $request, ?int $customerId): void
     {
-        abort_unless($customerId === $this->customer($request)->id, 404);
+        abort_unless(in_array($customerId, $this->customer($request)->familyIds(), true), 404);
     }
 }

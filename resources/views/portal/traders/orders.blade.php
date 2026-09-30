@@ -44,6 +44,9 @@
                 <div class="payment-row glass portal-order-row">
                     <span class="portal-row-icon icon-3d icon-3d-green"><x-icon name="package" /></span>
                     <div class="payment-row-main">
+                        @if ($showOwner)
+                            @include('portal.partials.owner', ['owner' => $order->customer])
+                        @endif
                         <strong>{{ $order->order_number }}</strong>
                         <span>{{ $order->itemsLabel() }}</span>
                         @if ($order->notes)

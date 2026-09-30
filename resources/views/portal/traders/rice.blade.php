@@ -43,6 +43,17 @@
 
             <section class="group-panel glass payment-step portal-order-box">
 
+                @if ($family->count() > 1)
+                    <label class="group-field">
+                        <span class="field-label" data-i18n="order_for">Order for</span>
+                        <select name="customer" class="input">
+                            @foreach ($family as $person)
+                                <option value="{{ $person->id }}" @selected((int) old('customer', $family->first()->id) === $person->id)>{{ $person->name }} · {{ $person->customer_code }}@if (filled($person->remarks)) ({{ $person->remarks }})@endif</option>
+                            @endforeach
+                        </select>
+                    </label>
+                @endif
+
                 <label class="group-field">
                     <span class="field-label" data-i18n="order_note">Note for the office (optional)</span>
                     <input type="text" name="notes" class="input" maxlength="500" value="{{ old('notes') }}" placeholder="e.g. deliver on Saturday morning">
