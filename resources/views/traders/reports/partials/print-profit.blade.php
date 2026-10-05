@@ -37,12 +37,6 @@
             <th>{{ __('Net profit') }}</th>
             <th class="amount {{ $summary['net'] < 0 ? 'pending' : '' }}"><x-rupees :amount="$summary['net']" /></th>
         </tr>
-        @foreach ($partnerShares as $partner)
-            <tr>
-                <td>{{ __('Share of :name', ['name' => $partner['name']]) }}</td>
-                <td class="amount"><x-rupees :amount="$partner['share']" /></td>
-            </tr>
-        @endforeach
         <tr>
             <td class="muted">{{ __('Rice purchased in this period (for reference)') }}</td>
             <td class="amount muted"><x-rupees :amount="$summary['purchases']" /></td>

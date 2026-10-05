@@ -92,6 +92,40 @@ return [
     'office_phone' => env('OFFICE_PHONE', '9842510159'),
 
     /*
+    | Sri Lakshmi Micro Finance can also open on its own domain (e.g.
+    | srilakshmifinance.com): its staff land on the Micro Finance dashboard
+    | and customers see its name on the login page.
+    */
+
+    'finance_domain' => env('FINANCE_DOMAIN', ''),
+
+    /*
+    | Which businesses customers see on their own pages (comma separated:
+    | chit, traders, finance). SN Chit Funds and SN Traders are paused for
+    | now, so customers see only Sri Lakshmi Micro Finance.
+    */
+
+    'portal_sections' => array_values(array_filter(array_map('trim', explode(',', (string) env('PORTAL_SECTIONS', 'finance'))))),
+
+    /*
+    | Sri Lakshmi Micro Finance details printed on the Key Fact Statement.
+    | Fill these with the business's real registration and grievance
+    | officer; empty ones are left out (the office phone is used for
+    | complaints until a grievance officer is set).
+    */
+
+    'finance_kfs' => [
+        'legal_name' => env('FINANCE_LEGAL_NAME', 'Sri Lakshmi Micro Finance'),
+        'registration' => env('FINANCE_REGISTRATION', ''),
+        'branch' => env('FINANCE_BRANCH', 'Coimbatore'),
+        'address' => env('FINANCE_ADDRESS', ''),
+        'grievance_officer' => env('FINANCE_GRIEVANCE_OFFICER', ''),
+        'grievance_phone' => env('FINANCE_GRIEVANCE_PHONE', ''),
+        'grievance_email' => env('FINANCE_GRIEVANCE_EMAIL', ''),
+        'credit_bureaus' => env('FINANCE_CREDIT_BUREAUS', ''),
+    ],
+
+    /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------

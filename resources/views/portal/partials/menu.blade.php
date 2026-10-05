@@ -1,18 +1,35 @@
-{{-- Side menu for the customer pages: Home, then SN Chit Funds and SN
-     Traders, each with a few simple items. --}}
+{{-- Side menu for the customer pages: Home, then each business open to
+     customers (PORTAL_SECTIONS) with a few simple items. SN Chit Funds and
+     SN Traders are paused for now. --}}
 
 @php
-    $sections = [
-        ['menu_chit_funds', 'SN Chit Funds', [
+    $open = fn (string $section) => \App\Http\Middleware\EnsurePortalSectionOpen::isOpen($section);
+    $me = auth('customer')->user();
+    $sections = [];
+
+    if ($open('finance')) {
+        $hasLoans = $me && \App\Models\FinanceLoan::query()->whereIn('customer_id', $me->familyIds())->exists();
+
+        $sections[] = ['menu_finance', 'Sri Lakshmi Micro Finance', array_values(array_filter([
+            $hasLoans ? ['portal.loans', 'wallet', 'green', 'my_loans', 'My Loans', 'portal.loans*'] : null,
+            ['portal.loan-plans', 'scale', 'blue', 'loan_plans', 'Loan Plans', 'portal.loan-plans'],
+        ]))];
+    }
+
+    if ($open('chit')) {
+        $sections[] = ['menu_chit_funds', 'SN Chit Funds', [
             ['portal.groups', 'layers', 'blue', 'my_groups', 'My Groups', 'portal.groups*'],
             ['portal.upcoming', 'calendar', 'purple', 'upcoming_groups', 'Upcoming Groups', 'portal.upcoming*'],
-        ]],
-        ['menu_traders', 'SN Traders', [
+        ]];
+    }
+
+    if ($open('traders')) {
+        $sections[] = ['menu_traders', 'SN Traders', [
             ['portal.rice', 'package', 'green', 'rice_and_order', 'Rice & Order', 'portal.rice'],
             ['portal.orders', 'check', 'orange', 'my_orders', 'My Orders', 'portal.orders*'],
             ['portal.bills', 'rupee', 'purple', 'my_bills', 'Bills & Statement', 'portal.bills*'],
-        ]],
-    ];
+        ]];
+    }
 @endphp
 
 <div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
@@ -21,13 +38,13 @@
 
     <div class="menu-header">
 
-        <a href="{{ route('portal.dashboard') }}" class="menu-brand brand-link" aria-label="SN – go to My home">
+        <a href="{{ route('portal.dashboard') }}" class="menu-brand brand-link" aria-label="{{ $portalBrand['title'] }} – go to My home">
             <div class="menu-logo logo-3d">
-                <img src="{{ asset('images/sn-chit-funds-logo.png') }}" alt="">
+                <img src="{{ asset($portalBrand['logo']) }}" alt="">
             </div>
             <div>
-                <div class="menu-brand-name"><span>SN</span> <span data-i18n="my_account">My Account</span></div>
-                <div class="menu-brand-subtitle">Chit Funds · Traders</div>
+                <div class="menu-brand-name"><span>{{ $portalBrand['prefix'] }}</span> {{ $portalBrand['name'] }}</div>
+                <div class="menu-brand-subtitle" data-i18n="{{ $portalBrand['tagline_key'] }}">{{ $portalBrand['tagline'] }}</div>
             </div>
         </a>
 

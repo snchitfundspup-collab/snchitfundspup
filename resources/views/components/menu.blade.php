@@ -29,18 +29,18 @@
 
             <div class="menu-logo logo-3d">
                 <img
-                    src="{{ asset('images/sn-chit-funds-logo.png') }}"
+                    src="{{ asset($business['logo'] ?? 'images/sn-chit-funds-logo.png') }}"
                     alt=""
                 >
             </div>
 
             <div>
                 <div class="menu-brand-name">
-                    <span>SN</span> {{ $business['name'] ?? 'Chit Funds' }}
+                    <span>{{ $business['prefix'] ?? 'SN' }}</span> {{ $business['name'] ?? 'Chit Funds' }}
                 </div>
 
                 <div class="menu-brand-subtitle" data-i18n="{{ $business['tagline_key'] ?? 'brand_tagline' }}">
-                    {{ ($business['key'] ?? 'chit') === 'traders' ? 'Quality Rice · Fair Price' : 'Trust · Growth · Together' }}
+                    {{ $business['tagline'] ?? 'Trust · Growth · Together' }}
                 </div>
             </div>
 
@@ -67,6 +67,10 @@
         @if (($business['key'] ?? 'chit') === 'traders')
 
             @include('components.partials.traders-menu')
+
+        @elseif (($business['key'] ?? 'chit') === 'finance')
+
+            @include('components.partials.finance-menu')
 
         @else
 
@@ -349,7 +353,7 @@
         </div>
 
 
-        <!-- Expenses (partners' shared spending) -->
+        <!-- Expenses (the business's spending) -->
 
         @php
             $isExpensesSection = request()->routeIs('expenses.*');
@@ -397,13 +401,6 @@
                     <span data-i18n="all_expenses">All Expenses</span>
                 </a>
 
-                <a
-                    href="{{ route('expenses.balance') }}"
-                    @class(['menu-subitem', 'active' => request()->routeIs('expenses.balance*')])
-                >
-                    <x-icon name="scale" />
-                    <span data-i18n="balance_sheet">Balance Sheet</span>
-                </a>
 
             </div>
 

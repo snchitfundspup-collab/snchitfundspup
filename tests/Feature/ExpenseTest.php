@@ -231,10 +231,10 @@ test('the balance sheet prints and downloads as a pdf', function () {
     expect($response->headers->get('content-disposition'))->toContain('Balance-Sheet-all-time.pdf');
 });
 
-test('the management menu has the expenses section', function () {
+test('the management menu has the expenses section, without the partner balance sheet', function () {
     $this->get(route('dashboard'))
         ->assertSee('id="expensesSubmenu"', false)
         ->assertSee(route('expenses.create'))
         ->assertSee(route('expenses.index'))
-        ->assertSee(route('expenses.balance'));
+        ->assertDontSee(route('expenses.balance'));
 });

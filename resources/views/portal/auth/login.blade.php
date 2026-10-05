@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'Customer Login | SN Chit Funds & SN Traders')
+@section('title', 'Customer Login | '.(\App\Http\Middleware\EnsurePortalSectionOpen::financeOnly() ? 'Sri Lakshmi Micro Finance' : 'SN Chit Funds & SN Traders'))
 
 @push('styles')
     @vite('resources/css/login.css')
@@ -19,18 +19,26 @@
 
         {{-- BRAND --}}
 
+        @php
+            $financeSite = \App\Http\Middleware\SetBusinessContext::onFinanceDomain(request()) || \App\Http\Middleware\EnsurePortalSectionOpen::financeOnly();
+        @endphp
+
         <div class="login-brand">
 
             <div class="login-logo logo-3d">
-                <img src="{{ asset('images/sn-chit-funds-logo.png') }}" alt="SN">
+                <img src="{{ asset($financeSite ? 'images/sri-lakshmi-logo.png' : 'images/sn-chit-funds-logo.png') }}" alt="{{ $financeSite ? 'Sri Lakshmi' : 'SN' }}">
             </div>
 
             <div class="login-brand-name">
-                <span>SN</span> Chit Funds &amp; Traders
+                @if ($financeSite)
+                    <span>Sri Lakshmi</span> Micro Finance
+                @else
+                    <span>SN</span> Chit Funds &amp; Traders
+                @endif
             </div>
 
-            <div class="login-brand-tagline" data-i18n="brand_tagline">
-                Trust · Growth · Together
+            <div class="login-brand-tagline" data-i18n="{{ $financeSite ? 'finance_tagline' : 'brand_tagline' }}">
+                {{ $financeSite ? 'Small Loans · Easy Repayment' : 'Trust · Growth · Together' }}
             </div>
 
         </div>
@@ -49,9 +57,15 @@
 
             <h1 class="login-title" data-i18n="portal_welcome">Welcome</h1>
 
-            <p class="login-description" data-i18n="portal_login_description">
-                See your chit groups, payments and receipts, and order rice.
-            </p>
+            @if ($financeSite)
+                <p class="login-description" data-i18n="portal_login_finance">
+                    See your loans day by day — what you have paid and what is left.
+                </p>
+            @else
+                <p class="login-description" data-i18n="portal_login_description">
+                    See your chit groups, payments and receipts, and order rice.
+                </p>
+            @endif
 
         </div>
 

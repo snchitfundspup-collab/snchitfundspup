@@ -44,6 +44,9 @@ export default defineConfig({
                 'resources/css/portal.css',
                 'resources/js/portal.js',
 
+                'resources/css/finance.css',
+                'resources/js/finance.js',
+
             ],
 
             refresh: true,

@@ -34,6 +34,8 @@ class DashboardController extends Controller
             'traderBalance' => round($family->sum(fn (Customer $person) => $person->traderBalance()), 2),
             'openOrders' => TraderOrder::query()->whereIn('customer_id', $family->pluck('id'))->open()->count(),
             'rice' => TradersController::riceCards()->take(4),
+            'loans' => FinanceController::loansOf($customer)->filter(fn (array $row) => ! $row['loan']->isClosed())->values(),
+            'loanPlans' => FinanceController::planCards(),
         ]);
     }
 }

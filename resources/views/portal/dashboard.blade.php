@@ -5,6 +5,11 @@
 @php
     $localNow = now(config('app.business_timezone'));
 
+    /* SN Chit Funds and SN Traders are paused for customers for now (PORTAL_SECTIONS) */
+    $financeOpen = \App\Http\Middleware\EnsurePortalSectionOpen::isOpen('finance');
+    $chitOpen = \App\Http\Middleware\EnsurePortalSectionOpen::isOpen('chit');
+    $tradersOpen = \App\Http\Middleware\EnsurePortalSectionOpen::isOpen('traders');
+
     [$greetingKey, $greeting] = match (true) {
         $localNow->hour < 12 => ['greeting_morning', 'Good morning'],
         $localNow->hour < 17 => ['greeting_afternoon', 'Good afternoon'],
@@ -39,12 +44,20 @@
         </div>
 
         <div class="dashboard-actions">
-            <a href="{{ route('portal.rice') }}" class="dashboard-action dashboard-action-primary">
-                <x-icon name="package" />
-                <span data-i18n="order_rice">Order rice</span>
-            </a>
+            @if ($financeOpen)
+                <a href="{{ route('portal.loan-plans') }}" class="dashboard-action dashboard-action-primary">
+                    <x-icon name="scale" />
+                    <span data-i18n="loan_plans">Loan Plans</span>
+                </a>
+            @endif
+            @if ($tradersOpen)
+                <a href="{{ route('portal.rice') }}" @class(['dashboard-action', 'dashboard-action-primary' => ! $financeOpen])>
+                    <x-icon name="package" />
+                    <span data-i18n="order_rice">Order rice</span>
+                </a>
+            @endif
             @include('portal.partials.call-office')
-            @if ($seats->isNotEmpty())
+            @if ($chitOpen && $seats->isNotEmpty())
                 <a href="{{ $family->count() > 1 ? route('portal.groups') : route('portal.statement.pdf') }}" class="dashboard-action">
                     <x-icon name="download" />
                     <span data-i18n="chit_statement">Chit statement</span>
@@ -55,6 +68,43 @@
 
     </section>
 
+
+    {{-- SRI LAKSHMI MICRO FINANCE: running loans, then the loans on offer --}}
+
+    @if ($financeOpen)
+        <section class="portal-section">
+            <div class="portal-section-head">
+                <h2 data-i18n="my_loans">My Loans</h2>
+                @if ($loans->isNotEmpty())
+                    <a href="{{ route('portal.loans') }}" class="portal-see-all"><span data-i18n="view_all">View all</span> <x-icon name="arrow-right" /></a>
+                @endif
+            </div>
+            @if ($loans->isEmpty())
+                <p class="portal-empty glass" data-i18n="no_running_loan">You have no running loan. See the loan plans below and call the office to apply.</p>
+            @else
+                <div class="portal-grid">
+                    @foreach ($loans as $row)
+                        @include('portal.partials.loan-card')
+                    @endforeach
+                </div>
+            @endif
+        </section>
+
+        <section class="portal-section">
+            <div class="portal-section-head">
+                <h2 data-i18n="loan_plans">Loan Plans</h2>
+                <a href="{{ route('portal.loan-plans') }}" class="portal-see-all"><span data-i18n="calculate_word">Calculate</span> <x-icon name="arrow-right" /></a>
+            </div>
+            <div class="portal-grid">
+                @foreach ($loanPlans as $plan)
+                    @include('portal.partials.plan-card')
+                @endforeach
+            </div>
+        </section>
+    @endif
+
+
+    @if ($chitOpen)
 
     {{-- MY GROUPS --}}
 
@@ -100,6 +150,11 @@
     </section>
 
 
+    @endif
+
+
+    @if ($tradersOpen)
+
     {{-- SN TRADERS: rice balance, orders and the rice to buy --}}
 
     <section class="portal-section">
@@ -141,6 +196,8 @@
             </div>
         @endif
     </section>
+
+    @endif
 
 </div>
 

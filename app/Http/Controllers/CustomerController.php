@@ -43,9 +43,16 @@ class CustomerController extends Controller
             ? $request->input('sort')
             : self::SORT_OPTIONS[0];
 
+        /* in Sri Lakshmi Micro Finance the list shows each customer's running loans instead of chit groups */
+        $inFinance = (view()->shared('business')['key'] ?? null) === 'finance';
+
         $customers = Customer::query()
 
             ->search($search)
+
+            ->when($inFinance, fn (Builder $query) => $query->with([
+                'financeLoans' => fn ($loans) => $loans->active()->withSum('collections as collected_total', 'amount'),
+            ]))
 
             ->tap(fn (Builder $query) => $this->applySort($query, $sort))
 
@@ -58,7 +65,8 @@ class CustomerController extends Controller
             compact(
                 'customers',
                 'search',
-                'sort'
+                'sort',
+                'inFinance'
             )
         );
     }

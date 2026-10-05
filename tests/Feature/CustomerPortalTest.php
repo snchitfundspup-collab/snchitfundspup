@@ -24,6 +24,9 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->travelTo(now()->setDate(2026, 10, 20)->setTime(10, 0));
 
+    /* these tests cover SN Chit Funds and SN Traders on the customer pages, paused for customers by default */
+    config(['app.portal_sections' => ['chit', 'traders', 'finance']]);
+
     $this->customer = Customer::factory()->create(['name' => 'Lakshmi', 'phone' => '+91 98765 43210', 'remarks' => 'Teacher']);
     $this->customer->choosePassword('lakshmi123');
     $this->other = Customer::factory()->create(['name' => 'Kumar', 'phone' => '9000000002']);

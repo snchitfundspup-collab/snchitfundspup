@@ -16,7 +16,7 @@
     $busiestDay = max(1, $daily->max('views'));
     $busiestMonth = max(1, $monthly->max('views'));
     $devices = ['phone' => ['phone', 'device_phone', 'Phone'], 'tablet' => ['phone', 'device_tablet', 'Tablet'], 'computer' => ['layers', 'device_computer', 'Computer']];
-    $businesses = ['chit' => 'Chit Funds', 'traders' => 'Traders'];
+    $businesses = ['chit' => 'Chit Funds', 'traders' => 'Traders', 'finance' => 'Micro Finance'];
     $whoKeys = ['all' => 'status_all', 'staff' => 'staff_word', 'customers' => 'customers_title'];
 @endphp
 

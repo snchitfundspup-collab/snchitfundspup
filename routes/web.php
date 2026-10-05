@@ -10,6 +10,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DrawController;
 use App\Http\Controllers\DuesReportController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\Finance;
 use App\Http\Controllers\JoinRequestController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentLedgerController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Traders;
 use App\Http\Controllers\UsageController;
 use App\Http\Middleware\EnsureCustomerChoseOwnPassword;
+use App\Http\Middleware\EnsurePortalSectionOpen;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -491,6 +493,63 @@ Route::middleware('auth:web')->group(function () {
 
     });
 
+    /*
+    |--------------------------------------------------------------------------
+    | SRI LAKSHMI MICRO FINANCE (loans) — its own pages, customers shared
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('finance')->name('finance.')->group(function () {
+
+        Route::get('/', [Finance\DashboardController::class, 'index'])->name('dashboard');
+
+        /* loans */
+        Route::get('/loans', [Finance\LoanController::class, 'index'])->name('loans.index');
+        Route::get('/loans/new', [Finance\LoanController::class, 'create'])->name('loans.create');
+        Route::post('/loans', [Finance\LoanController::class, 'store'])->name('loans.store');
+        Route::get('/loans/{loan}', [Finance\LoanController::class, 'show'])->name('loans.show');
+        Route::get('/loans/{loan}/acknowledgement', [Finance\LoanController::class, 'acknowledgement'])->name('loans.acknowledgement');
+        Route::get('/loans/{loan}/acknowledgement.pdf', [Finance\LoanController::class, 'acknowledgementPdf'])->name('loans.acknowledgement.pdf');
+        Route::get('/loans/{loan}/kfs', [Finance\LoanController::class, 'kfs'])->name('loans.kfs');
+        Route::get('/loans/{loan}/kfs.pdf', [Finance\LoanController::class, 'kfsPdf'])->name('loans.kfs.pdf');
+        Route::delete('/loans/{loan}', [Finance\LoanController::class, 'destroy'])->name('loans.destroy');
+
+        /* collections */
+        Route::get('/collect', [Finance\CollectionController::class, 'collect'])->name('collect');
+        Route::post('/loans/{loan}/collections', [Finance\CollectionController::class, 'store'])->name('collections.store');
+        Route::get('/collections', [Finance\CollectionController::class, 'index'])->name('collections.index');
+        Route::get('/collections/{collection}', [Finance\CollectionController::class, 'show'])->name('collections.show');
+        Route::get('/collections/{collection}/pdf', [Finance\CollectionController::class, 'pdf'])->name('collections.pdf');
+        Route::delete('/collections/{collection}', [Finance\CollectionController::class, 'destroy'])->name('collections.destroy');
+
+        /* a customer's loans and collections */
+        Route::get('/customers/{customer}/statement', [Finance\ReportController::class, 'account'])->name('accounts.show');
+        Route::get('/customers/{customer}/statement/print', [Finance\ReportController::class, 'accountPrint'])->name('accounts.print');
+        Route::get('/customers/{customer}/statement.pdf', [Finance\ReportController::class, 'accountPdf'])->name('accounts.pdf');
+
+        /* reports: outstanding, overdue, day book, profit & loss */
+        Route::get('/reports/customer-statement', [Finance\ReportController::class, 'customerStatement'])->name('reports.customer');
+        Route::get('/reports/{report}', [Finance\ReportController::class, 'show'])->name('reports.show')->whereIn('report', array_keys(Finance\ReportController::REPORTS));
+        Route::get('/reports/{report}/print', [Finance\ReportController::class, 'printReport'])->name('reports.print')->whereIn('report', array_keys(Finance\ReportController::REPORTS));
+        Route::get('/reports/{report}/pdf', [Finance\ReportController::class, 'pdf'])->name('reports.pdf')->whereIn('report', array_keys(Finance\ReportController::REPORTS));
+
+        /* expenses & balance sheet (its own tables) */
+        Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
+        Route::get('/expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
+        Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
+        Route::get('/expenses/print', [ExpenseController::class, 'printList'])->name('expenses.print');
+        Route::get('/expenses/list.pdf', [ExpenseController::class, 'pdf'])->name('expenses.pdf');
+        Route::get('/expenses/balance-sheet', [BalanceSheetController::class, 'index'])->name('expenses.balance');
+        Route::get('/expenses/balance-sheet/print', [BalanceSheetController::class, 'printSheet'])->name('expenses.balance.print');
+        Route::get('/expenses/balance-sheet.pdf', [BalanceSheetController::class, 'pdf'])->name('expenses.balance.pdf');
+        Route::post('/expenses/settlements', [BalanceSheetController::class, 'storeSettlement'])->name('expenses.settlements.store');
+        Route::delete('/expenses/settlements/{settlement}', [BalanceSheetController::class, 'destroySettlement'])->name('expenses.settlements.destroy');
+        Route::get('/expenses/{expense}/edit', [ExpenseController::class, 'edit'])->name('expenses.edit');
+        Route::put('/expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
+        Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
+
+    });
+
 });
 
 /*
@@ -510,27 +569,39 @@ Route::prefix('my')->name('portal.')->group(function () {
         Route::middleware(EnsureCustomerChoseOwnPassword::class)->group(function () {
             Route::get('/', [Portal\DashboardController::class, 'index'])->name('dashboard');
 
-            /* SN Chit Funds */
-            Route::get('/groups', [Portal\ChitController::class, 'groups'])->name('groups');
-            Route::get('/groups/{member}', [Portal\ChitController::class, 'seat'])->name('groups.show');
-            Route::get('/receipts/{payment}/pdf', [Portal\ChitController::class, 'receiptPdf'])->name('receipts.pdf');
-            Route::get('/statement/pdf', [Portal\ChitController::class, 'statementPdf'])->name('statement.pdf');
-            Route::get('/statement/print', [Portal\ChitController::class, 'statementPrint'])->name('statement.print');
-            Route::get('/upcoming', [Portal\ChitController::class, 'upcoming'])->name('upcoming');
-            Route::get('/upcoming/{group}', [Portal\ChitController::class, 'upcomingGroup'])->name('upcoming.show');
-            Route::post('/upcoming/{group}/interest', [Portal\ChitController::class, 'showInterest'])->name('upcoming.interest');
-            Route::post('/join-requests/{joinRequest}/withdraw', [Portal\ChitController::class, 'withdrawInterest'])->name('upcoming.withdraw');
+            /* SN Chit Funds (paused for customers unless PORTAL_SECTIONS has "chit") */
+            Route::middleware(EnsurePortalSectionOpen::class.':'.EnsurePortalSectionOpen::CHIT)->group(function () {
+                Route::get('/groups', [Portal\ChitController::class, 'groups'])->name('groups');
+                Route::get('/groups/{member}', [Portal\ChitController::class, 'seat'])->name('groups.show');
+                Route::get('/receipts/{payment}/pdf', [Portal\ChitController::class, 'receiptPdf'])->name('receipts.pdf');
+                Route::get('/statement/pdf', [Portal\ChitController::class, 'statementPdf'])->name('statement.pdf');
+                Route::get('/statement/print', [Portal\ChitController::class, 'statementPrint'])->name('statement.print');
+                Route::get('/upcoming', [Portal\ChitController::class, 'upcoming'])->name('upcoming');
+                Route::get('/upcoming/{group}', [Portal\ChitController::class, 'upcomingGroup'])->name('upcoming.show');
+                Route::post('/upcoming/{group}/interest', [Portal\ChitController::class, 'showInterest'])->name('upcoming.interest');
+                Route::post('/join-requests/{joinRequest}/withdraw', [Portal\ChitController::class, 'withdrawInterest'])->name('upcoming.withdraw');
+            });
 
-            /* SN Traders */
-            Route::get('/rice', [Portal\TradersController::class, 'rice'])->name('rice');
-            Route::get('/orders', [Portal\TradersController::class, 'orders'])->name('orders');
-            Route::post('/orders', [Portal\TradersController::class, 'placeOrder'])->name('orders.store');
-            Route::post('/orders/{order}/cancel', [Portal\TradersController::class, 'cancelOrder'])->name('orders.cancel');
-            Route::get('/bills', [Portal\TradersController::class, 'bills'])->name('bills');
-            Route::get('/bills/statement/pdf', [Portal\TradersController::class, 'statementPdf'])->name('bills.statement.pdf');
-            Route::get('/bills/statement/print', [Portal\TradersController::class, 'statementPrint'])->name('bills.statement.print');
-            Route::get('/bills/invoices/{sale}/pdf', [Portal\TradersController::class, 'invoicePdf'])->name('bills.invoice.pdf');
-            Route::get('/bills/receipts/{receipt}/pdf', [Portal\TradersController::class, 'receiptPdf'])->name('bills.receipt.pdf');
+            /* SN Traders (paused for customers unless PORTAL_SECTIONS has "traders") */
+            Route::middleware(EnsurePortalSectionOpen::class.':'.EnsurePortalSectionOpen::TRADERS)->group(function () {
+                Route::get('/rice', [Portal\TradersController::class, 'rice'])->name('rice');
+                Route::get('/orders', [Portal\TradersController::class, 'orders'])->name('orders');
+                Route::post('/orders', [Portal\TradersController::class, 'placeOrder'])->name('orders.store');
+                Route::post('/orders/{order}/cancel', [Portal\TradersController::class, 'cancelOrder'])->name('orders.cancel');
+                Route::get('/bills', [Portal\TradersController::class, 'bills'])->name('bills');
+                Route::get('/bills/statement/pdf', [Portal\TradersController::class, 'statementPdf'])->name('bills.statement.pdf');
+                Route::get('/bills/statement/print', [Portal\TradersController::class, 'statementPrint'])->name('bills.statement.print');
+                Route::get('/bills/invoices/{sale}/pdf', [Portal\TradersController::class, 'invoicePdf'])->name('bills.invoice.pdf');
+                Route::get('/bills/receipts/{receipt}/pdf', [Portal\TradersController::class, 'receiptPdf'])->name('bills.receipt.pdf');
+            });
+
+            /* Sri Lakshmi Micro Finance */
+            Route::get('/loan-plans', [Portal\FinanceController::class, 'plans'])->name('loan-plans');
+            Route::get('/loans', [Portal\FinanceController::class, 'loans'])->name('loans');
+            Route::get('/loans/{loan}', [Portal\FinanceController::class, 'loan'])->name('loans.show');
+            Route::get('/loans/{loan}/passbook', [Portal\FinanceController::class, 'passbookPrint'])->name('loans.passbook');
+            Route::get('/loans/{loan}/passbook.pdf', [Portal\FinanceController::class, 'passbookPdf'])->name('loans.passbook.pdf');
+            Route::get('/loan-receipts/{collection}/pdf', [Portal\FinanceController::class, 'receiptPdf'])->name('loans.receipt.pdf');
         });
     });
 

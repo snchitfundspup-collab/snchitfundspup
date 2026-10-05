@@ -300,6 +300,16 @@ class Customer extends Authenticatable
     }
 
     /**
+     * Sri Lakshmi Micro Finance: loans given to this customer.
+     *
+     * @return HasMany<FinanceLoan, $this>
+     */
+    public function financeLoans(): HasMany
+    {
+        return $this->hasMany(FinanceLoan::class);
+    }
+
+    /**
      * SN Traders: rice orders placed from the customer's own pages.
      *
      * @return HasMany<TraderOrder, $this>

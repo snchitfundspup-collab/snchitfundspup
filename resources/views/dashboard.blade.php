@@ -80,13 +80,7 @@
                 <span data-i18n="run_draw">Run Draw</span>
             </a>
 
-            <a
-                href="{{ route('traders.dashboard') }}"
-                class="dashboard-action business-jump"
-            >
-                <x-icon name="package" />
-                <span><span class="business-switch-sn">SN</span> Traders</span>
-            </a>
+            @include('components.partials.business-jumps')
 
         </div>
 

@@ -1,3 +1,4 @@
+@php($letterhead = \App\Http\Middleware\SetBusinessContext::forCompany($companyName ?? 'Chit Funds'))
 {{-- Shell for printable lists (payments, pending & due): the letterhead
      and plain black-on-white table styles, opening the print dialog. --}}
 <!DOCTYPE html>
@@ -7,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @include('components.partials.site-icons')
 
-    <title>{{ __(html_entity_decode(trim($__env->yieldContent('title')), ENT_QUOTES)) }} | SN {{ $companyName ?? 'Chit Funds' }}</title>
+    <title>{{ __(html_entity_decode(trim($__env->yieldContent('title')), ENT_QUOTES)) }} | {{ $letterhead['full_name'] }}</title>
 
     <style>
         @page {
@@ -124,11 +125,11 @@
     <table class="letterhead">
         <tr>
             <td style="width: 56px;">
-                <img class="logo" src="{{ asset('images/sn-chit-funds-logo-pdf.png') }}" alt="SN {{ $companyName ?? 'Chit Funds' }}">
+                <img class="logo" src="{{ asset($letterhead['pdf_logo']) }}" alt="{{ $letterhead['full_name'] }}">
             </td>
             <td>
-                <div class="company"><span class="sn">SN</span> {{ $companyName ?? 'Chit Funds' }}</div>
-                <div class="tagline">{{ __(($companyName ?? '') === 'Traders' ? 'Quality Rice · Fair Price' : 'Trust · Growth · Together') }}</div>
+                <div class="company"><span class="sn">{{ $letterhead['prefix'] }}</span> {{ $letterhead['company'] }}</div>
+                <div class="tagline">{{ __($letterhead['tagline']) }}</div>
             </td>
             <td class="doc-title">
                 <strong>{{ __(html_entity_decode(trim($__env->yieldContent('doc_title')), ENT_QUOTES)) }}</strong>

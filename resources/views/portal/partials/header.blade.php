@@ -9,15 +9,15 @@
 
     <div class="brand">
 
-        <a href="{{ route('portal.dashboard') }}" class="brand-link" aria-label="SN – go to My home">
+        <a href="{{ route('portal.dashboard') }}" class="brand-link" aria-label="{{ $portalBrand['title'] }} – go to My home">
 
             <div class="brand-logo logo-3d">
-                <img src="{{ asset('images/sn-chit-funds-logo.png') }}" alt="">
+                <img src="{{ asset($portalBrand['logo']) }}" alt="">
             </div>
 
             <div>
-                <div class="brand-name"><span>SN</span> <span data-i18n="my_account">My Account</span></div>
-                <div class="brand-tagline">Chit Funds · Traders</div>
+                <div class="brand-name"><span>{{ $portalBrand['prefix'] }}</span> {{ $portalBrand['name'] }}</div>
+                <div class="brand-tagline" data-i18n="{{ $portalBrand['tagline_key'] }}">{{ $portalBrand['tagline'] }}</div>
             </div>
 
         </a>

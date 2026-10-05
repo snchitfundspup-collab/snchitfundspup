@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Expenses | SN Chit Funds')
+@section('title', 'Expenses | '.$business['full_name'])
 
 @push('styles')
     @vite([
@@ -42,19 +42,12 @@
             <h1 class="groups-title" data-i18n="all_expenses">All Expenses</h1>
 
             <p class="groups-subtitle" data-i18n="expenses_subtitle">
-                Business spending by the partners. This month by default.
+                The business's spending. This month by default.
             </p>
         </div>
 
         <div class="ledger-actions">
 
-            <a
-                href="{{ route($routePrefix.'expenses.balance') }}"
-                class="group-action"
-            >
-                <x-icon name="scale" />
-                <span data-i18n="balance_sheet">Balance Sheet</span>
-            </a>
 
             <a
                 href="{{ route($routePrefix.'expenses.create') }}"
@@ -110,7 +103,7 @@
         <label class="payment-filter">
             <span data-i18n="paid_by_partner">Paid by</span>
             <select name="partner" class="input payment-filter-select">
-                <option value="" data-i18n="both_partners">All partners</option>
+                <option value="" data-i18n="both_partners">Everyone</option>
                 @foreach ($partners as $partner)
                     <option value="{{ $partner->id }}" @selected($filters['partner'] === $partner->id)>{{ $partner->name }}</option>
                 @endforeach

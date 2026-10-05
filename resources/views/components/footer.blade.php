@@ -8,7 +8,7 @@
 
         <div class="footer-logo logo-3d">
             <img
-                src="{{ asset('images/sn-chit-funds-logo.png') }}"
+                src="{{ asset($business['logo'] ?? 'images/sn-chit-funds-logo.png') }}"
                 alt=""
             >
         </div>
@@ -16,11 +16,11 @@
         <div>
 
             <div class="footer-name">
-                <span>SN</span> {{ $business['name'] ?? 'Chit Funds' }}
+                <span>{{ $business['prefix'] ?? 'SN' }}</span> {{ $business['name'] ?? 'Chit Funds' }}
             </div>
 
             <div class="footer-tagline" data-i18n="{{ $business['tagline_key'] ?? 'brand_tagline' }}">
-                {{ ($business['key'] ?? 'chit') === 'traders' ? 'Quality Rice · Fair Price' : 'Trust · Growth · Together' }}
+                {{ $business['tagline'] ?? 'Trust · Growth · Together' }}
             </div>
 
         </div>

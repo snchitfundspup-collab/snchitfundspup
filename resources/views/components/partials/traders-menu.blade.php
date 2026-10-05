@@ -33,7 +33,6 @@
     $management = $menuGroup('tradersExpensesSubmenu', 'wallet', 'green', 'menu_expenses', 'Expenses', [
         ['traders.expenses.create', 'plus', 'add_expense', 'Add Expense'],
         ['traders.expenses.index', 'wallet', 'all_expenses', 'All Expenses'],
-        ['traders.expenses.balance', 'scale', 'balance_sheet', 'Balance Sheet'],
     ], ['traders.expenses.*']);
 @endphp
 

@@ -1,0 +1,430 @@
+/*
+|--------------------------------------------------------------------------
+| SRI LAKSHMI MICRO FINANCE — PAGE-SPECIFIC STYLES
+|--------------------------------------------------------------------------
+| The look comes from groups.css / payments.css / traders.css (glass
+| cards, status tabs, ledger tables, due badges, receipts); this file only
+| adds the few loan-specific pieces. Due today is orange, overdue is red
+| (ledger-total-due), like the chit fund's Due / Pending.
+*/
+
+.finance-due-value {
+    color: #ff8a45;
+}
+
+html.light .finance-due-value {
+    color: #c2410c;
+}
+
+
+/* New Loan: money in hand and the repayment plan */
+
+.finance-in-hand {
+    display: block;
+
+    padding: 10px 0;
+
+    font-size: 24px;
+
+    font-weight: 900;
+
+    color: #22c55e;
+}
+
+.finance-in-hand.is-wrong {
+    color: #f87171;
+}
+
+.finance-plan {
+    margin: 0;
+
+    padding: 12px 14px;
+
+    border-radius: 13px;
+
+    background: rgba(61, 115, 255, 0.12);
+
+    border: 1px solid rgba(61, 115, 255, 0.28);
+
+    font-weight: 700;
+}
+
+
+/* loan page: where it stands */
+
+.finance-standing {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 14px 28px;
+}
+
+.finance-standing > span {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+.finance-standing small {
+    color: var(--text-soft);
+
+    font-size: 12px;
+}
+
+.finance-standing strong {
+    font-size: 17px;
+}
+
+.finance-notes {
+    margin: 14px 0 0;
+
+    color: var(--text-soft);
+
+    font-size: 13px;
+}
+
+.finance-delete {
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin-top: 16px;
+}
+
+
+/* loan list rows */
+
+.finance-row-amounts {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-end;
+
+    gap: 2px;
+}
+
+.finance-row-amounts small {
+    color: var(--text-soft);
+
+    font-size: 12px;
+}
+
+
+/* eight key figures on a loan: four a row on wide screens, then 3 and 2 */
+
+@media (min-width: 1101px) {
+    .finance-page .group-facts {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+
+/* New Loan: fee + GST side by side, and the worked-out figures */
+
+.finance-rate-pair {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 12px;
+}
+
+.finance-rate-pair label {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+.finance-breakdown {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 12px 32px;
+
+    padding: 12px 16px;
+
+    border-radius: 14px;
+
+    background: rgba(255, 255, 255, 0.05);
+
+    border: 1px solid var(--border);
+}
+
+.finance-breakdown span {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+.finance-breakdown small {
+    color: var(--text-soft);
+
+    font-size: 12px;
+}
+
+.finance-breakdown strong {
+    font-size: 18px;
+}
+
+.finance-breakdown .finance-in-hand {
+    padding: 0;
+
+    font-size: 22px;
+}
+
+.finance-plan.is-wrong {
+    background: rgba(220, 60, 70, 0.14);
+
+    border-color: rgba(255, 100, 110, 0.4);
+}
+
+.finance-auto-button {
+    margin-left: 6px;
+
+    padding: 0;
+
+    border: 0;
+
+    background: none;
+
+    color: var(--orange);
+
+    font: inherit;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+/* customer's day-by-day list: paid rows muted, today's row marked */
+
+.finance-schedule tr.is-done td {
+    opacity: 0.6;
+}
+
+.finance-schedule tr.is-today td {
+    background: rgba(254, 105, 30, 0.10);
+}
+
+
+/* loan plans */
+
+.plan-card .portal-card-note {
+    margin-top: 2px;
+}
+
+
+/* =========================================================
+   PHONES
+   Office tables become cards (label left, value right) as on the
+   customer pages; the customer's day-by-day list becomes compact
+   two-line rows so 100 days stay easy to scroll.
+========================================================= */
+
+@media (max-width: 640px) {
+    .finance-page .portal-table,
+    .finance-page .portal-table tbody,
+    .finance-page .portal-table tr,
+    .finance-page .portal-table td {
+        display: block;
+
+        width: 100%;
+    }
+
+    .finance-page .portal-table thead,
+    .finance-page .portal-table tfoot {
+        display: none;
+    }
+
+    .finance-page .portal-table tr {
+        margin-bottom: 10px;
+
+        padding: 10px 12px;
+
+        border-radius: 14px;
+
+        background: var(--input-bg);
+
+        border: 1px solid var(--input-border);
+    }
+
+    .finance-page .portal-table td {
+        padding: 5px 0;
+
+        border: 0;
+
+        text-align: right;
+
+        white-space: normal;
+
+        overflow-wrap: anywhere;
+    }
+
+    .finance-page .portal-table td::before {
+        content: attr(data-label);
+
+        float: left;
+
+        margin-right: 12px;
+
+        font-size: 12px;
+
+        font-weight: 700;
+
+        color: var(--text-soft);
+
+        text-align: left;
+    }
+
+    .finance-page .portal-table td::after {
+        content: '';
+
+        display: block;
+
+        clear: both;
+    }
+
+    .finance-page .portal-table td:not([data-label])::before {
+        content: none;
+    }
+
+    .finance-page .portal-table td > small {
+        display: block;
+    }
+
+    .finance-page .ledger-table-wrapper {
+        overflow: visible;
+    }
+
+    /* customer's day by day: "1  Mon, 21 Sep 2026   [Paid]" / "₹108  paid ₹108  left ₹10,604" */
+    table.finance-schedule tr {
+        display: grid;
+
+        grid-template-columns: 34px 1fr auto;
+
+        grid-template-areas:
+            "number date state"
+            "number amounts left";
+
+        align-items: center;
+
+        gap: 2px 10px;
+
+        margin-bottom: 6px;
+
+        padding: 8px 10px;
+    }
+
+    table.finance-schedule td {
+        padding: 0;
+
+        text-align: left;
+    }
+
+    table.finance-schedule td::before {
+        content: none;
+    }
+
+    table.finance-schedule td:nth-child(1) {
+        grid-area: number;
+
+        font-size: 18px;
+
+        text-align: center;
+    }
+
+    table.finance-schedule td:nth-child(2) {
+        grid-area: date;
+
+        font-weight: 700;
+    }
+
+    table.finance-schedule td:nth-child(3) {
+        grid-area: amounts;
+
+        font-size: 12px;
+
+        color: var(--text-soft);
+    }
+
+    table.finance-schedule td:nth-child(4) {
+        display: none;
+    }
+
+    table.finance-schedule td:nth-child(5) {
+        grid-area: left;
+
+        font-size: 12px;
+
+        text-align: right;
+    }
+
+    table.finance-schedule td:nth-child(5)::before {
+        content: none;
+    }
+
+    table.finance-schedule td:nth-child(6) {
+        grid-area: state;
+
+        text-align: right;
+    }
+}
+
+
+/* part payments show next to the instalment only on phones (wide screens have a Paid column) */
+.finance-schedule-paid {
+    display: none;
+}
+
+@media (max-width: 640px) {
+    .finance-schedule-paid {
+        display: inline;
+
+        color: #ff8a45;
+    }
+}
+
+
+/* day by day: the short date and the "Left after" label only on phones */
+.finance-date-short,
+.finance-left-label {
+    display: none;
+}
+
+@media (max-width: 640px) {
+    .finance-date-long {
+        display: none;
+    }
+
+    .finance-date-short {
+        display: inline;
+    }
+
+    .finance-left-label {
+        display: inline;
+
+        font-size: 11px;
+
+        color: var(--text-soft);
+    }
+
+    table.finance-schedule td:nth-child(6) .due-badge {
+        white-space: nowrap;
+
+        max-width: 120px;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+    }
+}

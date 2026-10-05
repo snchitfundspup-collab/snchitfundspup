@@ -67,10 +67,7 @@
                 <span data-i18n="receive_payment">Receive Payment</span>
             </a>
 
-            <a href="{{ route('dashboard') }}" class="dashboard-action business-jump">
-                <x-icon name="layers" />
-                <span><span class="business-switch-sn">SN</span> Chit Funds</span>
-            </a>
+            @include('components.partials.business-jumps')
 
         </div>
 

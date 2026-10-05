@@ -1,3 +1,9 @@
+@php
+    /* customers see Sri Lakshmi Micro Finance while it is the only business open to them */
+    $portalBrand = \App\Http\Middleware\EnsurePortalSectionOpen::financeOnly()
+        ? ['logo' => 'images/sri-lakshmi-logo.png', 'prefix' => 'Sri Lakshmi', 'name' => 'Micro Finance', 'tagline' => 'Small Loans · Easy Repayment', 'tagline_key' => 'finance_tagline', 'title' => 'Sri Lakshmi Micro Finance']
+        : ['logo' => 'images/sn-chit-funds-logo.png', 'prefix' => 'SN', 'name' => 'Chit Funds · Traders', 'tagline' => 'Trust · Growth · Together', 'tagline_key' => 'brand_tagline', 'title' => 'SN'];
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,7 +17,7 @@
 
     @include('components.partials.site-icons')
 
-    <title>@yield('title', 'My Account') | SN</title>
+    <title>@yield('title', 'My Account') | {{ $portalBrand['title'] }}</title>
 
     {{-- GLOBAL CSS + JS, then the customer pages' own styles --}}
 

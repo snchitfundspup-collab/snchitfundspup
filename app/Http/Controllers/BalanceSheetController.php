@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePartnerSettlementRequest;
 use App\Models\Expense;
+use App\Models\FinanceExpense;
+use App\Models\FinancePartnerSettlement;
 use App\Models\PartnerSettlement;
 use App\Models\TraderExpense;
 use App\Models\TraderPartnerSettlement;
@@ -20,7 +22,8 @@ use Illuminate\View\View;
  * spending equally. For each partner: what they paid, their equal share,
  * settlements given / received, and the balance — then who should pay whom
  * to square up. Settlements are recorded here. Print and PDF. Serves SN
- * Chit Funds and SN Traders (its own tables, routes traders.*).
+ * Chit Funds, SN Traders (routes traders.*) and Sri Lakshmi Micro Finance
+ * (routes finance.*), each with its own tables.
  */
 class BalanceSheetController extends Controller
 {
@@ -41,11 +44,11 @@ class BalanceSheetController extends Controller
      */
     private function forBusinessOf(Request $request): void
     {
-        $isTraders = $request->routeIs('traders.*');
-
-        $this->expenseModel = $isTraders ? TraderExpense::class : Expense::class;
-        $this->settlementModel = $isTraders ? TraderPartnerSettlement::class : PartnerSettlement::class;
-        $this->routePrefix = $isTraders ? 'traders.' : '';
+        [$this->expenseModel, $this->settlementModel, $this->routePrefix] = match (true) {
+            $request->routeIs('traders.*') => [TraderExpense::class, TraderPartnerSettlement::class, 'traders.'],
+            $request->routeIs('finance.*') => [FinanceExpense::class, FinancePartnerSettlement::class, 'finance.'],
+            default => [Expense::class, PartnerSettlement::class, ''],
+        };
     }
 
     public function index(Request $request): View
@@ -73,7 +76,9 @@ class BalanceSheetController extends Controller
 
         return Pdf::loadView('pdf.balance-sheet', $sheet)
             ->setPaper('a4', 'portrait')
-            ->download(($this->routePrefix === 'traders.' ? 'Traders-' : '').'Balance-Sheet-'.($sheet['range'] === 'all' ? 'all-time' : $sheet['from'].'-to-'.$sheet['to']).'.pdf');
+            ->download(match ($this->routePrefix) {
+                'traders.' => 'Traders-', 'finance.' => 'Micro-Finance-', default => ''
+            }.'Balance-Sheet-'.($sheet['range'] === 'all' ? 'all-time' : $sheet['from'].'-to-'.$sheet['to']).'.pdf');
     }
 
     /**
@@ -157,7 +162,7 @@ class BalanceSheetController extends Controller
 
         return [
             'routePrefix' => $this->routePrefix,
-            'companyName' => $this->routePrefix === 'traders.' ? 'Traders' : 'Chit Funds',
+            'companyName' => ExpenseController::companyFor($this->routePrefix),
             'from' => $from,
             'to' => $to,
             'range' => $range,
