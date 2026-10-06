@@ -56,7 +56,7 @@
                     <x-icon name="lock" />
                     <div>
                         <strong data-i18n="choose_password_first">Please choose your own password to continue.</strong>
-                        <span data-i18n="choose_password_why">For your safety, the password given by the office works only once. Choose a new one (not snchitfunds).</span>
+                        <span data-i18n="choose_password_why">For your safety, the password given by the office works only once. Choose a new one (not {{ \App\Models\Customer::DEFAULT_PASSWORD }}).</span>
                     </div>
                 </div>
             @endif

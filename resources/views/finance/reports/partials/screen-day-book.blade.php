@@ -23,10 +23,10 @@
                     @foreach ($days as $day)
                         <tr>
                             <td class="nowrap" data-label="Date">{{ \Illuminate\Support\Carbon::parse($day['date'])->format('D, d M Y') }}</td>
-                            <td class="ledger-col-total" data-label="Lent">@if ($day['out'] > 0)<x-rupees :amount="$day['out']" /> <small>({{ $day['loans'] }})</small>@else — @endif</td>
-                            <td class="ledger-col-total" data-label="Cut">@if ($day['cut'] > 0)<x-rupees :amount="$day['cut']" />@else — @endif</td>
+                            <td class="ledger-col-total" data-label="Lent (in hand)">@if ($day['out'] > 0)<x-rupees :amount="$day['out']" /> <small>({{ $day['loans'] }})</small>@else — @endif</td>
+                            <td class="ledger-col-total" data-label="Fee + GST">@if ($day['cut'] > 0)<x-rupees :amount="$day['cut']" />@else — @endif</td>
                             <td class="ledger-col-total ledger-total-paid" data-label="Collected">@if ($day['in'] > 0)<x-rupees :amount="$day['in']" /> <small>({{ $day['collections'] }})</small>@else — @endif</td>
-                            <td @class(['ledger-col-total', 'ledger-total-due' => $day['in'] - $day['out'] < 0]) data-label="Net"><strong><x-rupees :amount="$day['in'] - $day['out']" /></strong></td>
+                            <td @class(['ledger-col-total', 'ledger-total-due' => $day['in'] - $day['out'] < 0]) data-label="Net cash"><strong><x-rupees :amount="$day['in'] - $day['out']" /></strong></td>
                         </tr>
                     @endforeach
                 </tbody>

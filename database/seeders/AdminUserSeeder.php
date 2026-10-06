@@ -16,6 +16,8 @@ class AdminUserSeeder extends Seeder
     private const ADMINS = [
         'narayanan' => 'Narayanan',
         'sathiya' => 'Sathiya',
+        'ranjith' => 'Ranjith',
+        'dinesh' => 'Dinesh',
     ];
 
     /**

@@ -4,6 +4,7 @@ use App\Http\Controllers\Finance\ReportController;
 use App\Http\Middleware\SetLanguage;
 use App\Models\Customer;
 use App\Models\Expense;
+use App\Models\FinanceCapital;
 use App\Models\FinanceCollection;
 use App\Models\FinanceExpense;
 use App\Models\FinanceLoan;
@@ -373,14 +374,12 @@ test('on its own domain, staff land on Micro Finance and customers see its name'
     /* with chit funds and rice open to customers, only the finance domain carries the Sri Lakshmi name */
     config(['app.finance_domain' => 'srilakshmifinance.com', 'app.portal_sections' => ['chit', 'traders', 'finance']]);
 
-    $this->get('http://srilakshmifinance.com/admin')->assertRedirect(route('finance.dashboard'));
-    $this->get('http://srilakshmifinance.com/admin?chit=1')->assertOk();
-    $this->get('http://snchitfunds.com/admin')->assertOk();
+    $this->get('http://srilakshmifinance.com/admin')->assertRedirect('http://srilakshmifinance.com/finance');
 
     auth('web')->logout();
 
-    $this->get('http://srilakshmifinance.com/')->assertOk()->assertSeeText('Micro Finance');
-    $this->get('http://snchitfunds.com/')->assertOk()->assertDontSeeText('Micro Finance');
+    $this->get('http://srilakshmifinance.com/')->assertOk()->assertSeeText('Micro Finance')->assertSeeText('See your loans day by day');
+    $this->get('http://snchitfunds.com/')->assertOk()->assertSeeText('See your chit groups');
 });
 
 test('Micro Finance pages and the customer pages use the Sri Lakshmi tab icon; SN pages keep theirs', function () {
@@ -410,6 +409,40 @@ test('in Micro Finance the customer list shows running loans instead of chit gro
     $this->get(route('dashboard'));
 
     $this->get(route('customers.index'))->assertViewHas('inFinance', false)->assertSeeText('View Groups');
+});
+
+test('staff land on the Micro Finance dashboard after signing in', function () {
+    auth()->logout();
+    $staff = User::factory()->create(['username' => 'sathiya', 'password' => 'secret123']);
+
+    $this->post(route('login.store'), ['username' => 'sathiya', 'password' => 'secret123'])
+        ->assertRedirect(route('finance.dashboard'));
+
+    $this->get('/admin')->assertRedirect('/finance');
+    $this->get(route('dashboard'))->assertOk()->assertSee(route('finance.dashboard'), false);
+});
+
+test('capital invested less money lent, plus collections, less expenses is available to lend', function () {
+    $this->post(route('finance.capital.store'), ['type' => 'invest', 'amount' => '5,00,000', 'entry_on' => '2026-10-01', 'method' => 'cash'])
+        ->assertRedirect(route('finance.capital.index'));
+
+    $loan = giveLoan();
+    FinanceCollection::record($loan, ['amount' => 324, 'collected_at' => '2026-10-04 09:00:00', 'method' => 'cash']);
+    FinanceExpense::create(['spent_on' => '2026-10-03', 'description' => 'Petrol', 'amount' => 200, 'paid_by' => $this->admin->id, 'method' => 'cash']);
+
+    /* 5,00,000 − 9,882 in hand + 324 collected − 200 expenses */
+    expect(FinanceCapital::position()['available'])->toBe(490242);
+
+    $this->get(route('finance.capital.index'))->assertOk()->assertSeeText('Available to lend')->assertSeeText('₹4,90,242');
+    $this->get(route('finance.loans.create'))->assertOk()->assertSee('data-available="490242"', false);
+    $this->get(route('finance.dashboard'))->assertOk()->assertViewHas('available', 490242);
+
+    /* cannot take out more than is available */
+    $this->post(route('finance.capital.store'), ['type' => 'withdraw', 'amount' => '600000', 'entry_on' => '2026-10-05', 'method' => 'cash'])
+        ->assertSessionHasErrors('amount');
+    $this->post(route('finance.capital.store'), ['type' => 'withdraw', 'amount' => '90242', 'entry_on' => '2026-10-05', 'method' => 'cash']);
+
+    expect(FinanceCapital::position()['available'])->toBe(400000);
 });
 
 test('Micro Finance pages need a staff sign-in', function () {

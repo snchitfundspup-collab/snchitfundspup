@@ -68,6 +68,18 @@
     </section>
 
 
+    {{-- MONEY AVAILABLE TO LEND --}}
+
+    <a href="{{ route('finance.capital.index') }}" class="action-alert glass finance-available-alert">
+        <span class="stat-icon icon-3d icon-3d-green"><x-icon name="wallet" /></span>
+        <span>
+            <span data-i18n="available_to_lend">Available to lend</span>
+            <strong @class(['ledger-total-due' => $available < 0])><x-rupees :amount="$available" /></strong>
+        </span>
+        <x-icon name="arrow-right" />
+    </a>
+
+
     {{-- MONEY CARDS --}}
 
     <section class="dashboard-stats collection-stats">

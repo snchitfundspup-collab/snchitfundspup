@@ -13,7 +13,7 @@
         'finance' => ['finance.dashboard', 'wallet', 'Sri Lakshmi', 'Micro Finance'],
     ] as $key => [$home, $icon, $prefix, $name])
         <a
-            href="{{ route($home, $key === 'chit' && \App\Http\Middleware\SetBusinessContext::onFinanceDomain(request()) ? ['chit' => 1] : []) }}"
+            href="{{ route($home) }}"
             @class(['business-switch-option', 'active' => $current === $key])
             @if ($current === $key) aria-current="true" @endif
         >

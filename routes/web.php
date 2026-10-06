@@ -58,10 +58,14 @@ Route::name('portal.')->middleware('guest:customer')->group(function () {
 |--------------------------------------------------------------------------
 */
 
+/* staff home: Sri Lakshmi Micro Finance (guests are sent to the staff login first) */
+Route::redirect('/admin', '/finance')->name('admin.home');
+
 Route::middleware('auth:web')->group(function () {
 
+    /* SN Chit Funds dashboard */
     Route::get(
-        '/admin',
+        '/admin/chit-funds',
         [DashboardController::class, 'index']
     )->name('dashboard');
 
@@ -513,6 +517,11 @@ Route::middleware('auth:web')->group(function () {
         Route::get('/loans/{loan}/kfs', [Finance\LoanController::class, 'kfs'])->name('loans.kfs');
         Route::get('/loans/{loan}/kfs.pdf', [Finance\LoanController::class, 'kfsPdf'])->name('loans.kfs.pdf');
         Route::delete('/loans/{loan}', [Finance\LoanController::class, 'destroy'])->name('loans.destroy');
+
+        /* capital invested and money available to lend */
+        Route::get('/capital', [Finance\CapitalController::class, 'index'])->name('capital.index');
+        Route::post('/capital', [Finance\CapitalController::class, 'store'])->name('capital.store');
+        Route::delete('/capital/{capital}', [Finance\CapitalController::class, 'destroy'])->name('capital.destroy');
 
         /* collections */
         Route::get('/collect', [Finance\CollectionController::class, 'collect'])->name('collect');

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Middleware\SetBusinessContext;
 use App\Models\ChitGroup;
 use App\Models\ChitGroupMember;
 use App\Models\ChitJoinRequest;
@@ -10,8 +9,6 @@ use App\Models\Draw;
 use App\Models\Payment;
 use App\Models\TraderOrder;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -22,13 +19,8 @@ class DashboardController extends Controller
      * Admin home: today's and this month's collection, what is still
      * pending, and a card per group with its collection progress.
      */
-    public function index(Request $request): View|RedirectResponse
+    public function index(): View
     {
-        /* on Micro Finance's own domain, staff land on its dashboard (?chit=1 opens this one) */
-        if (SetBusinessContext::onFinanceDomain($request) && ! $request->boolean('chit')) {
-            return redirect()->route('finance.dashboard');
-        }
-
         $businessNow = now(config('app.business_timezone'));
         $today = $businessNow->toDateString();
 

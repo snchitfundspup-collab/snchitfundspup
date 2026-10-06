@@ -43,6 +43,16 @@
     </section>
 
 
+    <a href="{{ route('finance.capital.index') }}" class="action-alert glass finance-available-alert" id="loanAvailable" data-available="{{ $available }}">
+        <span class="stat-icon icon-3d icon-3d-green"><x-icon name="wallet" /></span>
+        <span>
+            <span data-i18n="available_to_lend">Available to lend</span>
+            <strong @class(['ledger-total-due' => $available < 0])><x-rupees :amount="$available" /></strong>
+            <small class="finance-available-warning" id="loanAvailableWarning" hidden data-i18n="not_enough_cash">This loan needs more than the money available.</small>
+        </span>
+        <x-icon name="arrow-right" />
+    </a>
+
     <section class="group-panel glass payment-step">
 
         <form method="POST" action="{{ route('finance.loans.store') }}" class="payment-form" id="loanForm">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Finance;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Finance\StoreLoanRequest;
 use App\Models\Customer;
+use App\Models\FinanceCapital;
 use App\Models\FinanceLoan;
 use App\Support\ReportPdf as Pdf;
 use Illuminate\Http\RedirectResponse;
@@ -71,6 +72,7 @@ class LoanController extends Controller
                 FinanceLoan::DAILY => FinanceLoan::defaultFirstDue($today, FinanceLoan::DAILY)->toDateString(),
                 FinanceLoan::WEEKLY => FinanceLoan::defaultFirstDue($today, FinanceLoan::WEEKLY)->toDateString(),
             ],
+            'available' => FinanceCapital::position()['available'],
             'defaults' => [
                 'processing_fee_rate' => FinanceLoan::DEFAULT_PROCESSING_FEE_RATE,
                 'gst_rate' => FinanceLoan::DEFAULT_GST_RATE,

@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'Admin Login | SN Chit Funds')
+@section('title', 'Admin Login | Sri Lakshmi Micro Finance')
 
 @push('styles')
     @vite('resources/css/login.css')
@@ -25,17 +25,17 @@
 
             <div class="login-logo logo-3d">
                 <img
-                    src="{{ asset('images/sn-chit-funds-logo.png') }}"
-                    alt="SN Chit Funds"
+                    src="{{ asset('images/sri-lakshmi-logo.png') }}"
+                    alt="Sri Lakshmi Micro Finance"
                 >
             </div>
 
             <div class="login-brand-name">
-                <span>SN</span> Chit Funds
+                <span>Sri Lakshmi</span> Micro Finance
             </div>
 
-            <div class="login-brand-tagline" data-i18n="brand_tagline">
-                Trust · Growth · Together
+            <div class="login-brand-tagline" data-i18n="finance_tagline">
+                Small Loans · Easy Repayment
             </div>
 
         </div>

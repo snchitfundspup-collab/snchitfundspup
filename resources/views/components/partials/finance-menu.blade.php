@@ -47,6 +47,17 @@
 </a>
 
 
+<a
+    href="{{ route('finance.capital.index') }}"
+    @class(['menu-item', 'active' => request()->routeIs('finance.capital.*')])
+>
+    <span class="menu-item-icon icon-3d icon-3d-blue">
+        <x-icon name="scale" />
+    </span>
+    <span class="menu-item-text" data-i18n="capital_cash">Capital &amp; Cash</span>
+</a>
+
+
 @foreach (array_merge($groups, [$reports]) as $group)
     @include('components.partials.menu-group', ['group' => $group])
 @endforeach

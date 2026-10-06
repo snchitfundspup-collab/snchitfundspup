@@ -33,7 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $isCustomerPage($request) ? route('portal.login') : route('login'),
         );
         $middleware->redirectUsersTo(
-            fn (Request $request) => $isCustomerPage($request) ? route('portal.dashboard') : route('dashboard'),
+            fn (Request $request) => $isCustomerPage($request) ? route('portal.dashboard') : route('finance.dashboard'),
         );
     })
     ->withExceptions(function (Exceptions $exceptions): void {

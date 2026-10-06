@@ -29,7 +29,7 @@ class Customer extends Authenticatable
     /**
      * The password every customer starts with (and gets back on a reset).
      */
-    public const DEFAULT_PASSWORD = 'snchitfunds';
+    public const DEFAULT_PASSWORD = 'srilakshmi';
 
     /**
      * @var Collection<int, Customer>|null

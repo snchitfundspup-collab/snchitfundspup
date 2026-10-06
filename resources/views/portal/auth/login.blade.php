@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'Customer Login | '.(\App\Http\Middleware\EnsurePortalSectionOpen::financeOnly() ? 'Sri Lakshmi Micro Finance' : 'SN Chit Funds & SN Traders'))
+@section('title', 'Customer Login | Sri Lakshmi Micro Finance')
 
 @push('styles')
     @vite('resources/css/login.css')
@@ -26,19 +26,15 @@
         <div class="login-brand">
 
             <div class="login-logo logo-3d">
-                <img src="{{ asset($financeSite ? 'images/sri-lakshmi-logo.png' : 'images/sn-chit-funds-logo.png') }}" alt="{{ $financeSite ? 'Sri Lakshmi' : 'SN' }}">
+                <img src="{{ asset('images/sri-lakshmi-logo.png') }}" alt="Sri Lakshmi Micro Finance">
             </div>
 
             <div class="login-brand-name">
-                @if ($financeSite)
-                    <span>Sri Lakshmi</span> Micro Finance
-                @else
-                    <span>SN</span> Chit Funds &amp; Traders
-                @endif
+                <span>Sri Lakshmi</span> Micro Finance
             </div>
 
-            <div class="login-brand-tagline" data-i18n="{{ $financeSite ? 'finance_tagline' : 'brand_tagline' }}">
-                {{ $financeSite ? 'Small Loans · Easy Repayment' : 'Trust · Growth · Together' }}
+            <div class="login-brand-tagline" data-i18n="finance_tagline">
+                Small Loans · Easy Repayment
             </div>
 
         </div>

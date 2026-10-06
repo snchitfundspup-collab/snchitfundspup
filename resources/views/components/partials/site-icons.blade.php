@@ -2,13 +2,14 @@
      peacock blue (favicon.ico, icon-192.png) so it reads at 16 px, and the
      full SN logo on the iPhone home screen. Sri Lakshmi Micro Finance (its
      office pages and prints, its own domain, and the customer pages while
-     only Micro Finance is open to customers): a bold lotus drawn for each
+     only Micro Finance is open to customers, and both login pages): a lotus drawn for each
      size (favicon-16-sl.png, favicon-32-sl.png, *-sl files). --}}
 
 @php
     $sriLakshmiIcons = (($business['key'] ?? null) === 'finance')
         || (($companyName ?? null) === 'Micro Finance')
         || \App\Http\Middleware\SetBusinessContext::onFinanceDomain(request())
+        || request()->routeIs('login', 'portal.login')
         || (request()->is('/', 'my', 'my/*') && \App\Http\Middleware\EnsurePortalSectionOpen::financeOnly());
 
     $iconSuffix = $sriLakshmiIcons ? '-sl' : '';

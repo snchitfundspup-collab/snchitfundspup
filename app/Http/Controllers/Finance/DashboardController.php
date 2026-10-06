@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Finance;
 
 use App\Http\Controllers\Controller;
+use App\Models\FinanceCapital;
 use App\Models\FinanceCollection;
 use App\Models\FinanceLoan;
 use Illuminate\View\View;
@@ -26,6 +27,7 @@ class DashboardController extends Controller
 
         return view('finance.dashboard', [
             'today' => $today,
+            'available' => FinanceCapital::position()['available'],
             'outstanding' => (int) $running->sum(fn (array $row) => $row['loan']->balance()),
             'runningCount' => $running->count(),
             'overdueTotal' => (int) $running->sum('standing.overdue'),

@@ -231,7 +231,7 @@ html.light .finance-due-value {
    two-line rows so 100 days stay easy to scroll.
 ========================================================= */
 
-@media (max-width: 640px) {
+@media (max-width: 900px) {
     .finance-page .portal-table,
     .finance-page .portal-table tbody,
     .finance-page .portal-table tr,
@@ -306,6 +306,9 @@ html.light .finance-due-value {
         overflow: visible;
     }
 
+}
+
+@media (max-width: 640px) {
     /* customer's day by day: "1  Mon, 21 Sep 2026   [Paid]" / "₹108  paid ₹108  left ₹10,604" */
     table.finance-schedule tr {
         display: grid;
@@ -427,4 +430,147 @@ html.light .finance-due-value {
 
         text-overflow: ellipsis;
     }
+}
+
+
+/* gaps between the cards stacked on an office page (loan, customer statement) */
+.group-show-page.finance-page > section + section {
+    margin-top: 18px;
+}
+
+/* phones: list rows give the name the whole line; badge and amount share the next */
+@media (max-width: 640px) {
+    .finance-page .payment-row-main {
+        flex: 1 1 calc(100% - 56px);
+    }
+
+    .finance-page .payment-row-meta {
+        flex: 1 1 auto;
+
+        width: auto;
+    }
+
+    .finance-page .payment-row-amount {
+        min-width: 0;
+    }
+
+    .finance-page .finance-row-amounts {
+        order: 4;
+
+        flex-direction: row;
+
+        align-items: baseline;
+
+        gap: 6px;
+    }
+
+    /* Collect: names and details wrap instead of being cut off */
+    .finance-page .collect-row .member-card-name,
+    .finance-page .collect-row .member-card-identification {
+        white-space: normal;
+
+        overflow: visible;
+
+        text-overflow: clip;
+    }
+}
+
+
+/* Collect on phones: name and details get the full width; badge + amount go below */
+@media (max-width: 640px) {
+    .finance-page .collect-row-link {
+        flex-wrap: wrap;
+    }
+
+    .finance-page .collect-row-link .member-card-info {
+        flex: 1 1 calc(100% - 56px);
+    }
+
+    .finance-page .collect-row-link .collect-status {
+        flex: 1 1 100%;
+
+        flex-direction: row;
+
+        justify-content: space-between;
+
+        align-items: center;
+
+        padding-left: 52px;
+    }
+}
+
+
+/* available to lend (dashboard, New Loan, Capital & Cash) */
+.finance-available-alert {
+    margin-bottom: 18px;
+}
+
+.finance-available-alert strong {
+    margin-left: 6px;
+
+    font-size: 18px;
+}
+
+.finance-available-alert.is-short {
+    border-color: rgba(255, 100, 110, 0.55);
+}
+
+.finance-available-warning {
+    display: block;
+
+    margin-top: 2px;
+
+    color: #f87171;
+
+    font-weight: 700;
+}
+
+.finance-available {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+
+    margin-bottom: 14px;
+}
+
+.finance-available small {
+    color: var(--text-soft);
+
+    font-weight: 700;
+}
+
+.finance-available strong {
+    font-size: 32px;
+
+    font-weight: 900;
+}
+
+
+/* the banner's icon carries its own size (the dashboard stylesheet is not on every page) */
+.finance-available-alert {
+    margin-top: 18px;
+}
+
+.finance-available-alert .stat-icon {
+    width: 44px;
+
+    height: 44px;
+
+    flex: 0 0 auto;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 14px;
+}
+
+.finance-available-alert .stat-icon svg {
+    width: 22px;
+
+    height: 22px;
 }

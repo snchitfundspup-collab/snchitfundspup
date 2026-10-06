@@ -83,6 +83,16 @@ if (form) {
         const total = loan + interest;
         const auto = count > 0 ? Math.ceil(total / count) : total;
 
+        /* more than the money available to lend? */
+        const availableBox = document.getElementById('loanAvailable');
+
+        if (availableBox) {
+            const short = loan > 0 && (loan - fee - gst) > Number(availableBox.dataset.available);
+
+            document.getElementById('loanAvailableWarning').hidden = !short;
+            availableBox.classList.toggle('is-short', short);
+        }
+
         show('loanFee', rupees(fee));
         show('loanGst', rupees(gst));
         show('loanInHand', rupees(Math.max(0, loan - fee - gst)));
