@@ -32,7 +32,8 @@
     .passbook th, .passbook td { border: 1px solid #9ca3af; padding: 1.6px 3px; }
     .passbook th { background: #f1f3f6; font-size: 6.5px; }
     .passbook td.num { text-align: right; white-space: nowrap; }
-    .passbook td.sign { width: 8%; }
+    .passbook td.sign { width: 8%; padding: 0 2px; text-align: center; white-space: nowrap; font-size: 6px; }
+    .passbook td.sign img { display: inline-block; vertical-align: middle; }
     .passbook .gap { width: 1.5%; border-top: 0; border-bottom: 0; background: #ffffff; }
     .passbook .is-paid { color: #15803d; }
     .passbook .is-overdue { color: #b91c1c; }
@@ -181,7 +182,16 @@
                                 <td class="num {{ $row['state'] === 'paid' ? 'is-paid' : ($row['state'] === 'overdue' ? 'is-overdue' : '') }}">{{ $row['paid'] > 0 ? number_format($row['paid']) : '' }}</td>
                                 <td>{{ collect($row['paid_on'])->map(fn ($date) => $date->format('d M'))->implode(', ') }}</td>
                                 <td class="num">{{ number_format($row['balance_after']) }}</td>
-                                <td class="sign"></td>
+                                <td class="sign">
+                                    {{-- who collected it: their signature, or their name until one is on file --}}
+                                    @if ($row['paid_by'])
+                                        @if ($row['paid_by']->signatureDataUri())
+                                            <x-signature :user="$row['paid_by']" :height="$weekly ? 18 : 10" />
+                                        @else
+                                            {{ $row['paid_by']->name }}
+                                        @endif
+                                    @endif
+                                </td>
                             @else
                                 <td colspan="7"></td>
                             @endif
