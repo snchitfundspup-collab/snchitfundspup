@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreExpenseRequest;
 use App\Models\Expense;
+use App\Models\FinanceExpense;
 use App\Models\TraderExpense;
 use App\Models\User;
 use App\Support\ReportPdf as Pdf;
@@ -18,7 +19,8 @@ use Illuminate\View\View;
  * Expenses (Management): business spending paid by the partners. The list
  * opens on this month; date ranges, partner and search narrow it, with
  * totals by partner, print and PDF. The same screens serve SN Chit Funds
- * (expenses table) and SN Traders (trader_expenses, routes traders.*).
+ * (expenses table), SN Traders (trader_expenses, routes traders.*) and Sri
+ * Lakshmi Micro Finance (finance_expenses, routes finance.*).
  */
 class ExpenseController extends Controller
 {
@@ -30,14 +32,16 @@ class ExpenseController extends Controller
     private const REPORT_LIMIT = 3000;
 
     /**
-     * Expense (chit fund) or TraderExpense (SN Traders), set per request.
+     * Expense (chit fund), TraderExpense (SN Traders) or FinanceExpense
+     * (Micro Finance), set per request.
      *
      * @var class-string<Expense>
      */
     private string $model = Expense::class;
 
     /**
-     * Route names are "expenses.*" or "traders.expenses.*".
+     * Route names are "expenses.*", "traders.expenses.*" or
+     * "finance.expenses.*".
      */
     private string $routePrefix = '';
 
@@ -46,10 +50,11 @@ class ExpenseController extends Controller
      */
     private function forBusinessOf(Request $request): void
     {
-        $isTraders = $request->routeIs('traders.*');
-
-        $this->model = $isTraders ? TraderExpense::class : Expense::class;
-        $this->routePrefix = $isTraders ? 'traders.' : '';
+        [$this->model, $this->routePrefix] = match (true) {
+            $request->routeIs('traders.*') => [TraderExpense::class, 'traders.'],
+            $request->routeIs('finance.*') => [FinanceExpense::class, 'finance.'],
+            default => [Expense::class, ''],
+        };
     }
 
     /**
@@ -61,8 +66,20 @@ class ExpenseController extends Controller
     {
         return [
             'routePrefix' => $this->routePrefix,
-            'companyName' => $this->routePrefix === 'traders.' ? 'Traders' : 'Chit Funds',
+            'companyName' => self::companyFor($this->routePrefix),
         ];
+    }
+
+    /**
+     * The business name on prints and PDFs for a route prefix.
+     */
+    public static function companyFor(string $routePrefix): string
+    {
+        return match ($routePrefix) {
+            'traders.' => 'Traders',
+            'finance.' => 'Micro Finance',
+            default => 'Chit Funds',
+        };
     }
 
     private function findExpense(string $expense): Expense
@@ -183,7 +200,9 @@ class ExpenseController extends Controller
             'limit' => self::REPORT_LIMIT,
         ])
             ->setPaper('a4', 'portrait')
-            ->download(($this->routePrefix === 'traders.' ? 'Traders-' : '').'Expenses-'.$filters['from'].($filters['from'] === $filters['to'] ? '' : '-to-'.$filters['to']).'.pdf');
+            ->download(match ($this->routePrefix) {
+                'traders.' => 'Traders-', 'finance.' => 'Micro-Finance-', default => ''
+            }.'Expenses-'.$filters['from'].($filters['from'] === $filters['to'] ? '' : '-to-'.$filters['to']).'.pdf');
     }
 
     /**

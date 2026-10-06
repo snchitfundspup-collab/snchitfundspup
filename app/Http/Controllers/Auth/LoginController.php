@@ -31,7 +31,7 @@ class LoginController extends Controller
 
         UsageLog::record($request, $request->user(), event: 'login');
 
-        return redirect()->intended(route('dashboard'));
+        return redirect()->intended(route('finance.dashboard'));
     }
 
     /**

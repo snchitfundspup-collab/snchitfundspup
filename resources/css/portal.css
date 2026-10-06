@@ -1158,3 +1158,22 @@ html.light .portal-owner {
 
     gap: 10px;
 }
+
+
+/* buttons under the key figures of a loan / group keep their distance */
+.portal-key-facts + .portal-join-actions {
+    margin-top: 18px;
+}
+
+/* a section title and its note wrap rather than squeeze */
+.portal-page .group-panel-header {
+    flex-wrap: wrap;
+
+    gap: 6px 12px;
+}
+
+
+/* a gap between the cards stacked on a page (loan: details, then day by day) */
+.portal-page > section + section {
+    margin-top: 18px;
+}

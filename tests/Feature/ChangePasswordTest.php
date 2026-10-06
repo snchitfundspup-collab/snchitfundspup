@@ -35,7 +35,7 @@ test('an admin can change their password and sign in with it', function () {
     $this->post(route('logout'));
 
     $this->post(route('login.store'), ['username' => 'sathiya', 'password' => 'NewSecret123'])
-        ->assertRedirect(route('dashboard'));
+        ->assertRedirect(route('finance.dashboard'));
 
     $this->assertAuthenticatedAs($admin);
 });

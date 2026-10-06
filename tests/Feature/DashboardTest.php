@@ -14,13 +14,13 @@ test('guests are sent to login from the dashboard', function () {
     $this->get(route('dashboard'))->assertRedirect(route('login'));
 });
 
-test('the dashboard is the home page after login', function () {
+test('Micro Finance is the home page after login; Chit Funds keeps its own dashboard', function () {
     User::factory()->create(['username' => 'sathiya']);
 
     $this->post(route('login.store'), ['username' => 'sathiya', 'password' => 'password'])
-        ->assertRedirect(route('dashboard'));
+        ->assertRedirect(route('finance.dashboard'));
 
-    expect(route('dashboard'))->toBe(url('/admin'));
+    expect(route('dashboard'))->toBe(url('/admin/chit-funds'));
 });
 
 test('the dashboard shows collections and groups, not customer details', function () {

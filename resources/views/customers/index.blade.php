@@ -37,9 +37,9 @@
 
                 <p
                     class="customers-subtitle"
-                    data-i18n="customers_subtitle"
+                    data-i18n="{{ $inFinance ? 'customers_subtitle_finance' : 'customers_subtitle' }}"
                 >
-                    Manage your customers
+                    {{ $inFinance ? 'Manage your customers and their loans' : 'Manage your customers' }}
                 </p>
 
             </div>
@@ -201,8 +201,8 @@
                                 Phone
                             </th>
 
-                            <th data-i18n="groups">
-                                Groups
+                            <th data-i18n="{{ $inFinance ? 'menu_loans' : 'groups' }}">
+                                {{ $inFinance ? 'Loans' : 'Groups' }}
                             </th>
 
                             <x-sort-header
@@ -293,17 +293,21 @@
                                 </td>
 
 
-                                {{-- GROUPS --}}
+                                {{-- GROUPS (chit funds) / LOANS (micro finance) --}}
 
                                 <td>
 
-                                    <button
-                                        type="button"
-                                        class="view-groups-button"
-                                        data-customer-id="{{ $customer->id }}"
-                                    >
-                                        View Groups
-                                    </button>
+                                    @if ($inFinance)
+                                        @include('customers.partials.loans-link')
+                                    @else
+                                        <button
+                                            type="button"
+                                            class="view-groups-button"
+                                            data-customer-id="{{ $customer->id }}"
+                                        >
+                                            View Groups
+                                        </button>
+                                    @endif
 
                                 </td>
 
@@ -504,13 +508,17 @@
                                 View / Edit
                             </button>
 
-                            <button
-                                type="button"
-                                class="mobile-groups-button view-groups-button"
-                                data-customer-id="{{ $customer->id }}"
-                            >
-                                View Groups
-                            </button>
+                            @if ($inFinance)
+                                @include('customers.partials.loans-link', ['mobile' => true])
+                            @else
+                                <button
+                                    type="button"
+                                    class="mobile-groups-button view-groups-button"
+                                    data-customer-id="{{ $customer->id }}"
+                                >
+                                    View Groups
+                                </button>
+                            @endif
 
                         </div>
 

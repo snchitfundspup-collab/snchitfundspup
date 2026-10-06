@@ -24,6 +24,9 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->travelTo(now()->setDate(2026, 10, 20)->setTime(10, 0));
 
+    /* these tests cover SN Chit Funds and SN Traders on the customer pages, paused for customers by default */
+    config(['app.portal_sections' => ['chit', 'traders', 'finance']]);
+
     $this->customer = Customer::factory()->create(['name' => 'Lakshmi', 'phone' => '+91 98765 43210', 'remarks' => 'Teacher']);
     $this->customer->choosePassword('lakshmi123');
     $this->other = Customer::factory()->create(['name' => 'Kumar', 'phone' => '9000000002']);
@@ -80,7 +83,7 @@ test('a customer signs in with their phone number and their password', function 
 test('signed in with the default password, a customer must choose their own before anything else', function () {
     $this->customer->resetPassword();
 
-    signIn(password: 'snchitfunds')->assertRedirect(route('portal.password.edit'));
+    signIn(password: Customer::DEFAULT_PASSWORD)->assertRedirect(route('portal.password.edit'));
 
     $this->get(route('portal.dashboard'))->assertRedirect(route('portal.password.edit'));
     $this->get(route('portal.groups.show', $this->seat))->assertRedirect(route('portal.password.edit'));
@@ -92,7 +95,7 @@ test('signed in with the default password, a customer must choose their own befo
         ->assertDontSee('name="current_password"', false);
 
     /* the default password cannot be chosen again */
-    $this->put(route('portal.password.update'), ['password' => 'snchitfunds', 'password_confirmation' => 'snchitfunds'])
+    $this->put(route('portal.password.update'), ['password' => Customer::DEFAULT_PASSWORD, 'password_confirmation' => Customer::DEFAULT_PASSWORD])
         ->assertSessionHasErrors('password');
 
     $this->put(route('portal.password.update'), ['password' => 'newsecret1', 'password_confirmation' => 'newsecret1'])
@@ -121,11 +124,12 @@ test('the login page tells customers to call the office when they forget their p
 
 test('staff and customers have separate login pages without links to each other', function () {
     expect(route('portal.login'))->toBe(url('/'))
-        ->and(route('dashboard'))->toBe(url('/admin'))
+        ->and(route('dashboard'))->toBe(url('/admin/chit-funds'))
         ->and(route('login'))->toBe(url('/admin/login'));
 
-    /* staff type /admin and land on their login page */
-    $this->get('/admin')->assertRedirect(route('login'));
+    /* staff type /admin: Micro Finance, behind their login page */
+    $this->get('/admin')->assertRedirect('/finance');
+    $this->get('/finance')->assertRedirect(route('login'));
 
     /* old addresses still work */
     $this->get('/login')->assertRedirect('/admin');
@@ -193,7 +197,7 @@ test('the password belongs to the phone: choosing or resetting it does it for th
         ->assertJsonPath('phone_customer_ids', [$this->customer->id, $sister->id]);
 
     expect($sister->refresh()->usesDefaultPassword())->toBeTrue()
-        ->and(Customer::forLogin('9876543210', 'snchitfunds'))->toHaveCount(2);
+        ->and(Customer::forLogin('9876543210', Customer::DEFAULT_PASSWORD))->toHaveCount(2);
 });
 
 test('a family member orders rice or asks to join a group for another member of the family', function () {
@@ -236,7 +240,7 @@ test('customer pages need a customer sign-in, and a customer cannot open office 
 });
 
 test('the office resets a forgotten password or sets one, and the customer must replace it', function () {
-    expect(Customer::forLogin('9876543210', 'snchitfunds'))->toBeEmpty()
+    expect(Customer::forLogin('9876543210', Customer::DEFAULT_PASSWORD))->toBeEmpty()
         ->and(Customer::forLogin('9876543210', 'lakshmi123')->first()?->is($this->customer))->toBeTrue();
 
     $this->actingAs($this->admin, 'web')->get(route('customers.index'))->assertSee('data-customer-password-state="own"', false);

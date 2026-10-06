@@ -67,7 +67,7 @@ test('signing in is logged', function () {
     $this->narayanan->update(['password' => 'secret-pass-123']);
 
     $this->post(route('login.store'), ['username' => 'narayanan', 'password' => 'secret-pass-123'])
-        ->assertRedirect(route('dashboard'));
+        ->assertRedirect(route('finance.dashboard'));
 
     expect(UsageLog::where('event', 'login')->sole()->user_id)->toBe($this->narayanan->id);
 });

@@ -13,7 +13,6 @@ use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\TraderExpense;
 use App\Models\TraderReceipt;
-use App\Models\User;
 use App\Support\ReportPdf as Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -261,7 +260,7 @@ class ReportController extends Controller
      * Profit & Loss: sales in the period less the cost of the rice sold (the
      * purchase price saved on each sale line; for lines without one, the
      * variety's average purchase cost up to the period end), less the
-     * period's expenses; the net profit split between partners.
+     * period's expenses; the business keeps the whole net profit.
      *
      * @param  array{from: string, to: string, range: string}  $filters
      * @return array<string, mixed>
@@ -308,8 +307,6 @@ class ReportController extends Controller
         $gross = round($sales - $cost, 2);
         $net = round($gross - $expenseTotal, 2);
 
-        $partners = User::partners()->get(['id', 'name']);
-
         $stockValue = StockController::stockByVariety()
             ->sum(fn (array $row) => max(0, $row['stock_bags']) * ($averageCost[$row['id']] ?? 0));
 
@@ -327,10 +324,6 @@ class ReportController extends Controller
                 'stock_value' => round((float) $stockValue, 2),
                 'missing_cost' => $rows->whereNull('cost_rate')->pluck('name')->all(),
             ],
-            'partnerShares' => $partners->map(fn (User $partner) => [
-                'name' => $partner->name,
-                'share' => round($net / $partners->count(), 2),
-            ]),
         ];
     }
 

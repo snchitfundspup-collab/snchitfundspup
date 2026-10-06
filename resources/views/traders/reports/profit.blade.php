@@ -22,7 +22,7 @@
         'titleKey' => 'profit_loss',
         'title' => 'Profit & Loss',
         'subtitleKey' => 'profit_subtitle',
-        'subtitle' => 'Sales less the purchase cost of the rice sold, less expenses — the profit shared by the partners.',
+        'subtitle' => 'Sales less the purchase cost of the rice sold, less expenses — the business keeps the profit.',
     ])
 
 
@@ -84,12 +84,6 @@
                             <th data-i18n="net_profit">Net profit</th>
                             <td @class(['ledger-col-total', 'ledger-total-paid' => $summary['net'] >= 0, 'ledger-total-due' => $summary['net'] < 0])><strong><x-rupees :amount="$summary['net']" /></strong></td>
                         </tr>
-                        @foreach ($partnerShares as $partner)
-                            <tr>
-                                <th><span data-i18n="share_of">Share of</span> {{ $partner['name'] }}</th>
-                                <td class="ledger-col-total"><x-rupees :amount="$partner['share']" /></td>
-                            </tr>
-                        @endforeach
                     </tbody>
                 </table>
             </section>

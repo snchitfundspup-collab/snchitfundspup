@@ -1,27 +1,25 @@
-{{-- Top of the side menu: switch between SN Chit Funds and SN Traders. --}}
+{{-- Top of the side menu: switch between SN Chit Funds, SN Traders and
+     Sri Lakshmi Micro Finance. --}}
 
 @php
-    $inTraders = ($business['key'] ?? 'chit') === 'traders';
+    $current = $business['key'] ?? 'chit';
 @endphp
 
-<div class="business-switch" role="group" aria-label="Business">
+<div class="business-switch business-switch-three" role="group" aria-label="Business">
 
-    <a
-        href="{{ route('dashboard') }}"
-        @class(['business-switch-option', 'active' => ! $inTraders])
-        @unless ($inTraders) aria-current="true" @endunless
-    >
-        <x-icon name="layers" />
-        <span><span class="business-switch-sn">SN</span> Chit Funds</span>
-    </a>
-
-    <a
-        href="{{ route('traders.dashboard') }}"
-        @class(['business-switch-option', 'active' => $inTraders])
-        @if ($inTraders) aria-current="true" @endif
-    >
-        <x-icon name="package" />
-        <span><span class="business-switch-sn">SN</span> Traders</span>
-    </a>
+    @foreach ([
+        'chit' => ['dashboard', 'layers', 'SN', 'Chit Funds'],
+        'traders' => ['traders.dashboard', 'package', 'SN', 'Traders'],
+        'finance' => ['finance.dashboard', 'wallet', 'Sri Lakshmi', 'Micro Finance'],
+    ] as $key => [$home, $icon, $prefix, $name])
+        <a
+            href="{{ route($home) }}"
+            @class(['business-switch-option', 'active' => $current === $key])
+            @if ($current === $key) aria-current="true" @endif
+        >
+            <x-icon :name="$icon" />
+            <span><span class="business-switch-sn">{{ $prefix }}</span> {{ $name }}</span>
+        </a>
+    @endforeach
 
 </div>

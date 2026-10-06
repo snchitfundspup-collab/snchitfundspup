@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Balance Sheet | SN Chit Funds')
+@section('title', 'Balance Sheet | '.$business['full_name'])
 
 @push('styles')
     @vite([

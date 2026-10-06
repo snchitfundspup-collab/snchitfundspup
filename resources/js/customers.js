@@ -1115,7 +1115,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ========================================================= */
 
     const PASSWORD_STATES = {
-        default: 'default (snchitfunds) — they choose their own when they sign in',
+        default: 'default (srilakshmi) — they choose their own when they sign in',
         office: 'set by the office — they choose their own when they sign in',
         own: 'their own password'
     };
@@ -1167,7 +1167,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (
                     !customerId ||
                     !window.confirm(
-                        'Reset this customer\'s password to the default (snchitfunds)? Everyone with the same phone number shares this password.'
+                        'Reset this customer\'s password to the default (srilakshmi)? Everyone with the same phone number shares this password.'
                     )
                 ) {
                     return;

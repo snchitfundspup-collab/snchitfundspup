@@ -1,3 +1,4 @@
+@php($letterhead = \App\Http\Middleware\SetBusinessContext::forCompany($companyName ?? 'Chit Funds'))
 {{-- Shared shell for downloadable PDFs (DomPDF): plain black-on-white
      page with the colour logo + orange "SN" letterhead. DomPDF supports
      tables and basic CSS only (no flexbox / grid), so layouts use tables.
@@ -111,13 +112,13 @@
             <td style="width: 56px; padding-bottom: 8px;">
                 <img
                     class="logo"
-                    src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/sn-chit-funds-logo-pdf.png'))) }}"
-                    alt="SN {{ $companyName ?? 'Chit Funds' }}"
+                    src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path($letterhead['pdf_logo']))) }}"
+                    alt="{{ $letterhead['full_name'] }}"
                 >
             </td>
             <td style="padding-bottom: 8px;">
-                <div class="company"><span class="sn">SN</span> {{ $companyName ?? 'Chit Funds' }}</div>
-                <div class="tagline">{{ __(($companyName ?? '') === 'Traders' ? 'Quality Rice · Fair Price' : 'Trust · Growth · Together') }}</div>
+                <div class="company"><span class="sn">{{ $letterhead['prefix'] }}</span> {{ $letterhead['company'] }}</div>
+                <div class="tagline">{{ __($letterhead['tagline']) }}</div>
             </td>
             <td class="doc-title" style="padding-bottom: 8px;">
                 <strong>{{ __(html_entity_decode(trim($__env->yieldContent('doc_title')), ENT_QUOTES)) }}</strong>

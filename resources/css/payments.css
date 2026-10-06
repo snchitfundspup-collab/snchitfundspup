@@ -3190,3 +3190,27 @@ html.light .balance-transfer-amount {
     }
 
 }
+
+
+/* expense list: the row icon (its size used to come only from draws.css) */
+.expense-row-icon {
+    width: 40px;
+
+    height: 40px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 12px;
+}
+
+.expense-row-icon svg {
+    width: 20px;
+
+    height: 20px;
+}

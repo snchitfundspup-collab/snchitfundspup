@@ -12,18 +12,18 @@
 
             <div class="brand-logo logo-3d">
                 <img
-                    src="{{ asset('images/sn-chit-funds-logo.png') }}"
+                    src="{{ asset($business['logo'] ?? 'images/sn-chit-funds-logo.png') }}"
                     alt=""
                 >
             </div>
 
             <div>
                 <div class="brand-name">
-                    <span>SN</span> {{ $business['name'] ?? 'Chit Funds' }}
+                    <span>{{ $business['prefix'] ?? 'SN' }}</span> {{ $business['name'] ?? 'Chit Funds' }}
                 </div>
 
                 <div class="brand-tagline" data-i18n="{{ $business['tagline_key'] ?? 'brand_tagline' }}">
-                    {{ ($business['key'] ?? 'chit') === 'traders' ? 'Quality Rice · Fair Price' : 'Trust · Growth · Together' }}
+                    {{ $business['tagline'] ?? 'Trust · Growth · Together' }}
                 </div>
             </div>
 

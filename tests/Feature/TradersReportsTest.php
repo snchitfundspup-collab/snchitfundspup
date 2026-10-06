@@ -122,7 +122,7 @@ test('rice sales ranks the rice by bags sold with pace, stock and top customers'
     $response->assertSeeText('Grocery');
 });
 
-test('profit and loss takes the cost of the rice sold and expenses, and splits the profit', function () {
+test('profit and loss takes the cost of the rice sold and expenses; the business keeps the profit', function () {
     $response = $this->get(route('traders.reports.show', 'profit'))->assertOk();
 
     $summary = $response->viewData('summary');
@@ -133,10 +133,9 @@ test('profit and loss takes the cost of the rice sold and expenses, and splits t
         ->and($summary['gross'])->toBe(1050.0)
         ->and($summary['expenses'])->toBe(1000.0)
         ->and($summary['net'])->toBe(50.0)
-        ->and($summary['purchases'])->toBe(21000.0)
-        ->and($response->viewData('partnerShares')->pluck('share')->all())->toBe([25.0, 25.0]);
+        ->and($summary['purchases'])->toBe(21000.0);
 
-    $response->assertSeeTextInOrder(['Net profit', '₹50', 'Share of Narayanan', '₹25']);
+    $response->assertSeeTextInOrder(['Net profit', '₹50'])->assertDontSeeText('Share of');
 });
 
 test('profit falls back to the average purchase cost for sales saved without one', function () {

@@ -13,14 +13,16 @@ test('the login page renders for guests', function () {
         ->assertSee('Password');
 });
 
-test('pages show the SN logo as the site icon', function () {
-    foreach (['favicon.ico', 'icon-192.png', 'apple-touch-icon.png'] as $icon) {
+test('the login pages carry Sri Lakshmi; SN Chit Funds pages keep the SN site icon', function () {
+    foreach (['favicon.ico', 'icon-192.png', 'apple-touch-icon.png', 'favicon-sl.ico', 'favicon-16-sl.png', 'favicon-32-sl.png', 'apple-touch-icon-sl.png'] as $icon) {
         expect(filesize(public_path($icon)))->toBeGreaterThan(0);
     }
 
     $this->get(route('login'))
-        ->assertSee('rel="icon" href="'.asset('favicon.ico').'"', false)
-        ->assertSee('rel="apple-touch-icon" href="'.asset('apple-touch-icon.png').'"', false);
+        ->assertSeeText('Sri Lakshmi')
+        ->assertSee(asset('images/sri-lakshmi-logo.png'), false)
+        ->assertSee('rel="icon" href="'.asset('favicon-sl.ico').'"', false)
+        ->assertSee('rel="apple-touch-icon" href="'.asset('apple-touch-icon-sl.png').'"', false);
 
     $this->actingAs(User::factory()->create())
         ->get(route('dashboard'))
@@ -44,7 +46,7 @@ test('an admin can sign in with username and password', function () {
     $this->post(route('login.store'), [
         'username' => 'sathiya',
         'password' => 'password',
-    ])->assertRedirect(route('dashboard'));
+    ])->assertRedirect(route('finance.dashboard'));
 
     $this->assertAuthenticatedAs($admin);
 });
@@ -117,10 +119,11 @@ test('an admin can log out', function () {
     $this->assertGuest();
 });
 
-test('the admin seeder creates Narayanan and Sathiya once', function () {
+test('the admin seeder creates Narayanan, Sathiya, Ranjith and Dinesh once', function () {
     $this->seed(AdminUserSeeder::class);
     $this->seed(AdminUserSeeder::class);
 
     expect(User::pluck('username')->sort()->values()->all())
-        ->toBe(['narayanan', 'sathiya']);
+        ->toBe(['dinesh', 'narayanan', 'ranjith', 'sathiya'])
+        ->and(User::where('can_view_usage', true)->pluck('username')->all())->toBe(['sathiya']);
 });

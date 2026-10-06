@@ -1,14 +1,14 @@
 <footer class="page-footer">
 
-    <a href="{{ route('portal.dashboard') }}" class="footer-brand brand-link" aria-label="SN – go to My home">
+    <a href="{{ route('portal.dashboard') }}" class="footer-brand brand-link" aria-label="{{ $portalBrand['title'] }} – go to My home">
 
         <div class="footer-logo logo-3d">
-            <img src="{{ asset('images/sn-chit-funds-logo.png') }}" alt="">
+            <img src="{{ asset($portalBrand['logo']) }}" alt="">
         </div>
 
         <div>
-            <div class="footer-name"><span>SN</span> Chit Funds · Traders</div>
-            <div class="footer-tagline" data-i18n="brand_tagline">Trust · Growth · Together</div>
+            <div class="footer-name"><span>{{ $portalBrand['prefix'] }}</span> {{ $portalBrand['name'] }}</div>
+            <div class="footer-tagline" data-i18n="{{ $portalBrand['tagline_key'] }}">{{ $portalBrand['tagline'] }}</div>
         </div>
 
     </a>

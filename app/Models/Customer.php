@@ -29,7 +29,7 @@ class Customer extends Authenticatable
     /**
      * The password every customer starts with (and gets back on a reset).
      */
-    public const DEFAULT_PASSWORD = 'snchitfunds';
+    public const DEFAULT_PASSWORD = 'srilakshmi';
 
     /**
      * @var Collection<int, Customer>|null
@@ -297,6 +297,16 @@ class Customer extends Authenticatable
     public function traderBalance(): float
     {
         return round((float) $this->traderSales()->sum('total_amount') - (float) $this->traderReceipts()->sum('amount'), 2);
+    }
+
+    /**
+     * Sri Lakshmi Micro Finance: loans given to this customer.
+     *
+     * @return HasMany<FinanceLoan, $this>
+     */
+    public function financeLoans(): HasMany
+    {
+        return $this->hasMany(FinanceLoan::class);
     }
 
     /**

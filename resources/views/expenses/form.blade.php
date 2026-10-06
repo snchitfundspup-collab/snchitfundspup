@@ -4,7 +4,7 @@
     $isEditing = $expense->exists;
 @endphp
 
-@section('title', ($isEditing ? 'Edit Expense' : 'Add Expense').' | SN Chit Funds')
+@section('title', ($isEditing ? 'Edit Expense' : 'Add Expense').' | '.$business['full_name'])
 
 @push('styles')
     @vite([
@@ -67,7 +67,7 @@
                     @endif
                 </h1>
                 <p class="group-hero-meta" data-i18n="expense_form_subtitle">
-                    Business spending paid by a partner. It is shared equally between the partners.
+                    Money spent for the business, and who paid it.
                 </p>
             </div>
 
