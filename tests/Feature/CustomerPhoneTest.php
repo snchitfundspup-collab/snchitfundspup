@@ -23,6 +23,19 @@ test('the same name with the same phone number cannot get a second customer ID',
     expect(Customer::count())->toBe(1);
 });
 
+test('new customer IDs start with SL and carry on from the highest number', function () {
+    Customer::factory()->create(['customer_code' => 'SN2605']);
+
+    $this->post(route('customers.store'), ['name' => 'Meena', 'phone' => '9000000077'])->assertRedirect(route('customers.create'));
+    $this->post(route('customers.store'), ['name' => 'Ravi', 'phone' => '9000000078'])->assertRedirect(route('customers.create'));
+
+    expect(Customer::where('name', 'Meena')->value('customer_code'))->toBe('SL2606')
+        ->and(Customer::where('name', 'Ravi')->value('customer_code'))->toBe('SL2607');
+
+    $this->get(route('customers.index', ['sort' => 'code_asc']))
+        ->assertSeeInOrder(['SN2601', 'SN2605', 'SL2606', 'SL2607']);
+});
+
 test('a different name can share the phone number and takes its password', function () {
     $this->post(route('customers.store'), ['name' => 'Meena', 'phone' => '98765-43210'])
         ->assertRedirect(route('customers.create'))

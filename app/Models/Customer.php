@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 /**
@@ -30,6 +31,17 @@ class Customer extends Authenticatable
      * The password every customer starts with (and gets back on a reset).
      */
     public const DEFAULT_PASSWORD = 'srilakshmi';
+
+    /**
+     * New customer IDs: "SL" + number (customers added before October 2026
+     * keep their "SN" IDs).
+     */
+    public const CODE_PREFIX = 'SL';
+
+    /**
+     * The first customer number.
+     */
+    private const FIRST_NUMBER = 2601;
 
     /**
      * @var Collection<int, Customer>|null
@@ -67,6 +79,17 @@ class Customer extends Authenticatable
     public static function phoneDigits(?string $phone): string
     {
         return substr((string) preg_replace('/\D/', '', (string) $phone), -10);
+    }
+
+    /**
+     * The next customer ID: "SL" + one more than the highest number in use
+     * (whatever its letters), so IDs never repeat across SN and SL.
+     */
+    public static function nextCode(): string
+    {
+        $highest = (int) self::query()->max(DB::raw('SUBSTR(customer_code, 3) + 0'));
+
+        return self::CODE_PREFIX.max(self::FIRST_NUMBER, $highest + 1);
     }
 
     /**

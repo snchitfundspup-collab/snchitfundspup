@@ -85,11 +85,11 @@ class CustomerController extends Controller
             'name_desc' => $query->orderByDesc('name'),
 
             /*
-             * Codes are "SN" + number, so sort by length first:
-             * SN9999 must come before SN10000.
+             * Codes are two letters ("SN" before, "SL" now) + a number, so
+             * sort by the number: SN9999 before SL10000, SN2605 before SL2606.
              */
-            'code_asc' => $query->orderByRaw('LENGTH(customer_code)')->orderBy('customer_code'),
-            'code_desc' => $query->orderByRaw('LENGTH(customer_code) DESC')->orderByDesc('customer_code'),
+            'code_asc' => $query->orderByRaw('SUBSTR(customer_code, 3) + 0')->orderBy('customer_code'),
+            'code_desc' => $query->orderByRaw('SUBSTR(customer_code, 3) + 0 DESC')->orderByDesc('customer_code'),
 
             'active_first' => $query->orderByDesc('is_active')->orderBy('name'),
             'inactive_first' => $query->orderBy('is_active')->orderBy('name'),
@@ -195,31 +195,10 @@ class CustomerController extends Controller
         ]);
 
         /*
-         * Get the latest customer.
+         * Next customer ID: "SL" + the number after the highest one so far
+         * (older customers keep their "SN" IDs).
          */
-        $lastCustomer = Customer::orderByDesc('id')->first();
-
-        /*
-         * Generate next customer number.
-         *
-         * First customer:
-         * SN2601
-         *
-         * Next:
-         * SN2602
-         * SN2603
-         * etc.
-         */
-        $nextNumber = $lastCustomer
-
-            ? ((int) substr(
-                $lastCustomer->customer_code,
-                2
-            )) + 1
-
-            : 2601;
-
-        $customerCode = 'SN'.$nextNumber;
+        $customerCode = Customer::nextCode();
 
         /*
          * Create customer.
