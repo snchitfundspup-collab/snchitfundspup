@@ -140,7 +140,7 @@ class LoanController extends Controller
      */
     public static function kfsData(FinanceLoan $loan): array
     {
-        $loan->load(['customer', 'recorder']);
+        $loan->load(['customer', 'recorder', 'collections.recorder']);
 
         return [
             'loan' => $loan,

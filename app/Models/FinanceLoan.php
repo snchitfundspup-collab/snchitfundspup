@@ -350,17 +350,17 @@ class FinanceLoan extends Model
      * it is paid as planned, and its state — paid, part paid, overdue (red),
      * due today (orange) or upcoming.
      *
-     * @return Collection<int, array{number: int, due_on: Carbon, amount: int, paid: int, paid_on: list<Carbon>, balance_after: int, state: string}>
+     * @return Collection<int, array{number: int, due_on: Carbon, amount: int, paid: int, paid_on: list<Carbon>, paid_by: ?User, balance_after: int, state: string}>
      */
     public function schedule(?Carbon $today = null): Collection
     {
         $today = Carbon::parse(($today ?? today(config('app.business_timezone')))->toDateString());
         $planned = 0;
 
-        /* the money collected, oldest first: [date, amount still to spread] */
-        $collections = ($this->relationLoaded('collections') ? $this->collections : $this->collections()->get())
+        /* the money collected, oldest first: [date, amount still to spread, who collected it] */
+        $collections = ($this->relationLoaded('collections') ? $this->collections : $this->collections()->with('recorder')->get())
             ->sortBy([['collected_at', 'asc'], ['id', 'asc']])
-            ->map(fn (FinanceCollection $collection) => [Carbon::parse($collection->collected_at->toDateString()), (int) $collection->amount])
+            ->map(fn (FinanceCollection $collection) => [Carbon::parse($collection->collected_at->toDateString()), (int) $collection->amount, $collection->recorder])
             ->values()
             ->all();
         $next = 0;
@@ -369,11 +369,16 @@ class FinanceLoan extends Model
             $amount = $number < $this->installments ? $this->installment_amount : $this->lastInstallment();
             $paid = 0;
             $paidOn = [];
+            $paidBy = null;
 
             while ($paid < $amount && $next < count($collections)) {
                 $take = min($amount - $paid, $collections[$next][1]);
                 $paid += $take;
                 $collections[$next][1] -= $take;
+
+                if ($take > 0) {
+                    $paidBy = $collections[$next][2];
+                }
 
                 if ($take > 0 && ! in_array($collections[$next][0]->toDateString(), array_map(fn (Carbon $date) => $date->toDateString(), $paidOn), true)) {
                     $paidOn[] = $collections[$next][0];
@@ -393,6 +398,7 @@ class FinanceLoan extends Model
                 'amount' => $amount,
                 'paid' => $paid,
                 'paid_on' => $paidOn,
+                'paid_by' => $paidBy,
                 'balance_after' => max(0, $this->loan_amount - $planned),
                 'state' => match (true) {
                     $paid >= $amount => 'paid',

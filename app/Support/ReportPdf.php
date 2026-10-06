@@ -99,7 +99,14 @@ class ReportPdf
         ]);
 
         $mpdf->SetTitle(pathinfo((string) $this->view, PATHINFO_FILENAME));
-        $mpdf->WriteHTML(view($this->view, $this->data)->render());
+        $html = view($this->view, $this->data)->render();
+
+        /* long documents with repeated signatures (a 100-day passbook) are larger than mPDF's default text limit */
+        if (strlen($html) * 2 > (int) ini_get('pcre.backtrack_limit')) {
+            ini_set('pcre.backtrack_limit', (string) (strlen($html) * 2));
+        }
+
+        $mpdf->WriteHTML($html);
 
         return $mpdf->Output('', Destination::STRING_RETURN);
     }

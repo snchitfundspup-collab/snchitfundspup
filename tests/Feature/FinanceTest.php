@@ -329,6 +329,7 @@ test('customers see their loan day by day — paid and left — and can print or
     expect($schedule->take(5)->pluck('state')->all())->toBe(['paid', 'paid', 'overdue', 'due', 'upcoming'])
         ->and($schedule[2]['paid'])->toBe(54)
         ->and($schedule[0]['paid_on'][0]->toDateString())->toBe('2026-10-04')
+        ->and($schedule[3]['paid_by'])->toBeNull()
         ->and($schedule[3]['paid_on'])->toBe([])
         ->and($schedule[0]['balance_after'])->toBe(10604)
         ->and($schedule->last()['amount'])->toBe(20)
@@ -447,6 +448,24 @@ test('capital invested less money lent, plus collections, less expenses is avail
     $this->post(route('finance.capital.store'), ['type' => 'withdraw', 'amount' => '90242', 'entry_on' => '2026-10-05', 'method' => 'cash']);
 
     expect(FinanceCapital::position()['available'])->toBe(400000);
+});
+
+test('the passbook carries the signature of whoever collected each instalment', function () {
+    $loan = giveLoan();
+    $sathiya = User::factory()->create(['name' => 'Sathiya', 'username' => 'sathiya']);
+    $ranjith = User::factory()->create(['name' => 'Ranjith', 'username' => 'ranjith']);
+
+    FinanceCollection::record($loan, ['amount' => 108, 'collected_at' => '2026-10-02 09:00:00', 'method' => 'cash'], $sathiya);
+    FinanceCollection::record($loan, ['amount' => 108, 'collected_at' => '2026-10-03 09:00:00', 'method' => 'cash'], $ranjith);
+
+    expect($loan->refresh()->schedule()[0]['paid_by']->is($sathiya))->toBeTrue();
+
+    $this->get(route('finance.loans.kfs', $loan))
+        ->assertOk()
+        ->assertSee('alt="Signature of Sathiya"', false)
+        ->assertSeeText('Ranjith');
+
+    $this->get(route('finance.loans.kfs.pdf', $loan))->assertOk()->assertHeader('content-type', 'application/pdf');
 });
 
 test('Micro Finance pages need a staff sign-in', function () {
