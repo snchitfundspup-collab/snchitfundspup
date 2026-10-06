@@ -124,6 +124,7 @@
                         <th data-i18n="due_date">Due date</th>
                         <th class="ledger-col-total" data-i18n="installment_word">Instalment</th>
                         <th class="ledger-col-total" data-i18n="paid">Paid</th>
+                        <th data-i18n="collected_on">Collected on</th>
                         <th class="ledger-col-total" data-i18n="left_after">Left after</th>
                         <th></th>
                     </tr>
@@ -134,8 +135,10 @@
                         <tr @class(['is-done' => $row['state'] === 'paid', 'is-today' => $row['state'] === 'due'])>
                             <td data-label="{{ $weekly ? 'Week' : 'Day' }}"><strong>{{ $row['number'] }}</strong></td>
                             <td class="nowrap" data-label="Due date"><span class="finance-date-long">{{ $row['due_on']->format('D, d M Y') }}</span><span class="finance-date-short">{{ $row['due_on']->format('D, d M') }}</span></td>
-                            <td class="ledger-col-total" data-label="Instalment"><x-rupees :amount="$row['amount']" /><span class="finance-schedule-paid">@if ($row['paid'] > 0 && $row['paid'] < $row['amount']) · <span data-i18n="paid">Paid</span> <x-rupees :amount="$row['paid']" />@endif</span></td>
+                            @php $paidOn = collect($row['paid_on'])->map(fn ($date) => $date->format('d M'))->implode(', '); @endphp
+                            <td class="ledger-col-total" data-label="Instalment"><x-rupees :amount="$row['amount']" /><span class="finance-schedule-paid">@if ($row['paid'] > 0)@if ($row['paid'] < $row['amount'])<span data-i18n="paid">Paid</span> <x-rupees :amount="$row['paid']" /> @endif<span data-i18n="collected_word_short">collected</span> {{ $paidOn }}@endif</span></td>
                             <td @class(['ledger-col-total', 'ledger-total-paid' => $row['paid'] > 0]) data-label="Paid">@if ($row['paid'] > 0)<x-rupees :amount="$row['paid']" />@else — @endif</td>
+                            <td class="nowrap finance-paid-on" data-label="Collected on">{{ $paidOn ?: '—' }}</td>
                             <td class="ledger-col-total" data-label="Left after"><span class="finance-left-label" data-i18n="left_after">Left after</span> <x-rupees :amount="$row['balance_after']" /></td>
                             <td><span class="due-badge {{ $badgeClass }}" data-i18n="{{ $badgeKey }}">{{ $badgeLabel }}</span></td>
                         </tr>

@@ -162,6 +162,7 @@
                         <th>{{ __('Due date') }}</th>
                         <th>{{ __('Instalment') }} (₹)</th>
                         <th>{{ __('Collected') }} (₹)</th>
+                        <th>{{ __('Paid on') }}</th>
                         <th>{{ __('Balance') }} (₹)</th>
                         <th>{{ __('Agent sign') }}</th>
                     @endfor
@@ -178,10 +179,11 @@
                                 <td class="{{ $row['state'] === 'paid' ? 'is-paid' : '' }}">{{ $row['due_on']->format('d M y') }}</td>
                                 <td class="num">{{ number_format($row['amount']) }}</td>
                                 <td class="num {{ $row['state'] === 'paid' ? 'is-paid' : ($row['state'] === 'overdue' ? 'is-overdue' : '') }}">{{ $row['paid'] > 0 ? number_format($row['paid']) : '' }}</td>
+                                <td>{{ collect($row['paid_on'])->map(fn ($date) => $date->format('d M'))->implode(', ') }}</td>
                                 <td class="num">{{ number_format($row['balance_after']) }}</td>
                                 <td class="sign"></td>
                             @else
-                                <td colspan="6"></td>
+                                <td colspan="7"></td>
                             @endif
                         @endfor
                     </tr>
