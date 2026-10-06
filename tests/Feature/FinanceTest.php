@@ -328,6 +328,8 @@ test('customers see their loan day by day — paid and left — and can print or
 
     expect($schedule->take(5)->pluck('state')->all())->toBe(['paid', 'paid', 'overdue', 'due', 'upcoming'])
         ->and($schedule[2]['paid'])->toBe(54)
+        ->and($schedule[0]['paid_on'][0]->toDateString())->toBe('2026-10-04')
+        ->and($schedule[3]['paid_on'])->toBe([])
         ->and($schedule[0]['balance_after'])->toBe(10604)
         ->and($schedule->last()['amount'])->toBe(20)
         ->and($schedule->last()['balance_after'])->toBe(0);
@@ -335,6 +337,8 @@ test('customers see their loan day by day — paid and left — and can print or
     $this->get(route('portal.loans.show', $loan))
         ->assertOk()
         ->assertSeeText('Day by day')
+        ->assertSeeText('Collected on')
+        ->assertSeeText('04 Oct')
         ->assertSeeText('Left to pay')
         ->assertSeeText('₹10,442');
 

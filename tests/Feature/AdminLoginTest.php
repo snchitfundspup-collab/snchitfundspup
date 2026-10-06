@@ -119,11 +119,11 @@ test('an admin can log out', function () {
     $this->assertGuest();
 });
 
-test('the admin seeder creates Narayanan, Sathiya, Ranjith and Dinesh once', function () {
+test('the admin seeder creates Narayanan, Sathiya, Ranjith, Dinesh and Nishanth once', function () {
     $this->seed(AdminUserSeeder::class);
     $this->seed(AdminUserSeeder::class);
 
     expect(User::pluck('username')->sort()->values()->all())
-        ->toBe(['dinesh', 'narayanan', 'ranjith', 'sathiya'])
+        ->toBe(['dinesh', 'narayanan', 'nishanth', 'ranjith', 'sathiya'])
         ->and(User::where('can_view_usage', true)->pluck('username')->all())->toBe(['sathiya']);
 });

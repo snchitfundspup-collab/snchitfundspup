@@ -344,23 +344,46 @@ class FinanceLoan extends Model
 
     /**
      * The instalments one by one: number, due date, amount (the last may be
-     * smaller), how much of it is paid (money collected pays the earliest
-     * instalments first), the balance left after it is paid as planned, and
-     * its state — paid, part paid, overdue (red), due today (orange) or
-     * upcoming.
+     * smaller), how much of it is paid and the dates that money was
+     * collected (collections pay the earliest instalments first, so the
+     * collection date can differ from the due date), the balance left after
+     * it is paid as planned, and its state — paid, part paid, overdue (red),
+     * due today (orange) or upcoming.
      *
-     * @return Collection<int, array{number: int, due_on: Carbon, amount: int, paid: int, balance_after: int, state: string}>
+     * @return Collection<int, array{number: int, due_on: Carbon, amount: int, paid: int, paid_on: list<Carbon>, balance_after: int, state: string}>
      */
     public function schedule(?Carbon $today = null): Collection
     {
         $today = Carbon::parse(($today ?? today(config('app.business_timezone')))->toDateString());
-        $left = $this->collected();
         $planned = 0;
 
-        return collect(range(1, max(1, $this->installments)))->map(function (int $number) use ($today, &$left, &$planned) {
+        /* the money collected, oldest first: [date, amount still to spread] */
+        $collections = ($this->relationLoaded('collections') ? $this->collections : $this->collections()->get())
+            ->sortBy([['collected_at', 'asc'], ['id', 'asc']])
+            ->map(fn (FinanceCollection $collection) => [Carbon::parse($collection->collected_at->toDateString()), (int) $collection->amount])
+            ->values()
+            ->all();
+        $next = 0;
+
+        return collect(range(1, max(1, $this->installments)))->map(function (int $number) use ($today, &$planned, &$collections, &$next) {
             $amount = $number < $this->installments ? $this->installment_amount : $this->lastInstallment();
-            $paid = max(0, min($amount, $left));
-            $left -= $paid;
+            $paid = 0;
+            $paidOn = [];
+
+            while ($paid < $amount && $next < count($collections)) {
+                $take = min($amount - $paid, $collections[$next][1]);
+                $paid += $take;
+                $collections[$next][1] -= $take;
+
+                if ($take > 0 && ! in_array($collections[$next][0]->toDateString(), array_map(fn (Carbon $date) => $date->toDateString(), $paidOn), true)) {
+                    $paidOn[] = $collections[$next][0];
+                }
+
+                if ($collections[$next][1] <= 0) {
+                    $next++;
+                }
+            }
+
             $planned += $amount;
             $dueOn = $this->dueDateFor($number);
 
@@ -369,6 +392,7 @@ class FinanceLoan extends Model
                 'due_on' => $dueOn,
                 'amount' => $amount,
                 'paid' => $paid,
+                'paid_on' => $paidOn,
                 'balance_after' => max(0, $this->loan_amount - $planned),
                 'state' => match (true) {
                     $paid >= $amount => 'paid',

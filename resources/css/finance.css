@@ -365,6 +365,10 @@ html.light .finance-due-value {
     }
 
     table.finance-schedule td:nth-child(5) {
+        display: none;
+    }
+
+    table.finance-schedule td:nth-child(6) {
         grid-area: left;
 
         font-size: 12px;
@@ -372,11 +376,11 @@ html.light .finance-due-value {
         text-align: right;
     }
 
-    table.finance-schedule td:nth-child(5)::before {
+    table.finance-schedule td:nth-child(6)::before {
         content: none;
     }
 
-    table.finance-schedule td:nth-child(6) {
+    table.finance-schedule td:nth-child(7) {
         grid-area: state;
 
         text-align: right;
@@ -421,7 +425,7 @@ html.light .finance-due-value {
         color: var(--text-soft);
     }
 
-    table.finance-schedule td:nth-child(6) .due-badge {
+    table.finance-schedule td:nth-child(7) .due-badge {
         white-space: nowrap;
 
         max-width: 120px;
@@ -573,4 +577,20 @@ html.light .finance-due-value {
     width: 22px;
 
     height: 22px;
+}
+
+
+/* phones: "collected 24 Sep" on its own line under the instalment */
+@media (max-width: 640px) {
+    table.finance-schedule td:nth-child(3) {
+        text-align: left;
+    }
+
+    table.finance-schedule .finance-schedule-paid {
+        display: block;
+
+        color: #22c55e;
+
+        font-weight: 700;
+    }
 }

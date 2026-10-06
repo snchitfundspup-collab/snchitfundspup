@@ -18,6 +18,7 @@ class AdminUserSeeder extends Seeder
         'sathiya' => 'Sathiya',
         'ranjith' => 'Ranjith',
         'dinesh' => 'Dinesh',
+        'nishanth' => 'Nishanth',
     ];
 
     /**
