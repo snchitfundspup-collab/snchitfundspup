@@ -71,7 +71,7 @@ test('a customer signs in with their phone number and their password', function 
         ->assertSeeText('Lakshmi')
         ->assertSeeText('Diwali Group')
         ->assertSeeText('Pongal Group')
-        ->assertSee('tel:9842510159', false)
+        ->assertSee('tel:8883898588', false)
         ->assertViewHas('seats', fn ($seats) => $seats->first()['months_done'] === 2 && $seats->first()['months_left'] === 18)
         ->assertSeeTextInOrder(['Diwali Group', 'Months completed', '2 / 20', 'Months remaining', '18'])
         ->assertSeeTextInOrder(['Next due', 'Month 2', '15 Oct 2026'])
@@ -119,7 +119,7 @@ test('the login page tells customers to call the office when they forget their p
     $this->get(route('portal.login'))
         ->assertOk()
         ->assertSeeText('Forgot your password? Call the office to reset it:')
-        ->assertSee('tel:9842510159', false);
+        ->assertSee('tel:8883898588', false);
 });
 
 test('staff and customers have separate login pages without links to each other', function () {

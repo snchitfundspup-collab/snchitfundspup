@@ -63,7 +63,7 @@
             <span><small data-i18n="installment_word">Instalment</small><strong id="calcInstallment">—</strong></span>
         </div>
 
-        <p class="portal-card-note" data-i18n="calculator_note">An estimate. The office confirms your loan, and you receive a Key Fact Statement before you sign.</p>
+        <p class="portal-card-note" data-i18n="calculator_note">An estimate. The office confirms your loan before you sign.</p>
 
     </section>
 

@@ -35,7 +35,7 @@ class DashboardController extends Controller
             'openOrders' => TraderOrder::query()->whereIn('customer_id', $family->pluck('id'))->open()->count(),
             'rice' => TradersController::riceCards()->take(4),
             'loans' => FinanceController::loansOf($customer)->filter(fn (array $row) => ! $row['loan']->isClosed())->values(),
-            'loanPlans' => FinanceController::planCards(),
+            'loanPlans' => config('app.portal_loan_plans') ? FinanceController::planCards() : collect(),
         ]);
     }
 }

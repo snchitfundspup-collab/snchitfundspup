@@ -7,6 +7,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CustomerController extends Controller
 {
@@ -161,6 +162,8 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
+        $request->merge(['aadhaar_number' => Customer::aadhaarDigits($request->input('aadhaar_number'))]);
+
         $validated = $request->validate([
 
             'name' => [
@@ -192,6 +195,15 @@ class CustomerController extends Controller
                 'string',
             ],
 
+            'aadhaar_number' => [
+                'nullable',
+                'digits:12',
+                Rule::unique('customers', 'aadhaar_number'),
+            ],
+
+        ], [
+            'aadhaar_number.digits' => 'Enter the 12-digit Aadhaar number.',
+            'aadhaar_number.unique' => 'This Aadhaar number is already saved for another customer.',
         ]);
 
         /*
@@ -218,6 +230,8 @@ class CustomerController extends Controller
             'address' => $validated['address'] ?? null,
 
             'remarks' => $validated['remarks'] ?? null,
+
+            'aadhaar_number' => $validated['aadhaar_number'] ?? null,
 
             'is_active' => true,
 
@@ -254,6 +268,8 @@ class CustomerController extends Controller
         Customer $customer
     ) {
 
+        $request->merge(['aadhaar_number' => Customer::aadhaarDigits($request->input('aadhaar_number'))]);
+
         $validated = $request->validate([
 
             'name' => [
@@ -285,6 +301,12 @@ class CustomerController extends Controller
                 'string',
             ],
 
+            'aadhaar_number' => [
+                'nullable',
+                'digits:12',
+                Rule::unique('customers', 'aadhaar_number')->ignore($customer->id),
+            ],
+
             'is_active' => [
                 'nullable',
                 'boolean',
@@ -298,6 +320,9 @@ class CustomerController extends Controller
                 'max:100',
             ],
 
+        ], [
+            'aadhaar_number.digits' => 'Enter the 12-digit Aadhaar number.',
+            'aadhaar_number.unique' => 'This Aadhaar number is already saved for another customer.',
         ]);
 
         $phoneChanged = Customer::phoneDigits($customer->phone) !== Customer::phoneDigits($validated['phone']);
@@ -316,6 +341,8 @@ class CustomerController extends Controller
             'address' => $validated['address'] ?? null,
 
             'remarks' => $validated['remarks'] ?? null,
+
+            'aadhaar_number' => $validated['aadhaar_number'] ?? null,
 
             'is_active' => $request->boolean('is_active'),
 

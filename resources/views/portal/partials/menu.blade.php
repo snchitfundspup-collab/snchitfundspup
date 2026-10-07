@@ -10,10 +10,14 @@
     if ($open('finance')) {
         $hasLoans = $me && \App\Models\FinanceLoan::query()->whereIn('customer_id', $me->familyIds())->exists();
 
-        $sections[] = ['menu_finance', 'Sri Lakshmi Micro Finance', array_values(array_filter([
+        $financeItems = array_values(array_filter([
             $hasLoans ? ['portal.loans', 'wallet', 'green', 'my_loans', 'My Loans', 'portal.loans*'] : null,
-            ['portal.loan-plans', 'scale', 'blue', 'loan_plans', 'Loan Plans', 'portal.loan-plans'],
-        ]))];
+            config('app.portal_loan_plans') ? ['portal.loan-plans', 'scale', 'blue', 'loan_plans', 'Loan Plans', 'portal.loan-plans'] : null,
+        ]));
+
+        if ($financeItems !== []) {
+            $sections[] = ['menu_finance', 'Sri Lakshmi Micro Finance', $financeItems];
+        }
     }
 
     if ($open('chit')) {

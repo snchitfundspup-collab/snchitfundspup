@@ -75,3 +75,27 @@ test('Add Customer warns who already uses a phone number', function () {
 
     $this->get(route('customers.create'))->assertOk()->assertSee('id="phoneWarning"', false);
 });
+
+test('a customer can have an Aadhaar number: 12 digits, spaces allowed, never on two customers', function () {
+    $this->post(route('customers.store'), ['name' => 'Meena', 'phone' => '9000000077', 'aadhaar_number' => '1234 5678 9012'])
+        ->assertRedirect(route('customers.create'));
+
+    $meena = Customer::where('name', 'Meena')->sole();
+
+    expect($meena->aadhaar_number)->toBe('123456789012')
+        ->and($meena->aadhaarFormatted())->toBe('1234 5678 9012')
+        ->and($meena->aadhaarMasked())->toBe('XXXX XXXX 9012');
+
+    $this->post(route('customers.store'), ['name' => 'Ravi', 'phone' => '9000000078', 'aadhaar_number' => '123456789012'])
+        ->assertSessionHasErrors(['aadhaar_number' => 'This Aadhaar number is already saved for another customer.']);
+    $this->post(route('customers.store'), ['name' => 'Ravi', 'phone' => '9000000078', 'aadhaar_number' => '12345'])
+        ->assertSessionHasErrors(['aadhaar_number' => 'Enter the 12-digit Aadhaar number.']);
+
+    /* editing: keeping one's own number is fine; it can be changed or cleared */
+    $this->putJson(route('customers.update', $meena), ['name' => 'Meena', 'phone' => '9000000077', 'aadhaar_number' => '1234 5678 9012', 'is_active' => true])->assertOk();
+    $this->putJson(route('customers.update', $meena), ['name' => 'Meena', 'phone' => '9000000077', 'aadhaar_number' => '', 'is_active' => true])->assertOk();
+
+    expect($meena->refresh()->aadhaar_number)->toBeNull();
+
+    $this->get(route('customers.create'))->assertOk()->assertSee('name="aadhaar_number"', false);
+});
