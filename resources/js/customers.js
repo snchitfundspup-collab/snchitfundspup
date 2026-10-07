@@ -431,6 +431,11 @@ document.addEventListener('DOMContentLoaded', function () {
             'editCustomerRemarks'
         );
 
+    const editCustomerAadhaar =
+        document.getElementById(
+            'editCustomerAadhaar'
+        );
+
     const editCustomerAddress =
         document.getElementById(
             'editCustomerAddress'
@@ -522,6 +527,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             remarks:
                 element.dataset.customerRemarks || '',
+
+            aadhaar:
+                element.dataset.customerAadhaar || '',
 
             address:
                 element.dataset.customerAddress || '',
@@ -645,6 +653,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         editCustomerRemarks.value =
             customer.remarks || '';
+
+        if (editCustomerAadhaar) {
+            editCustomerAadhaar.value =
+                customer.aadhaar || '';
+        }
 
 
         editCustomerAddress.value =
@@ -960,6 +973,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 formData.append(
                     'remarks',
                     editCustomerRemarks.value.trim()
+                );
+
+                formData.append(
+                    'aadhaar_number',
+                    editCustomerAadhaar ? editCustomerAadhaar.value.trim() : ''
                 );
 
 
@@ -1288,6 +1306,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             element.dataset.customerRemarks =
                 customer.remarks || '';
+
+            element.dataset.customerAadhaar =
+                customer.aadhaar_number
+                    ? customer.aadhaar_number.replace(/(\d{4})(?=\d)/g, '$1 ')
+                    : '';
 
             element.dataset.customerAddress =
                 customer.address || '';

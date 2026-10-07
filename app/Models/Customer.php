@@ -57,6 +57,7 @@ class Customer extends Authenticatable
         'email',
         'address',
         'remarks',
+        'aadhaar_number',
         'is_active',
     ];
 
@@ -79,6 +80,32 @@ class Customer extends Authenticatable
     public static function phoneDigits(?string $phone): string
     {
         return substr((string) preg_replace('/\D/', '', (string) $phone), -10);
+    }
+
+    /**
+     * Only the 12 digits of an Aadhaar number ("1234 5678 9012" → "123456789012"); null when empty.
+     */
+    public static function aadhaarDigits(?string $aadhaar): ?string
+    {
+        $digits = (string) preg_replace('/\D/', '', (string) $aadhaar);
+
+        return $digits === '' ? null : $digits;
+    }
+
+    /**
+     * "1234 5678 9012" for office screens.
+     */
+    public function aadhaarFormatted(): ?string
+    {
+        return $this->aadhaar_number ? trim(chunk_split($this->aadhaar_number, 4, ' ')) : null;
+    }
+
+    /**
+     * "XXXX XXXX 9012" for printed papers (only the last 4 digits shown).
+     */
+    public function aadhaarMasked(): ?string
+    {
+        return $this->aadhaar_number ? 'XXXX XXXX '.substr($this->aadhaar_number, -4) : null;
     }
 
     /**

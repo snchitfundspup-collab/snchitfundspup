@@ -264,7 +264,23 @@ test('customers see their own loans with receipts, never other customers loans',
     $this->get(route('portal.loans.show', $otherLoan))->assertNotFound();
 });
 
+test('loan plans are hidden from customers for now', function () {
+    $this->customer->choosePassword('kavitha99');
+    auth('web')->logout();
+    $this->actingAs($this->customer->refresh(), 'customer');
+
+    $this->get(route('portal.dashboard'))
+        ->assertOk()
+        ->assertSeeText('Call the office to apply')
+        ->assertDontSeeText('Loan Plans')
+        ->assertDontSee(route('portal.loan-plans'), false);
+
+    $this->get(route('portal.loan-plans'))->assertRedirect(route('portal.dashboard'));
+});
+
 test('customers without a loan see the loan plans, not My Loans in the menu', function () {
+    config(['app.portal_loan_plans' => true]);
+
     $this->customer->choosePassword('kavitha99');
     auth('web')->logout();
 
@@ -302,6 +318,8 @@ test('customers see only Sri Lakshmi Micro Finance while chit funds and rice are
 });
 
 test('the loan plans show what a customer receives and repays, without an APR', function () {
+    config(['app.portal_loan_plans' => true]);
+
     $this->customer->choosePassword('kavitha99');
     auth('web')->logout();
 
@@ -343,7 +361,11 @@ test('customers see their loan day by day — paid and left — and can print or
         ->assertSeeText('Left to pay')
         ->assertSeeText('₹10,442');
 
-    $this->get(route('portal.loans.passbook', $loan))->assertOk()->assertSeeText('Part B — Collection Passbook');
+    $this->get(route('portal.loans.passbook', $loan))
+        ->assertOk()
+        ->assertSeeText('Collection Passbook')
+        ->assertDontSeeText('Key Fact Statement')
+        ->assertDontSeeText('Sanctioned loan amount');
     $this->get(route('portal.loans.passbook.pdf', $loan))->assertOk()->assertHeader('content-type', 'application/pdf');
 
     $other = FinanceLoan::factory()->create();
@@ -362,7 +384,7 @@ test('the Key Fact Statement shows the costs, without an APR, with the passbook 
         ->assertDontSeeText('Annual Percentage Rate')
         ->assertSeeText('Coimbatore')
         ->assertSeeText('No collateral or security is taken for this loan.')
-        ->assertSeeText('9842510159')
+        ->assertSeeText('8883898588')
         ->assertDontSeeText('credit information companies')
         ->assertSeeText('Part B — Collection Passbook');
 

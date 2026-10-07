@@ -44,7 +44,7 @@
         </div>
 
         <div class="dashboard-actions">
-            @if ($financeOpen)
+            @if ($financeOpen && config('app.portal_loan_plans'))
                 <a href="{{ route('portal.loan-plans') }}" class="dashboard-action dashboard-action-primary">
                     <x-icon name="scale" />
                     <span data-i18n="loan_plans">Loan Plans</span>
@@ -80,7 +80,11 @@
                 @endif
             </div>
             @if ($loans->isEmpty())
-                <p class="portal-empty glass" data-i18n="no_running_loan">You have no running loan. See the loan plans below and call the office to apply.</p>
+                @if (config('app.portal_loan_plans'))
+                    <p class="portal-empty glass" data-i18n="no_running_loan">You have no running loan. See the loan plans below and call the office to apply.</p>
+                @else
+                    <p class="portal-empty glass" data-i18n="no_running_loan_call">You have no running loan. Call the office to apply for one.</p>
+                @endif
             @else
                 <div class="portal-grid">
                     @foreach ($loans as $row)
@@ -90,6 +94,7 @@
             @endif
         </section>
 
+        @if (config('app.portal_loan_plans'))
         <section class="portal-section">
             <div class="portal-section-head">
                 <h2 data-i18n="loan_plans">Loan Plans</h2>
@@ -101,6 +106,7 @@
                 @endforeach
             </div>
         </section>
+        @endif
     @endif
 
 
