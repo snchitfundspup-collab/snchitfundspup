@@ -1,5 +1,6 @@
 {{-- Loan acknowledgement the customer signs when they receive the money:
-     the loan, the amount cut, the amount in hand and the repayment plan.
+     the loan, the amount in hand and the number of instalments with the
+     first and last dates (no fee, GST, interest or total — owners' choice).
      Opens as a print page ($layout = layouts.print) or a PDF. --}}
 @extends($layout ?? 'pdf.layout')
 
@@ -47,8 +48,6 @@
 
     <table class="party">
         <tr><th>{{ __('Loan amount') }}</th><td class="right"><x-rupees :amount="$loan->principal" /></td></tr>
-        <tr><th>{{ __('Less: processing fee') }} ({{ \App\Models\FinanceLoan::rate($loan->processing_fee_rate) }})</th><td class="right">− <x-rupees :amount="$loan->processing_fee" /></td></tr>
-        <tr><th>{{ __('Less: GST on the fee') }} ({{ \App\Models\FinanceLoan::rate($loan->gst_rate) }})</th><td class="right">− <x-rupees :amount="$loan->gst" /></td></tr>
     </table>
 
     <table class="amount-box">
@@ -61,19 +60,7 @@
     <p class="words">{{ $loan->amountGivenInWords() }}</p>
 
     <table class="party">
-        <tr><th>{{ __('Loan amount') }}</th><td class="right"><x-rupees :amount="$loan->principal" /></td></tr>
-        <tr><th>{{ __('Add: interest') }} ({{ \App\Models\FinanceLoan::rate($loan->interest_rate) }} {{ __('a year') }}, {{ $loan->term_days }} {{ __('days') }})</th><td class="right">+ <x-rupees :amount="$loan->interest" /></td></tr>
-        <tr><th><strong>{{ __('Total to repay') }}</strong></th><td class="right"><strong><x-rupees :amount="$loan->loan_amount" /></strong></td></tr>
-    </table>
-
-    <table class="party">
-        <tr><th>{{ __('Repayment') }}</th><td>{{ $loan->frequencyLabel() }}</td></tr>
-        <tr>
-            <th>{{ __('Instalments') }}</th>
-            <td>
-                {{ $loan->installments }} × <x-rupees :amount="$loan->installment_amount" />@if ($lastInstallment !== $loan->installment_amount) ({{ __('last one') }} <x-rupees :amount="$lastInstallment" />)@endif
-            </td>
-        </tr>
+        <tr><th>{{ __('Instalments') }}</th><td>{{ $loan->installments }} {{ $loan->frequency === 'weekly' ? __('weeks') : __('days') }}</td></tr>
         <tr><th>{{ __('First instalment on') }}</th><td>{{ $loan->first_due_on->format('d M Y') }}</td></tr>
         <tr><th>{{ __('Last instalment on') }}</th><td>{{ $lastDue->format('d M Y') }}</td></tr>
         @if ($loan->notes)
@@ -82,11 +69,10 @@
     </table>
 
     <p class="ack-text">
-        {{ __('I, :name, have received :amount in hand from Sri Lakshmi Micro Finance on :date. I agree to repay :total in :count :frequency instalments as shown above.', [
+        {{ __('I, :name, have received :amount in hand from Sri Lakshmi Micro Finance on :date. I agree to repay in :count :frequency instalments.', [
             'name' => $customer->name,
             'amount' => '₹'.number_format($loan->amountGiven()),
             'date' => $loan->loaned_on->format('d M Y'),
-            'total' => '₹'.number_format($loan->loan_amount),
             'count' => $loan->installments,
             'frequency' => mb_strtolower($loan->frequencyLabel()),
         ]) }}

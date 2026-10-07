@@ -310,5 +310,7 @@
     "Part B — Collection Passbook": "பகுதி B — வசூல் பாஸ்புக்",
     "Agent sign": "முகவர் கையொப்பம்",
     "Paid on": "செலுத்திய தேதி",
-    "Collection Passbook": "வசூல் பாஸ்புக்"
+    "Collection Passbook": "வசூல் பாஸ்புக்",
+    "I, :name, have received :amount in hand from Sri Lakshmi Micro Finance on :date. I agree to repay in :count :frequency instalments.": ":name ஆகிய நான், :date அன்று ஸ்ரீ லட்சுமி மைக்ரோ ஃபைனான்ஸிடமிருந்து :amount கையில் பெற்றுக்கொண்டேன். :count :frequency தவணைகளில் திருப்பிச் செலுத்த ஒப்புக்கொள்கிறேன்.",
+    "weeks": "வாரங்கள்"
 }

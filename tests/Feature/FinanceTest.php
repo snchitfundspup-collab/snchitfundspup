@@ -77,9 +77,12 @@ test('a loan cuts the fee and GST, adds interest for the period and works out th
         ->assertSeeText('Sri Lakshmi')
         ->assertSeeText('Amount received in hand')
         ->assertSeeText('₹9,882')
-        ->assertSeeText('26% a year, 100 days')
-        ->assertSeeText('100 × ₹108')
-        ->assertSeeText('last one ₹20');
+        ->assertSeeText('100 days')
+        ->assertSeeText('I agree to repay in 100 daily instalments.')
+        ->assertDontSeeText('processing fee')
+        ->assertDontSeeText('GST')
+        ->assertDontSeeText('Total to repay')
+        ->assertDontSeeText('₹10,712');
 
     $this->get(route('finance.loans.acknowledgement.pdf', $loan))->assertOk()->assertHeader('content-type', 'application/pdf');
 });
