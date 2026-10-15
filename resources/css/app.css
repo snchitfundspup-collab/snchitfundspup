@@ -1930,7 +1930,7 @@ html.light .menu-item.active {
 
 
 .menu-group.open .menu-submenu {
-    max-height: 200px;
+    max-height: 640px;
 
     margin-bottom: 6px;
 }
