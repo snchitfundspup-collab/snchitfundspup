@@ -74,6 +74,7 @@ class FinanceLoan extends Model
         'closed_on',
         'notes',
         'recorded_by',
+        'agent_id',
     ];
 
     /**
@@ -126,6 +127,7 @@ class FinanceLoan extends Model
             ...$terms,
             'status' => self::STATUS_ACTIVE,
             'recorded_by' => $recordedBy?->id,
+            'agent_id' => $details['agent_id'] ?? $recordedBy?->id,
         ]);
 
         $loan->update(['loan_number' => 'L'.str_pad((string) $loan->id, 6, '0', STR_PAD_LEFT)]);
@@ -472,5 +474,15 @@ class FinanceLoan extends Model
     public function recorder(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recorded_by');
+    }
+
+    /**
+     * The staff member who brought the customer in.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'agent_id');
     }
 }

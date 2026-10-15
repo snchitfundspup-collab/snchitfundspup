@@ -18,7 +18,7 @@ class CustomerFactory extends Factory
     public function definition(): array
     {
         return [
-            'customer_code' => 'SN'.fake()->unique()->numberBetween(2601, 9999),
+            'customer_code' => Customer::CODE_PREFIX.fake()->unique()->numberBetween(2601, 9999),
             'name' => fake()->name(),
             'phone' => fake()->numerify('9#########'),
             'email' => fake()->optional()->safeEmail(),

@@ -231,6 +231,7 @@
                                 data-customer-phone="{{ $customer->phone }}"
                                 data-customer-email="{{ $customer->email }}"
                                 data-customer-remarks="{{ $customer->remarks }}"
+                                data-customer-aadhaar="{{ $customer->aadhaarFormatted() }}"
                                 data-customer-address="{{ $customer->address }}"
                                 data-customer-active="{{ $customer->is_active ? '1' : '0' }}"
                                 data-customer-password-state="{{ $customer->passwordState() }}"
@@ -390,6 +391,7 @@
                         data-customer-phone="{{ $customer->phone }}"
                         data-customer-email="{{ $customer->email }}"
                         data-customer-remarks="{{ $customer->remarks }}"
+                        data-customer-aadhaar="{{ $customer->aadhaarFormatted() }}"
                         data-customer-address="{{ $customer->address }}"
                         data-customer-active="{{ $customer->is_active ? '1' : '0' }}"
                         data-customer-password-state="{{ $customer->passwordState() }}"
@@ -449,6 +451,19 @@
 
                                 <span class="mobile-detail-value">
                                     {{ $customer->remarks ?: '-' }}
+                                </span>
+
+                            </div>
+
+
+                            <div class="mobile-detail">
+
+                                <span class="mobile-detail-label" data-i18n="aadhaar_number">
+                                    Aadhaar number
+                                </span>
+
+                                <span class="mobile-detail-value customer-aadhaar">
+                                    {{ $customer->aadhaarFormatted() ?: '-' }}
                                 </span>
 
                             </div>
@@ -781,6 +796,25 @@
                         <input
                             type="text"
                             id="editCustomerRemarks"
+                        >
+
+                    </div>
+
+
+                    {{-- AADHAAR --}}
+
+                    <div class="modal-field">
+
+                        <label for="editCustomerAadhaar" data-i18n="aadhaar_number">
+                            Aadhaar number
+                        </label>
+
+                        <input
+                            type="text"
+                            id="editCustomerAadhaar"
+                            inputmode="numeric"
+                            maxlength="14"
+                            autocomplete="off"
                         >
 
                     </div>

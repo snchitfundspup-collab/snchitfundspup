@@ -93,7 +93,7 @@ class LoanController extends Controller
 
     public function show(FinanceLoan $loan): View
     {
-        $loan->load(['customer', 'recorder', 'collections.recorder']);
+        $loan->load(['customer', 'recorder', 'agent', 'collections.recorder', 'collections.collector']);
 
         return view('finance.loans.show', [
             'loan' => $loan,

@@ -62,6 +62,7 @@ class StoreLoanRequest extends FormRequest
             'installment_amount' => ['nullable', 'integer', 'min:1'],
             'first_due_on' => ['required', 'date', 'after_or_equal:loaned_on'],
             'notes' => ['nullable', 'string', 'max:1000'],
+            'agent_id' => ['nullable', 'integer', Rule::exists('users', 'id')],
         ];
     }
 

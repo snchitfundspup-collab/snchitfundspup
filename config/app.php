@@ -89,7 +89,7 @@ return [
     |
     */
 
-    'office_phone' => env('OFFICE_PHONE', '9842510159'),
+    'office_phone' => env('OFFICE_PHONE', '8883898588'),
 
     /*
     | Sri Lakshmi Micro Finance can also open on its own domain (e.g.
@@ -104,6 +104,10 @@ return [
     | chit, traders, finance). SN Chit Funds and SN Traders are paused for
     | now, so customers see only Sri Lakshmi Micro Finance.
     */
+
+    /* Loan Plans (daily / weekly offer and calculator) on the customer pages — hidden for now */
+
+    'portal_loan_plans' => (bool) env('PORTAL_LOAN_PLANS', false),
 
     'portal_sections' => array_values(array_filter(array_map('trim', explode(',', (string) env('PORTAL_SECTIONS', 'finance'))))),
 

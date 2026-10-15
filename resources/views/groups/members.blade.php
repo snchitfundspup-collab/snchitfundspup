@@ -88,6 +88,8 @@
                 <h2 data-i18n="add_members">Add members</h2>
             </div>
 
+            @include('components.partials.agent-select', ['agentName' => 'agent', 'agentId' => 'memberAgent', 'agentI18n' => 'agent_brought', 'agentLabel' => 'Agent (brought the customer)', 'agentSelected' => request('agent') ?: auth()->id(), 'agentClass' => 'group-field member-agent-field'])
+
 
             <form
                 method="GET"
@@ -100,6 +102,8 @@
                 <span class="member-search-icon">
                     <x-icon name="search" />
                 </span>
+
+                <input type="hidden" name="agent" value="{{ request('agent') }}" id="memberSearchAgent">
 
                 <input
                     type="search"
@@ -172,6 +176,7 @@
 
                                 <input type="hidden" name="customer_id" value="{{ $customer->id }}">
                                 <input type="hidden" name="q" value="{{ $search }}">
+                                <input type="hidden" name="agent_id" value="{{ request('agent') ?: auth()->id() }}" data-member-agent>
 
                                 <button
                                     type="submit"
@@ -269,6 +274,9 @@
 
                                 <span class="member-card-identification">
                                     {{ $member->customer->remarks ?: '—' }}
+                                    @if ($member->agent)
+                                        · <span data-i18n="agent_word">Agent</span> {{ $member->agent->name }}
+                                    @endif
                                 </span>
 
                             </div>

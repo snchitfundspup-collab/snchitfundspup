@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Models\FinanceCollection;
 use App\Models\FinanceLoan;
 use App\Support\ReportPdf as Pdf;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
@@ -41,20 +42,21 @@ class FinanceController extends Controller
     }
 
     /**
-     * The loan's Key Fact Statement and day-by-day passbook, to print.
+     * The loan's day-by-day passbook, to print (customers see only the
+     * passbook for now, not the Key Fact Statement).
      */
     public function passbookPrint(Request $request, FinanceLoan $loan): View
     {
         $this->ensureOwn($request, $loan->customer_id);
 
-        return view('finance.loans.kfs', LoanController::kfsData($loan) + ['layout' => 'layouts.print']);
+        return view('finance.loans.kfs', LoanController::kfsData($loan) + ['layout' => 'layouts.print', 'passbookOnly' => true]);
     }
 
     public function passbookPdf(Request $request, FinanceLoan $loan): Response
     {
         $this->ensureOwn($request, $loan->customer_id);
 
-        return Pdf::loadView('finance.loans.kfs', LoanController::kfsData($loan) + ['layout' => 'pdf.layout'])
+        return Pdf::loadView('finance.loans.kfs', LoanController::kfsData($loan) + ['layout' => 'pdf.layout', 'passbookOnly' => true])
             ->setPaper('a4', 'portrait')
             ->download("Loan-Passbook-{$loan->loan_number}.pdf");
     }
@@ -63,8 +65,13 @@ class FinanceController extends Controller
      * The loans on offer: daily (100 days) and weekly (14 weeks) on the
      * standard terms, with a ₹10,000 example each and a calculator.
      */
-    public function plans(): View
+    public function plans(): View|RedirectResponse
     {
+        /* hidden from customers for now (PORTAL_LOAN_PLANS) */
+        if (! config('app.portal_loan_plans')) {
+            return redirect()->route('portal.dashboard');
+        }
+
         return view('portal.finance.plans', [
             'plans' => self::planCards(),
             'rates' => [

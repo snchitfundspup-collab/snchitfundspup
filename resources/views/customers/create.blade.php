@@ -406,6 +406,44 @@
                 </div>
 
 
+                <!-- AADHAAR -->
+
+                <div class="field">
+
+                    <div class="field-icon icon-3d icon-3d-purple">
+                        <x-icon name="id-card" />
+                    </div>
+
+
+                    <div class="field-content">
+
+                        <label
+                            class="field-label"
+                            for="aadhaar_number"
+                            data-i18n="aadhaar_number"
+                        >
+                            Aadhaar number
+                        </label>
+
+
+                        <input
+                            id="aadhaar_number"
+                            type="text"
+                            name="aadhaar_number"
+                            value="{{ old('aadhaar_number') }}"
+                            class="input"
+                            inputmode="numeric"
+                            maxlength="14"
+                            placeholder="12-digit Aadhaar number (optional)"
+                            data-i18n-placeholder="aadhaar_placeholder"
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+                </div>
+
+
                 <!-- FORM FOOTER -->
 
                 <div class="form-footer">

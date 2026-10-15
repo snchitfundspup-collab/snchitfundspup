@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AgentStatementController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BalanceSheetController;
 use App\Http\Controllers\ChitGroupController;
@@ -395,6 +396,10 @@ Route::middleware('auth:web')->group(function () {
         [CustomerStatementController::class, 'index']
     )->name('reports.customer');
 
+    Route::get('/reports/agent-statement', [AgentStatementController::class, 'show'])->name('reports.agent');
+    Route::get('/reports/agent-statement/print', [AgentStatementController::class, 'printReport'])->name('reports.agent.print');
+    Route::get('/reports/agent-statement.pdf', [AgentStatementController::class, 'pdf'])->name('reports.agent.pdf');
+
     Route::get(
         '/reports/customer-statement/{customer}.pdf',
         [CustomerStatementController::class, 'pdf']
@@ -538,6 +543,9 @@ Route::middleware('auth:web')->group(function () {
 
         /* reports: outstanding, overdue, day book, profit & loss */
         Route::get('/reports/customer-statement', [Finance\ReportController::class, 'customerStatement'])->name('reports.customer');
+        Route::get('/reports/agent-statement', [AgentStatementController::class, 'show'])->name('reports.agent');
+        Route::get('/reports/agent-statement/print', [AgentStatementController::class, 'printReport'])->name('reports.agent.print');
+        Route::get('/reports/agent-statement.pdf', [AgentStatementController::class, 'pdf'])->name('reports.agent.pdf');
         Route::get('/reports/{report}', [Finance\ReportController::class, 'show'])->name('reports.show')->whereIn('report', array_keys(Finance\ReportController::REPORTS));
         Route::get('/reports/{report}/print', [Finance\ReportController::class, 'printReport'])->name('reports.print')->whereIn('report', array_keys(Finance\ReportController::REPORTS));
         Route::get('/reports/{report}/pdf', [Finance\ReportController::class, 'pdf'])->name('reports.pdf')->whereIn('report', array_keys(Finance\ReportController::REPORTS));

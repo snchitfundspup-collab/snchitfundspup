@@ -16,7 +16,7 @@ class FinanceCollection extends Model
     /** @use HasFactory<FinanceCollectionFactory> */
     use HasFactory;
 
-    protected $fillable = ['receipt_number', 'finance_loan_id', 'customer_id', 'collected_at', 'amount', 'method', 'reference', 'notes', 'recorded_by'];
+    protected $fillable = ['receipt_number', 'finance_loan_id', 'customer_id', 'collected_at', 'amount', 'method', 'reference', 'notes', 'recorded_by', 'collected_by'];
 
     /**
      * collected_at is office local time, shown as-is.
@@ -44,6 +44,7 @@ class FinanceCollection extends Model
             'finance_loan_id' => $loan->id,
             'customer_id' => $loan->customer_id,
             'recorded_by' => $recordedBy?->id,
+            'collected_by' => $details['collected_by'] ?? $recordedBy?->id,
         ]);
 
         $collection->update(['receipt_number' => 'C'.str_pad((string) $collection->id, 6, '0', STR_PAD_LEFT)]);
@@ -88,5 +89,15 @@ class FinanceCollection extends Model
     public function recorder(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recorded_by');
+    }
+
+    /**
+     * The staff member who collected the money.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function collector(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'collected_by');
     }
 }

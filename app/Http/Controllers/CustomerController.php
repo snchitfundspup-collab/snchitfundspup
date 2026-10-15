@@ -7,6 +7,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CustomerController extends Controller
 {
@@ -85,11 +86,11 @@ class CustomerController extends Controller
             'name_desc' => $query->orderByDesc('name'),
 
             /*
-             * Codes are "SN" + number, so sort by length first:
-             * SN9999 must come before SN10000.
+             * Codes are two letters ("SN" before, "SL" now) + a number, so
+             * sort by the number: SN9999 before SL10000, SN2605 before SL2606.
              */
-            'code_asc' => $query->orderByRaw('LENGTH(customer_code)')->orderBy('customer_code'),
-            'code_desc' => $query->orderByRaw('LENGTH(customer_code) DESC')->orderByDesc('customer_code'),
+            'code_asc' => $query->orderByRaw('SUBSTR(customer_code, 3) + 0')->orderBy('customer_code'),
+            'code_desc' => $query->orderByRaw('SUBSTR(customer_code, 3) + 0 DESC')->orderByDesc('customer_code'),
 
             'active_first' => $query->orderByDesc('is_active')->orderBy('name'),
             'inactive_first' => $query->orderBy('is_active')->orderBy('name'),
@@ -161,6 +162,8 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
+        $request->merge(['aadhaar_number' => Customer::aadhaarDigits($request->input('aadhaar_number'))]);
+
         $validated = $request->validate([
 
             'name' => [
@@ -192,34 +195,22 @@ class CustomerController extends Controller
                 'string',
             ],
 
+            'aadhaar_number' => [
+                'nullable',
+                'digits:12',
+                Rule::unique('customers', 'aadhaar_number'),
+            ],
+
+        ], [
+            'aadhaar_number.digits' => 'Enter the 12-digit Aadhaar number.',
+            'aadhaar_number.unique' => 'This Aadhaar number is already saved for another customer.',
         ]);
 
         /*
-         * Get the latest customer.
+         * Next customer ID: "SL" + the number after the highest one so far
+         * (older customers keep their "SN" IDs).
          */
-        $lastCustomer = Customer::orderByDesc('id')->first();
-
-        /*
-         * Generate next customer number.
-         *
-         * First customer:
-         * SN2601
-         *
-         * Next:
-         * SN2602
-         * SN2603
-         * etc.
-         */
-        $nextNumber = $lastCustomer
-
-            ? ((int) substr(
-                $lastCustomer->customer_code,
-                2
-            )) + 1
-
-            : 2601;
-
-        $customerCode = 'SN'.$nextNumber;
+        $customerCode = Customer::nextCode();
 
         /*
          * Create customer.
@@ -239,6 +230,8 @@ class CustomerController extends Controller
             'address' => $validated['address'] ?? null,
 
             'remarks' => $validated['remarks'] ?? null,
+
+            'aadhaar_number' => $validated['aadhaar_number'] ?? null,
 
             'is_active' => true,
 
@@ -275,6 +268,8 @@ class CustomerController extends Controller
         Customer $customer
     ) {
 
+        $request->merge(['aadhaar_number' => Customer::aadhaarDigits($request->input('aadhaar_number'))]);
+
         $validated = $request->validate([
 
             'name' => [
@@ -306,6 +301,12 @@ class CustomerController extends Controller
                 'string',
             ],
 
+            'aadhaar_number' => [
+                'nullable',
+                'digits:12',
+                Rule::unique('customers', 'aadhaar_number')->ignore($customer->id),
+            ],
+
             'is_active' => [
                 'nullable',
                 'boolean',
@@ -319,6 +320,9 @@ class CustomerController extends Controller
                 'max:100',
             ],
 
+        ], [
+            'aadhaar_number.digits' => 'Enter the 12-digit Aadhaar number.',
+            'aadhaar_number.unique' => 'This Aadhaar number is already saved for another customer.',
         ]);
 
         $phoneChanged = Customer::phoneDigits($customer->phone) !== Customer::phoneDigits($validated['phone']);
@@ -337,6 +341,8 @@ class CustomerController extends Controller
             'address' => $validated['address'] ?? null,
 
             'remarks' => $validated['remarks'] ?? null,
+
+            'aadhaar_number' => $validated['aadhaar_number'] ?? null,
 
             'is_active' => $request->boolean('is_active'),
 

@@ -331,3 +331,40 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 });
+
+
+/* =========================================================
+   AGENT FOR NEW SEATS
+   The "Agent" dropdown goes with every Add (and with the search,
+   so live results keep it).
+========================================================= */
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const agent = document.getElementById('memberAgent');
+
+    if (!agent) {
+        return;
+    }
+
+    document.addEventListener('submit', function (event) {
+        const input = event.target.querySelector('[data-member-agent]');
+
+        if (input) {
+            input.value = agent.value;
+        }
+    }, true);
+
+    agent.addEventListener('change', function () {
+        const searchAgent = document.getElementById('memberSearchAgent');
+
+        if (searchAgent) {
+            searchAgent.value = agent.value;
+        }
+
+        document.querySelectorAll('[data-member-agent]').forEach(function (input) {
+            input.value = agent.value;
+        });
+    });
+
+});

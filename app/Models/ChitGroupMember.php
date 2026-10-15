@@ -22,6 +22,7 @@ class ChitGroupMember extends Model
         'customer_id',
         'member_code',
         'position',
+        'agent_id',
     ];
 
     /**
@@ -50,6 +51,16 @@ class ChitGroupMember extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    /**
+     * The staff member who brought the customer in.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'agent_id');
     }
 
     /**

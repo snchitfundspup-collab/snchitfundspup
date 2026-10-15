@@ -1,15 +1,15 @@
 {{-- Key Fact Statement (page 1) and Collection Passbook (page 2) for a
-     loan, on A4. Opens as a print page ($layout = layouts.print) or a PDF.
+     loan, on A4 — or only the passbook ($passbookOnly, for customers). Opens as a print page ($layout = layouts.print) or a PDF.
      $loan, $customer, $schedule, $kfs (config app.finance_kfs) --}}
 @extends($layout ?? 'pdf.layout')
 
-@section('title', 'Key Fact Statement '.$loan->loan_number)
+@section('title', ($passbookOnly ?? false ? 'Collection Passbook ' : 'Key Fact Statement ').$loan->loan_number)
 
 @section('page_margin', '8mm')
 
 @section('font_size', '8.5px')
 
-@section('doc_title', 'Key Fact Statement')
+@section('doc_title', ($passbookOnly ?? false) ? 'Collection Passbook' : 'Key Fact Statement')
 
 @section('doc_subtitle', $loan->loan_number)
 
@@ -48,6 +48,9 @@
         $unit = $weekly ? __('Week') : __('Day');
         $grievancePhone = $kfs['grievance_phone'] ?: config('app.office_phone');
     @endphp
+
+    {{-- customers see only the passbook for now ($passbookOnly) --}}
+    @unless ($passbookOnly ?? false)
 
     {{-- ===================== PART A: KEY FACT STATEMENT ===================== --}}
 
@@ -132,11 +135,13 @@
         </tr>
     </table>
 
+    @endunless
+
     {{-- ===================== PART B: COLLECTION PASSBOOK ===================== --}}
 
-    <div class="passbook-page">
+    <div @class(['passbook-page' => ! ($passbookOnly ?? false)])>
 
-        <div class="kfs-part">{{ __('Part B — Collection Passbook') }}</div>
+        <div class="kfs-part">{{ ($passbookOnly ?? false) ? __('Collection Passbook') : __('Part B — Collection Passbook') }}</div>
 
         <table class="passbook-head">
             <tr>
