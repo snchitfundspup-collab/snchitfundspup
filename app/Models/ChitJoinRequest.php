@@ -64,6 +64,7 @@ class ChitJoinRequest extends Model
                     'customer_id' => $customer->id,
                     'member_code' => ChitGroupMember::nextCodeFor($group, $customer),
                     'position' => (int) $group->members()->max('position') + 1,
+                    'agent_id' => $decidedBy->id,
                 ]);
             }
 

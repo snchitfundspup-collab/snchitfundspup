@@ -22,6 +22,7 @@
         ['finance.reports.show', 'calendar', 'day_book', 'Day Book', ['report' => 'day-book']],
         ['finance.reports.show', 'scale', 'profit_loss', 'Profit & Loss', ['report' => 'profit']],
         ['finance.reports.customer', 'users', 'customer_statement', 'Customer Statement'],
+        ['finance.reports.agent', 'user-check', 'agent_statement', 'Agent Statement'],
     ], 'finance.reports.*');
 
     $management = $menuGroup('financeExpensesSubmenu', 'wallet', 'green', 'menu_expenses', 'Expenses', [

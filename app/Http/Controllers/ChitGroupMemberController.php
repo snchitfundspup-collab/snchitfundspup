@@ -41,7 +41,7 @@ class ChitGroupMemberController extends Controller
                 ->limit(self::SEARCH_LIMIT)
                 ->get();
 
-        $members = $group->members()->with('customer')->get();
+        $members = $group->members()->with(['customer', 'agent'])->get();
 
         return view('groups.members', compact('group', 'members', 'results', 'search'));
     }
@@ -53,6 +53,7 @@ class ChitGroupMemberController extends Controller
     {
         $validated = $request->validate([
             'customer_id' => ['required', 'integer', Rule::exists('customers', 'id')->where('is_active', true)],
+            'agent_id' => ['nullable', 'integer', Rule::exists('users', 'id')],
         ], [
             'customer_id.exists' => 'Only active customers can be added to a group.',
         ]);
@@ -63,10 +64,11 @@ class ChitGroupMemberController extends Controller
             'customer_id' => $customer->id,
             'member_code' => ChitGroupMember::nextCodeFor($group, $customer),
             'position' => (int) $group->members()->max('position') + 1,
+            'agent_id' => $validated['agent_id'] ?? $request->user()->id,
         ]));
 
         return redirect()
-            ->route('groups.members.edit', array_filter(['group' => $group, 'q' => $request->input('q')]))
+            ->route('groups.members.edit', array_filter(['group' => $group, 'q' => $request->input('q'), 'agent' => $request->input('agent_id')]))
             ->with('success', "Added {$customer->name} as {$member->member_code}.");
     }
 

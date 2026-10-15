@@ -456,6 +456,14 @@
                 </a>
 
                 <a
+                    href="{{ route('reports.agent') }}"
+                    @class(['menu-subitem', 'active' => request()->routeIs('reports.agent*')])
+                >
+                    <x-icon name="users" />
+                    <span data-i18n="agent_statement">Agent Statement</span>
+                </a>
+
+                <a
                     href="{{ route('payments.ledger') }}"
                     class="menu-subitem"
                 >

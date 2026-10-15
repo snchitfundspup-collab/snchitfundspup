@@ -164,6 +164,8 @@
                     <p class="finance-plan" id="loanPlan" aria-live="polite" hidden></p>
                 </div>
 
+                @include('components.partials.agent-select', ['agentName' => 'agent_id', 'agentId' => 'agent_id', 'agentI18n' => 'agent_brought', 'agentLabel' => 'Agent (brought the customer)', 'agentClass' => 'group-field group-field-full'])
+
                 <div class="group-field group-field-full">
                     <label class="field-label" for="notes" data-i18n="notes">Notes</label>
                     <input type="text" id="notes" name="notes" class="input" maxlength="1000" value="{{ old('notes') }}">
