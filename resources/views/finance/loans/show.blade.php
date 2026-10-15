@@ -168,6 +168,7 @@
 
         <p class="finance-notes">
             <span data-i18n="given_by">Given by</span> {{ $loan->recorder?->name ?? '—' }}
+            · <span data-i18n="agent_word">Agent</span> {{ $loan->agent?->name ?? '—' }}
         </p>
 
     </section>
@@ -222,6 +223,8 @@
                         <input type="text" id="reference" name="reference" class="input" maxlength="100" value="{{ old('reference') }}">
                     </div>
 
+                    @include('components.partials.agent-select', ['agentName' => 'collected_by', 'agentId' => 'collected_by', 'agentI18n' => 'collected_by', 'agentLabel' => 'Collected by'])
+
                     <div class="group-field group-field-full">
                         <label class="field-label" for="notes" data-i18n="notes">Notes</label>
                         <input type="text" id="notes" name="notes" class="input" maxlength="1000" value="{{ old('notes') }}">
@@ -259,7 +262,7 @@
                         <th data-i18n="date_time">Date &amp; time</th>
                         <th data-i18n="receipt_no">Receipt No.</th>
                         <th data-i18n="payment_method">Payment method</th>
-                        <th data-i18n="recorded_by">Recorded by</th>
+                        <th data-i18n="collected_by">Collected by</th>
                         <th class="ledger-col-total" data-i18n="amount_word">Amount</th>
                         <th class="ledger-col-total" data-i18n="balance_word">Balance</th>
                     </tr>
@@ -274,7 +277,7 @@
                                 <a href="{{ route('finance.collections.show', $collection) }}" class="statement-receipt-link">{{ $collection->receipt_number }}</a>
                             </td>
                             <td data-label="Method">{{ $collection->methodLabel() }}@if ($collection->reference) · {{ $collection->reference }}@endif</td>
-                            <td data-label="Recorded by">{{ $collection->recorder?->name ?? '—' }}</td>
+                            <td data-label="Collected by">{{ $collection->collector?->name ?? $collection->recorder?->name ?? '—' }}</td>
                             <td class="ledger-col-total ledger-total-paid" data-label="Amount"><x-rupees :amount="$collection->amount" /></td>
                             <td @class(['ledger-col-total', 'ledger-total-due' => $running > 0]) data-label="Balance"><strong><x-rupees :amount="max(0, $running)" /></strong></td>
                         </tr>

@@ -55,6 +55,7 @@ class StoreCollectionRequest extends FormRequest
             'method' => ['required', Rule::in(array_keys(Payment::METHODS))],
             'reference' => ['nullable', 'string', 'max:100'],
             'notes' => ['nullable', 'string', 'max:1000'],
+            'collected_by' => ['nullable', 'integer', Rule::exists('users', 'id')],
         ];
     }
 

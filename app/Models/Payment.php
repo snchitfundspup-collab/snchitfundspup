@@ -37,6 +37,7 @@ class Payment extends Model
         'reference',
         'notes',
         'recorded_by',
+        'collected_by',
     ];
 
     /**
@@ -77,6 +78,7 @@ class Payment extends Model
                 'reference' => $details['reference'] ?? null,
                 'notes' => $details['notes'] ?? null,
                 'recorded_by' => $recordedBy?->id,
+                'collected_by' => $details['collected_by'] ?? $recordedBy?->id,
             ]);
 
             $payment->update(['receipt_number' => 'RC'.str_pad((string) $payment->id, 6, '0', STR_PAD_LEFT)]);
@@ -205,5 +207,15 @@ class Payment extends Model
     public function recorder(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recorded_by');
+    }
+
+    /**
+     * The staff member who collected the money.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function collector(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'collected_by');
     }
 }

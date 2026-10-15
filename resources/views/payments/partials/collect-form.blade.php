@@ -326,6 +326,11 @@
             </div>
 
 
+            {{-- COLLECTED BY --}}
+
+            @include('components.partials.agent-select', ['agentName' => 'collected_by', 'agentId' => 'collected_by', 'agentI18n' => 'collected_by', 'agentLabel' => 'Collected by'])
+
+
             {{-- NOTES --}}
 
             <div class="group-field group-field-full">
