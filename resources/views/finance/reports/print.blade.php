@@ -11,6 +11,10 @@
 
 @section('content')
 
+    @if ($agentName ?? null)
+        <p class="list-title">{{ __('Agent') }}: {{ $agentName }}</p>
+    @endif
+
     @include('finance.reports.partials.print-'.$report)
 
 @endsection

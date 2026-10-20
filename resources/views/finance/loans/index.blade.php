@@ -34,7 +34,7 @@
     <nav class="status-tabs" aria-label="Loans">
         @foreach (['active' => ['running_loans_tab', 'Running', $counts['active']], 'closed' => ['closed_word', 'Closed', $counts['closed']], 'all' => ['status_all', 'All', null]] as $tabStatus => [$tabKey, $tabLabel, $tabCount])
             <a
-                href="{{ route('finance.loans.index', array_filter(['status' => $tabStatus === 'active' ? null : $tabStatus, 'q' => $search])) }}"
+                href="{{ route('finance.loans.index', array_filter(['status' => $tabStatus === 'active' ? null : $tabStatus, 'q' => $search, 'agent' => request('agent')])) }}"
                 @class(['status-tab', 'active' => $status === $tabStatus])
                 @if ($status === $tabStatus) aria-current="page" @endif
             >
@@ -55,6 +55,7 @@
             <span class="member-search-icon"><x-icon name="search" /></span>
             <input type="search" name="q" class="member-search-input" value="{{ $search }}" placeholder="Search name, ID, phone or loan number" autocomplete="off">
         </div>
+        @include('components.partials.agent-filter', ['agentFilterSubmit' => true])
     </form>
 
 

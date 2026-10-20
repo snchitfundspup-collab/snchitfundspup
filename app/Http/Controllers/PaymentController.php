@@ -7,6 +7,7 @@ use App\Models\ChitGroup;
 use App\Models\ChitGroupMember;
 use App\Models\Customer;
 use App\Models\Payment;
+use App\Support\AgentFilter;
 use App\Support\ReportPdf as Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -132,6 +133,7 @@ class PaymentController extends Controller
             'method' => array_key_exists((string) $request->input('method'), Payment::METHODS) ? (string) $request->input('method') : '',
             'group' => $groupId,
             'group_name' => $groupId ? ChitGroup::whereKey($groupId)->value('name') : null,
+            'agent' => AgentFilter::selected($request),
             'from' => $from,
             'to' => $to,
             'range' => $range,
@@ -162,7 +164,8 @@ class PaymentController extends Controller
                 });
             })
             ->when($filters['method'] !== '', fn ($query) => $query->where('method', $filters['method']))
-            ->when($filters['group'], fn ($query) => $query->where('chit_group_id', $filters['group']));
+            ->when($filters['group'], fn ($query) => $query->where('chit_group_id', $filters['group']))
+            ->when($filters['agent'] ?? null, fn ($query) => $query->where('collected_by', $filters['agent']));
     }
 
     /**
@@ -267,7 +270,8 @@ class PaymentController extends Controller
             ])->find($request->integer('customer'))
             : null;
 
-        $seats = $customer === null ? $this->runningSeats($search) : collect();
+        $agent = AgentFilter::selected($request);
+        $seats = $customer === null ? $this->runningSeats($search, $agent) : collect();
 
         $tabCounts = [
             'pending' => $seats->filter(fn (ChitGroupMember $seat) => $this->isOnTab($seat, 'pending'))->count(),
@@ -286,7 +290,7 @@ class PaymentController extends Controller
             self::COLLECT_PER_PAGE,
             $page,
             ['path' => route('payments.create')],
-        ))->appends(array_filter(['q' => $search, 'tab' => $search === '' && $tab === 'due' ? 'due' : null]));
+        ))->appends(array_filter(['q' => $search, 'tab' => $search === '' && $tab === 'due' ? 'due' : null, 'agent' => $agent]));
 
         $member = $customer?->memberships->firstWhere('id', $request->integer('member'));
 
@@ -318,16 +322,18 @@ class PaymentController extends Controller
     /**
      * Seats in running groups with their collection status, matching the
      * search when there is one (customer name / ID / phone / identification,
-     * member ID or group name). Pending first, then due, then by name.
+     * member ID or group name) and the agent who brought them in when one
+     * is chosen. Pending first, then due, then by name.
      *
      * @return Collection<int, ChitGroupMember>
      */
-    private function runningSeats(string $search): Collection
+    private function runningSeats(string $search, ?int $agent = null): Collection
     {
         $order = ['pending' => 0, 'due' => 1, 'partial' => 1, 'upcoming' => 2, 'clear' => 3];
 
         return ChitGroupMember::query()
             ->whereHas('chitGroup', fn ($group) => $group->where('status', ChitGroup::STATUS_RUNNING))
+            ->when($agent, fn ($query) => $query->where('agent_id', $agent))
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
                     $query->whereHas('customer', fn ($customer) => $customer->search($search))

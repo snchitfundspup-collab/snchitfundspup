@@ -8,6 +8,7 @@ use App\Http\Requests\Finance\UpdateLoanRequest;
 use App\Models\Customer;
 use App\Models\FinanceCapital;
 use App\Models\FinanceLoan;
+use App\Support\AgentFilter;
 use App\Support\ReportPdf as Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -34,8 +35,11 @@ class LoanController extends Controller
     {
         $status = in_array($request->input('status'), self::STATUSES, true) ? $request->input('status') : 'active';
         $search = trim((string) $request->input('q', ''));
+        $agent = AgentFilter::selected($request);
 
-        $query = FinanceLoan::query()
+        $byAgent = FinanceLoan::query()->when($agent, fn ($query) => $query->where('agent_id', $agent));
+
+        $query = (clone $byAgent)
             ->when($status !== 'all', fn ($query) => $query->where('status', $status))
             ->when($search !== '', fn ($query) => $query->where(function ($query) use ($search) {
                 $query->where('loan_number', 'like', "%{$search}%")
@@ -55,8 +59,8 @@ class LoanController extends Controller
             'status' => $status,
             'search' => $search,
             'counts' => [
-                'active' => FinanceLoan::query()->where('status', FinanceLoan::STATUS_ACTIVE)->count(),
-                'closed' => FinanceLoan::query()->where('status', FinanceLoan::STATUS_CLOSED)->count(),
+                'active' => (clone $byAgent)->where('status', FinanceLoan::STATUS_ACTIVE)->count(),
+                'closed' => (clone $byAgent)->where('status', FinanceLoan::STATUS_CLOSED)->count(),
             ],
         ]);
     }

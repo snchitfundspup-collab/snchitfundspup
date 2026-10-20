@@ -46,7 +46,7 @@
     <nav class="status-tabs" aria-label="Collect">
         @foreach (['overdue' => ['overdue_word', 'Overdue'], 'due' => ['due_today', 'Due today'], 'all' => ['all_running', 'All running loans']] as $tabName => [$tabKey, $tabLabel])
             <a
-                href="{{ route('finance.collect', array_filter(['tab' => $tabName, 'q' => $search])) }}"
+                href="{{ route('finance.collect', array_filter(['tab' => $tabName, 'q' => $search, 'agent' => request('agent')])) }}"
                 @class(['status-tab', 'active' => $tab === $tabName, 'status-tab-pending' => $tabName === 'overdue'])
                 @if ($tab === $tabName) aria-current="page" @endif
             >
@@ -58,10 +58,14 @@
 
 
     <form method="GET" action="{{ route('finance.collect') }}" class="payment-filters" role="search">
+        @if (request('tab'))
+            <input type="hidden" name="tab" value="{{ request('tab') }}">
+        @endif
         <div class="member-search payment-filter-search">
             <span class="member-search-icon"><x-icon name="search" /></span>
             <input type="search" name="q" class="member-search-input" value="{{ $search }}" placeholder="Search name, ID, phone or loan number" autocomplete="off">
         </div>
+        @include('components.partials.agent-filter', ['agentFilterSubmit' => true])
     </form>
 
 
