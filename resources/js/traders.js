@@ -1,6 +1,6 @@
 /*
 |--------------------------------------------------------------------------
-| SN TRADERS — PAGE-SPECIFIC JAVASCRIPT
+| SRI LAKSHMI TRADERS — PAGE-SPECIFIC JAVASCRIPT
 |--------------------------------------------------------------------------
 | - Rice bill lines (purchase / sale): add and remove lines; choosing a
 |   variety fills its selling (sale) or purchase price; amount = bags ×

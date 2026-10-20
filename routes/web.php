@@ -64,7 +64,7 @@ Route::redirect('/admin', '/finance')->name('admin.home');
 
 Route::middleware('auth:web')->group(function () {
 
-    /* SN Chit Funds dashboard */
+    /* Sri Lakshmi Chit Funds dashboard */
     Route::get(
         '/admin/chit-funds',
         [DashboardController::class, 'index']
@@ -417,7 +417,7 @@ Route::middleware('auth:web')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | SN TRADERS (rice purchase & sales) — its own pages, customers shared
+    | SRI LAKSHMI TRADERS (rice purchase & sales) — its own pages, customers shared
     |--------------------------------------------------------------------------
     */
 
@@ -588,7 +588,7 @@ Route::prefix('my')->name('portal.')->group(function () {
         Route::middleware(EnsureCustomerChoseOwnPassword::class)->group(function () {
             Route::get('/', [Portal\DashboardController::class, 'index'])->name('dashboard');
 
-            /* SN Chit Funds (paused for customers unless PORTAL_SECTIONS has "chit") */
+            /* Sri Lakshmi Chit Funds (paused for customers unless PORTAL_SECTIONS has "chit") */
             Route::middleware(EnsurePortalSectionOpen::class.':'.EnsurePortalSectionOpen::CHIT)->group(function () {
                 Route::get('/groups', [Portal\ChitController::class, 'groups'])->name('groups');
                 Route::get('/groups/{member}', [Portal\ChitController::class, 'seat'])->name('groups.show');
@@ -601,7 +601,7 @@ Route::prefix('my')->name('portal.')->group(function () {
                 Route::post('/join-requests/{joinRequest}/withdraw', [Portal\ChitController::class, 'withdrawInterest'])->name('upcoming.withdraw');
             });
 
-            /* SN Traders (paused for customers unless PORTAL_SECTIONS has "traders") */
+            /* Sri Lakshmi Traders (paused for customers unless PORTAL_SECTIONS has "traders") */
             Route::middleware(EnsurePortalSectionOpen::class.':'.EnsurePortalSectionOpen::TRADERS)->group(function () {
                 Route::get('/rice', [Portal\TradersController::class, 'rice'])->name('rice');
                 Route::get('/orders', [Portal\TradersController::class, 'orders'])->name('orders');

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Invoice '.$sale->invoice_number.' | SN Traders')
+@section('title', 'Invoice '.$sale->invoice_number.' | Sri Lakshmi Traders')
 
 @push('styles')
     @vite([

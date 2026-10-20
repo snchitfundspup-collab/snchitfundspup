@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Pending & Due | SN Chit Funds')
+@section('title', 'Pending & Due | Sri Lakshmi Chit Funds')
 
 @push('styles')
     @vite([

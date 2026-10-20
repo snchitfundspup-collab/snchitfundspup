@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
 /**
- * SN Traders: a rice order a customer places from their own pages (bags of
+ * Sri Lakshmi Traders: a rice order a customer places from their own pages (bags of
  * each variety at the selling price of the day). The office turns it into a
  * sale — the invoice is the real bill — or cancels it.
  */

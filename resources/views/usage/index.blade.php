@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Usage | SN '.($business['name'] ?? 'Chit Funds'))
+@section('title', 'Usage | Sri Lakshmi '.($business['name'] ?? 'Chit Funds'))
 
 @push('styles')
     @vite([

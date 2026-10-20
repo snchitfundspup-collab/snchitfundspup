@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Support\AgentFilter;
 use Database\Seeders\AdminUserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -13,7 +14,7 @@ test('the login page renders for guests', function () {
         ->assertSee('Password');
 });
 
-test('the login pages carry Sri Lakshmi; SN Chit Funds pages keep the SN site icon', function () {
+test('the login pages and every business carry the Sri Lakshmi name and lotus icon', function () {
     foreach (['favicon.ico', 'icon-192.png', 'apple-touch-icon.png', 'favicon-sl.ico', 'favicon-16-sl.png', 'favicon-32-sl.png', 'apple-touch-icon-sl.png'] as $icon) {
         expect(filesize(public_path($icon)))->toBeGreaterThan(0);
     }
@@ -26,7 +27,23 @@ test('the login pages carry Sri Lakshmi; SN Chit Funds pages keep the SN site ic
 
     $this->actingAs(User::factory()->create())
         ->get(route('dashboard'))
-        ->assertSee(asset('icon-192.png'), false);
+        ->assertSeeText('Sri Lakshmi')
+        ->assertSee(asset('images/sri-lakshmi-logo.png'), false)
+        ->assertSee(asset('icon-192-sl.png'), false)
+        ->assertDontSee('sn-chit-funds-logo', false);
+});
+
+test('removed staff cannot sign in, are signed out, and leave the staff dropdowns', function () {
+    $narayanan = User::factory()->create(['name' => 'Narayanan', 'username' => 'narayanan', 'password' => 'secret123', 'is_active' => false]);
+    User::factory()->create(['name' => 'Ranjith', 'username' => 'ranjith', 'password' => 'secret123']);
+
+    $this->post(route('login.store'), ['username' => 'narayanan', 'password' => 'secret123'])->assertSessionHasErrors();
+    $this->assertGuest('web');
+
+    $this->actingAs($narayanan, 'web')->get(route('finance.dashboard'))->assertRedirect(route('login'));
+    $this->assertGuest('web');
+
+    expect(AgentFilter::staff()->values()->all())->toBe(['Ranjith']);
 });
 
 test('guests are redirected to login from admin pages', function (string $routeName) {
@@ -119,11 +136,11 @@ test('an admin can log out', function () {
     $this->assertGuest();
 });
 
-test('the admin seeder creates Narayanan, Sathiya, Ranjith, Dinesh and Nishanth once', function () {
+test('the admin seeder creates Sathiya, Ranjith, Dinesh and Nishanth once (Narayanan was removed)', function () {
     $this->seed(AdminUserSeeder::class);
     $this->seed(AdminUserSeeder::class);
 
     expect(User::pluck('username')->sort()->values()->all())
-        ->toBe(['dinesh', 'narayanan', 'nishanth', 'ranjith', 'sathiya'])
+        ->toBe(['dinesh', 'nishanth', 'ranjith', 'sathiya'])
         ->and(User::where('can_view_usage', true)->pluck('username')->all())->toBe(['sathiya']);
 });

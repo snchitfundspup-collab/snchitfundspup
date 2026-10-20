@@ -21,7 +21,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
- * SN Chit Funds for a signed-in customer: the groups they are in (month by
+ * Sri Lakshmi Chit Funds for a signed-in customer: the groups they are in (month by
  * month payments, receipts, prize and withdrawal plan), the statement, and
  * the groups that are forming (upcoming). On an upcoming group they can say
  * they want to join; the office decides (Join Requests). Family members

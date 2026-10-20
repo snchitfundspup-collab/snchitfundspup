@@ -1,4 +1,4 @@
-{{-- Top of the side menu: switch between SN Chit Funds, SN Traders and
+{{-- Top of the side menu: switch between Sri Lakshmi Chit Funds, Sri Lakshmi Traders and
      Sri Lakshmi Micro Finance. --}}
 
 @php
@@ -8,8 +8,8 @@
 <div class="business-switch business-switch-three" role="group" aria-label="Business">
 
     @foreach ([
-        'chit' => ['dashboard', 'layers', 'SN', 'Chit Funds'],
-        'traders' => ['traders.dashboard', 'package', 'SN', 'Traders'],
+        'chit' => ['dashboard', 'layers', 'Sri Lakshmi', 'Chit Funds'],
+        'traders' => ['traders.dashboard', 'package', 'Sri Lakshmi', 'Traders'],
         'finance' => ['finance.dashboard', 'wallet', 'Sri Lakshmi', 'Micro Finance'],
     ] as $key => [$home, $icon, $prefix, $name])
         <a

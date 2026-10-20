@@ -1,4 +1,4 @@
-{{-- Printable stock list (SN Traders). --}}
+{{-- Printable stock list (Sri Lakshmi Traders). --}}
 @extends('layouts.print')
 
 @section('title', 'Stock')

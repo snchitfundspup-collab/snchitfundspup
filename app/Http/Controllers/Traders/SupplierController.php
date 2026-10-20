@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Suppliers (SN Traders → Masters): mills and wholesalers rice is bought from.
+ * Suppliers (Sri Lakshmi Traders → Masters): mills and wholesalers rice is bought from.
  */
 class SupplierController extends Controller
 {

@@ -20,7 +20,7 @@ class AgentFilter
      */
     public static function staff(): Collection
     {
-        return User::query()->orderBy('name')->pluck('name', 'id');
+        return User::query()->active()->orderBy('name')->pluck('name', 'id');
     }
 
     /**

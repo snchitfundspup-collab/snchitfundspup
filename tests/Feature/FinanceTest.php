@@ -444,9 +444,9 @@ test('on its own domain, staff land on Micro Finance and customers see its name'
     $this->get('http://snchitfunds.com/')->assertOk()->assertSeeText('See your chit groups');
 });
 
-test('Micro Finance pages and the customer pages use the Sri Lakshmi tab icon; SN pages keep theirs', function () {
+test('every business and the customer pages use the Sri Lakshmi tab icon', function () {
     $this->get(route('finance.dashboard'))->assertSee('favicon-sl.ico', false);
-    $this->get(route('dashboard'))->assertSee('favicon.ico', false)->assertDontSee('favicon-sl.ico', false);
+    $this->get(route('dashboard'))->assertSee('favicon-sl.ico', false)->assertDontSee('/favicon.ico', false);
 
     auth('web')->logout();
     $this->get(route('portal.login'))->assertSee('favicon-sl.ico', false)->assertSee('apple-touch-icon-sl.png', false);

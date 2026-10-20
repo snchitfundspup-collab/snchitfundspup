@@ -1,18 +1,10 @@
-{{-- Site icons for every page's <head>. SN pages: a bold gold "SN" on
-     peacock blue (favicon.ico, icon-192.png) so it reads at 16 px, and the
-     full SN logo on the iPhone home screen. Sri Lakshmi Micro Finance (its
-     office pages and prints, its own domain, and the customer pages while
-     only Micro Finance is open to customers, and both login pages): a lotus drawn for each
-     size (favicon-16-sl.png, favicon-32-sl.png, *-sl files). --}}
+{{-- Site icons for every page's <head>: the Sri Lakshmi lotus, drawn for
+     each size (favicon-16-sl.png, favicon-32-sl.png, *-sl files). Every
+     business carries the Sri Lakshmi brand since Oct 2026. --}}
 
 @php
-    $sriLakshmiIcons = (($business['key'] ?? null) === 'finance')
-        || (($companyName ?? null) === 'Micro Finance')
-        || \App\Http\Middleware\SetBusinessContext::onFinanceDomain(request())
-        || request()->routeIs('login', 'portal.login')
-        || (request()->is('/', 'my', 'my/*') && \App\Http\Middleware\EnsurePortalSectionOpen::financeOnly());
-
-    $iconSuffix = $sriLakshmiIcons ? '-sl' : '';
+    $sriLakshmiIcons = true;
+    $iconSuffix = '-sl';
 @endphp
 @if ($sriLakshmiIcons)
     {{-- sharp images drawn for each tab size, so the browser does not shrink the big one (blurry) --}}

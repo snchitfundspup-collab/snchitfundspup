@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard | SN Chit Funds')
+@section('title', 'Dashboard | Sri Lakshmi Chit Funds')
 
 @push('styles')
     @vite('resources/css/dashboard.css')
@@ -48,7 +48,7 @@
                 class="dashboard-subtitle"
                 data-i18n="dashboard_subtitle"
             >
-                Here's what's happening with SN Chit Funds today.
+                Here's what's happening with Sri Lakshmi Chit Funds today.
             </p>
 
         </div>
@@ -106,7 +106,7 @@
             <span>
                 <strong>{{ $newRiceOrders }}</strong>
                 <span data-i18n="{{ $newRiceOrders === 1 ? 'new_order_waiting' : 'new_orders_waiting' }}">{{ $newRiceOrders === 1 ? 'new order from a customer' : 'new orders from customers' }}</span>
-                · <span class="business-switch-sn">SN</span> Traders
+                · <span class="business-switch-sn">Sri Lakshmi</span> Traders
             </span>
             <x-icon name="arrow-right" />
         </a>

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Customer Balances | SN Traders')
+@section('title', 'Customer Balances | Sri Lakshmi Traders')
 
 @push('styles')
     @vite([
@@ -24,7 +24,7 @@
     <div class="groups-list-header">
         <div>
             <h1 class="groups-title" data-i18n="customer_balances">Customer Balances</h1>
-            <p class="groups-subtitle" data-i18n="balances_subtitle">What each customer owes SN Traders — sales minus money received.</p>
+            <p class="groups-subtitle" data-i18n="balances_subtitle">What each customer owes Sri Lakshmi Traders — sales minus money received.</p>
         </div>
         <div class="ledger-actions">
             <a href="{{ route('traders.balances.print', $query) }}" class="group-action" target="_blank" rel="noopener">

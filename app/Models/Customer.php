@@ -321,7 +321,7 @@ class Customer extends Authenticatable
     }
 
     /**
-     * SN Traders: rice sold to this customer.
+     * Sri Lakshmi Traders: rice sold to this customer.
      *
      * @return HasMany<Sale, $this>
      */
@@ -331,7 +331,7 @@ class Customer extends Authenticatable
     }
 
     /**
-     * SN Traders: money received from this customer.
+     * Sri Lakshmi Traders: money received from this customer.
      *
      * @return HasMany<TraderReceipt, $this>
      */
@@ -341,7 +341,7 @@ class Customer extends Authenticatable
     }
 
     /**
-     * SN Traders: what the customer still owes (sales minus money received;
+     * Sri Lakshmi Traders: what the customer still owes (sales minus money received;
      * below zero is an advance).
      */
     public function traderBalance(): float
@@ -360,7 +360,7 @@ class Customer extends Authenticatable
     }
 
     /**
-     * SN Traders: rice orders placed from the customer's own pages.
+     * Sri Lakshmi Traders: rice orders placed from the customer's own pages.
      *
      * @return HasMany<TraderOrder, $this>
      */

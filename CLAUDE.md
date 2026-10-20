@@ -4,6 +4,8 @@ These notes are shared between the office and home computers through git, so any
 
 ## What the app is
 
+**Brand (since 20 Oct 2026): everything is Sri Lakshmi** — Sri Lakshmi Chit Funds, Sri Lakshmi Traders, Sri Lakshmi Micro Finance; every business uses the lotus logo (`images/sri-lakshmi-logo.png`) and the `-sl` tab icons. The old SN logo / icons stay in `public/` unused. Old customer IDs keep their SN… codes. **Narayanan was removed** (`users.is_active` false, migration `add_is_active_to_users_table`): he cannot sign in (`LoginRequest` checks `is_active`, `EnsureStaffIsActive` signs out a removed person), is left out of staff dropdowns (`User::active()`), and his old entries keep his name and signature.
+
 One Laravel 13 / PHP 8.4 app (Blade, per-page CSS/JS through Vite, DomPDF) running three businesses, worked by **Narayanan** and **Sathiya** (the staff sign-ins). **No partnership: each business keeps its whole profit** — nothing is split between people (owners' decision):
 
 - **SN Chit Funds** — chit groups, members (seats), monthly collection, draws/payouts.

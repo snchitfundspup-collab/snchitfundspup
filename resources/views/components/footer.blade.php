@@ -3,12 +3,12 @@
     <a
         href="{{ route($business['home'] ?? 'dashboard') }}"
         class="footer-brand brand-link"
-        aria-label="{{ $business['full_name'] ?? 'SN Chit Funds' }} – go to Home"
+        aria-label="{{ $business['full_name'] ?? 'Sri Lakshmi Chit Funds' }} – go to Home"
     >
 
         <div class="footer-logo logo-3d">
             <img
-                src="{{ asset($business['logo'] ?? 'images/sn-chit-funds-logo.png') }}"
+                src="{{ asset($business['logo'] ?? 'images/sri-lakshmi-logo.png') }}"
                 alt=""
             >
         </div>
@@ -16,7 +16,7 @@
         <div>
 
             <div class="footer-name">
-                <span>{{ $business['prefix'] ?? 'SN' }}</span> {{ $business['name'] ?? 'Chit Funds' }}
+                <span>{{ $business['prefix'] ?? 'Sri Lakshmi' }}</span> {{ $business['name'] ?? 'Chit Funds' }}
             </div>
 
             <div class="footer-tagline" data-i18n="{{ $business['tagline_key'] ?? 'brand_tagline' }}">

@@ -208,7 +208,7 @@ test('the customer statement finder lists customers who bought rice', function (
         ->assertDontSeeText('Kumar Hotel');
 });
 
-test('the reports menu is in SN Traders and unknown reports are not found', function () {
+test('the reports menu is in Sri Lakshmi Traders and unknown reports are not found', function () {
     $this->get(route('traders.reports.show', 'profit'))
         ->assertSee('id="tradersReportsSubmenu"', false)
         ->assertSee(route('traders.reports.show', 'day-book'));

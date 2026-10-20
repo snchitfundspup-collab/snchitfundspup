@@ -20,7 +20,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
- * SN Traders for a signed-in customer: the rice on sale (cards) to order
+ * Sri Lakshmi Traders for a signed-in customer: the rice on sale (cards) to order
  * from, their orders, and their bills — invoices, receipts and statement.
  * Family members sharing the phone are shown together; each bill statement
  * is per person.
