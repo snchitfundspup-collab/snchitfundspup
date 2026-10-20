@@ -101,7 +101,7 @@ return [
 
     /*
     | Which businesses customers see on their own pages (comma separated:
-    | chit, traders, finance). SN Chit Funds and SN Traders are paused for
+    | chit, traders, finance). Sri Lakshmi Chit Funds and Sri Lakshmi Traders are paused for
     | now, so customers see only Sri Lakshmi Micro Finance.
     */
 

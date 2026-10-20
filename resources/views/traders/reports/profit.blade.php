@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Profit & Loss | SN Traders')
+@section('title', 'Profit & Loss | Sri Lakshmi Traders')
 
 @push('styles')
     @vite([

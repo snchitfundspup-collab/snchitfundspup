@@ -3,7 +3,7 @@
      month-by-month totals for a period. --}}
 @extends('layouts.app')
 
-@section('title', 'Agent Statement | '.($isFinance ? 'Sri Lakshmi Micro Finance' : 'SN Chit Funds'))
+@section('title', 'Agent Statement | '.($isFinance ? 'Sri Lakshmi Micro Finance' : 'Sri Lakshmi Chit Funds'))
 
 @push('styles')
     @vite([

@@ -5,7 +5,7 @@
 @php
     $localNow = now(config('app.business_timezone'));
 
-    /* SN Chit Funds and SN Traders are paused for customers for now (PORTAL_SECTIONS) */
+    /* Sri Lakshmi Chit Funds and Sri Lakshmi Traders are paused for customers for now (PORTAL_SECTIONS) */
     $financeOpen = \App\Http\Middleware\EnsurePortalSectionOpen::isOpen('finance');
     $chitOpen = \App\Http\Middleware\EnsurePortalSectionOpen::isOpen('chit');
     $tradersOpen = \App\Http\Middleware\EnsurePortalSectionOpen::isOpen('traders');
@@ -161,11 +161,11 @@
 
     @if ($tradersOpen)
 
-    {{-- SN TRADERS: rice balance, orders and the rice to buy --}}
+    {{-- SRI LAKSHMI TRADERS: rice balance, orders and the rice to buy --}}
 
     <section class="portal-section">
         <div class="portal-section-head">
-            <h2><span class="business-switch-sn">SN</span> Traders</h2>
+            <h2><span class="business-switch-sn">Sri Lakshmi</span> Traders</h2>
             <a href="{{ route('portal.rice') }}" class="portal-see-all"><span data-i18n="order_rice">Order rice</span> <x-icon name="arrow-right" /></a>
         </div>
 

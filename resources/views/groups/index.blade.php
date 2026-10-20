@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Groups | SN Chit Funds')
+@section('title', 'Groups | Sri Lakshmi Chit Funds')
 
 @push('styles')
     @vite('resources/css/groups.css')

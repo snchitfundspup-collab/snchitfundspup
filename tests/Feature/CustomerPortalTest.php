@@ -24,7 +24,7 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->travelTo(now()->setDate(2026, 10, 20)->setTime(10, 0));
 
-    /* these tests cover SN Chit Funds and SN Traders on the customer pages, paused for customers by default */
+    /* these tests cover Sri Lakshmi Chit Funds and Sri Lakshmi Traders on the customer pages, paused for customers by default */
     config(['app.portal_sections' => ['chit', 'traders', 'finance']]);
 
     $this->customer = Customer::factory()->create(['name' => 'Lakshmi', 'phone' => '+91 98765 43210', 'remarks' => 'Teacher']);
@@ -77,7 +77,7 @@ test('a customer signs in with their phone number and their password', function 
         ->assertSeeTextInOrder(['Next due', 'Month 2', '15 Oct 2026'])
         ->assertDontSeeText('15 Oct – 14 Nov')
         ->assertDontSeeText('Chit — to pay now')
-        ->assertSeeTextInOrder(['SN Traders', 'Rice — balance', 'My Orders']);
+        ->assertSeeTextInOrder(['Sri Lakshmi Traders', 'Rice — balance', 'My Orders']);
 });
 
 test('signed in with the default password, a customer must choose their own before anything else', function () {

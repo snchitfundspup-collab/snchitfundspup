@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Money SN Traders received from a customer — at a sale or later against
+ * Money Sri Lakshmi Traders received from a customer — at a sale or later against
  * their credit.
  */
 class TraderReceipt extends Model

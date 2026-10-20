@@ -64,7 +64,7 @@ function saleInput(array $overrides = []): array
     ], $overrides);
 }
 
-test('guests cannot open SN Traders', function () {
+test('guests cannot open Sri Lakshmi Traders', function () {
     auth()->logout();
 
     $this->get(route('traders.dashboard'))->assertRedirect(route('login'));
@@ -75,22 +75,22 @@ test('each dashboard switches to the other business and the menu follows', funct
     $this->get(route('dashboard'))
         ->assertOk()
         ->assertSee(route('traders.dashboard'))
-        ->assertSee('<span>SN</span> Chit Funds', false)
+        ->assertSee('<span>Sri Lakshmi</span> Chit Funds', false)
         ->assertSee('id="groupsSubmenu"', false);
 
     $this->get(route('traders.dashboard'))
         ->assertOk()
-        ->assertSee('<span>SN</span> Traders', false)
+        ->assertSee('<span>Sri Lakshmi</span> Traders', false)
         ->assertSee('id="tradersSalesSubmenu"', false)
         ->assertSee('id="tradersExpensesSubmenu"', false)
         ->assertDontSee('id="groupsSubmenu"', false)
         ->assertSee(route('dashboard'));
 
     /* shared pages (customers) keep the business last opened */
-    $this->get(route('customers.index'))->assertSee('<span>SN</span> Traders', false);
+    $this->get(route('customers.index'))->assertSee('<span>Sri Lakshmi</span> Traders', false);
 
     $this->get(route('dashboard'));
-    $this->get(route('customers.index'))->assertSee('<span>SN</span> Chit Funds', false);
+    $this->get(route('customers.index'))->assertSee('<span>Sri Lakshmi</span> Chit Funds', false);
 });
 
 test('rice varieties and suppliers can be added, edited and protected once used', function () {

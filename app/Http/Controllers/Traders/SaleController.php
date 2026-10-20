@@ -20,7 +20,7 @@ use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 /**
- * Sales (SN Traders): rice sold to customers (the shared customer list).
+ * Sales (Sri Lakshmi Traders): rice sold to customers (the shared customer list).
  * Money taken at the sale is a linked receipt; the rest is the customer's
  * credit. The list opens on this month; each invoice prints / downloads.
  */

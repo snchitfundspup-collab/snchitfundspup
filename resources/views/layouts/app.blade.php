@@ -19,7 +19,7 @@
     @include('components.partials.site-icons')
 
     <title>
-        @yield('title', 'SN Chit Funds')
+        @yield('title', 'Sri Lakshmi Chit Funds')
     </title>
 
 

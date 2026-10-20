@@ -22,7 +22,7 @@ use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 /**
- * Reports (SN Traders): which rice sells fastest, profit & loss, customer
+ * Reports (Sri Lakshmi Traders): which rice sells fastest, profit & loss, customer
  * dues by age, the day book and a customer statement finder. Each report
  * shows on screen, prints and downloads as a PDF.
  */

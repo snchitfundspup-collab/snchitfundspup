@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 /**
- * Agent Statement (SN Chit Funds and Sri Lakshmi Micro Finance): for one
+ * Agent Statement (Sri Lakshmi Chit Funds and Sri Lakshmi Micro Finance): for one
  * staff member and a period, the customers they brought in (chit seats /
  * loans, with what is collected and left), every receipt they collected,
  * the day-by-day totals and the month-by-month totals. The business comes
@@ -49,7 +49,7 @@ class AgentStatementController extends Controller
     private function build(Request $request): array
     {
         $isFinance = $request->routeIs('finance.*');
-        $staff = User::query()->orderBy('name')->get(['id', 'name']);
+        $staff = User::query()->active()->orderBy('name')->get(['id', 'name']);
         $agent = $staff->firstWhere('id', $request->integer('agent')) ?? $staff->firstWhere('id', $request->user()->id) ?? $staff->first();
 
         [$from, $to, $rangeKey] = ExpenseController::dateRange($request, 'month');

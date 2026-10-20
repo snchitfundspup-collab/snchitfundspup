@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Customer Orders (SN Traders): rice orders customers placed from their own
+ * Customer Orders (Sri Lakshmi Traders): rice orders customers placed from their own
  * pages. "Make sale" opens New Sale filled in from the order; saving that
  * sale completes the order. Orders can also be cancelled.
  */

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Draw – '.$draw->chitGroup->name.' Month '.$draw->month_number.' | SN Chit Funds')
+@section('title', 'Draw – '.$draw->chitGroup->name.' Month '.$draw->month_number.' | Sri Lakshmi Chit Funds')
 
 @push('styles')
     @vite([

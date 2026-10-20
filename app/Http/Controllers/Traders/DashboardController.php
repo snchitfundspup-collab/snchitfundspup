@@ -10,7 +10,7 @@ use App\Models\TraderReceipt;
 use Illuminate\View\View;
 
 /**
- * SN Traders home: today's and this month's sales, money received,
+ * Sri Lakshmi Traders home: today's and this month's sales, money received,
  * purchases, customer credit, stock and the latest invoices.
  */
 class DashboardController extends Controller

@@ -1,4 +1,4 @@
-{{-- Side menu for SN Traders (rice purchase and sales). --}}
+{{-- Side menu for Sri Lakshmi Traders (rice purchase and sales). --}}
 
 @php
     $menuGroup = function (string $id, string $icon, string $colour, string $i18n, string $label, array $items, array|string $active) {

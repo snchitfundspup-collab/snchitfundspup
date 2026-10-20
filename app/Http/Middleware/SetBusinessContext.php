@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * The app runs three businesses: SN Chit Funds, SN Traders (rice) and Sri
+ * The app runs three businesses: Sri Lakshmi Chit Funds, Sri Lakshmi Traders (rice) and Sri
  * Lakshmi Micro Finance (loans). Traders pages (traders.*), Micro Finance
  * pages (finance.*) and Chit Funds pages set which one is open; shared
  * pages (customers, change password) keep the last one. Every view gets
@@ -27,26 +27,26 @@ class SetBusinessContext
         'chit' => [
             'key' => 'chit',
             'name' => 'Chit Funds',
-            'full_name' => 'SN Chit Funds',
-            'prefix' => 'SN',
+            'full_name' => 'Sri Lakshmi Chit Funds',
+            'prefix' => 'Sri Lakshmi',
             'company' => 'Chit Funds',
             'home' => 'dashboard',
             'tagline_key' => 'brand_tagline',
             'tagline' => 'Trust · Growth · Together',
-            'logo' => 'images/sn-chit-funds-logo.png',
-            'pdf_logo' => 'images/sn-chit-funds-logo-pdf.png',
+            'logo' => 'images/sri-lakshmi-logo.png',
+            'pdf_logo' => 'images/sri-lakshmi-logo.png',
         ],
         'traders' => [
             'key' => 'traders',
             'name' => 'Traders',
-            'full_name' => 'SN Traders',
-            'prefix' => 'SN',
+            'full_name' => 'Sri Lakshmi Traders',
+            'prefix' => 'Sri Lakshmi',
             'company' => 'Traders',
             'home' => 'traders.dashboard',
             'tagline_key' => 'traders_tagline',
             'tagline' => 'Quality Rice · Fair Price',
-            'logo' => 'images/sn-chit-funds-logo.png',
-            'pdf_logo' => 'images/sn-chit-funds-logo-pdf.png',
+            'logo' => 'images/sri-lakshmi-logo.png',
+            'pdf_logo' => 'images/sri-lakshmi-logo.png',
         ],
         'finance' => [
             'key' => 'finance',

@@ -10,7 +10,7 @@
         <div>
             @include('portal.partials.back')
             <h1 class="groups-title" data-i18n="my_bills">Bills &amp; Statement</h1>
-            <p class="groups-subtitle" data-i18n="my_bills_subtitle">Every rice bill and payment with SN Traders, and what is left to pay. Tap a bill to download it.</p>
+            <p class="groups-subtitle" data-i18n="my_bills_subtitle">Every rice bill and payment with Sri Lakshmi Traders, and what is left to pay. Tap a bill to download it.</p>
         </div>
         <div class="ledger-actions">
             <a href="{{ route('portal.bills.statement.print', ['customer' => $family->count() > 1 ? $customer->id : null]) }}" class="group-action" target="_blank" rel="noopener">

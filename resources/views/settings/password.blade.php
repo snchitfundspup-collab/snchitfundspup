@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Change Password | SN Chit Funds')
+@section('title', 'Change Password | Sri Lakshmi Chit Funds')
 
 @push('styles')
     @vite([

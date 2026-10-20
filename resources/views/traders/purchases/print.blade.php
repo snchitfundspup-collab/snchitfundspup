@@ -1,4 +1,4 @@
-{{-- Printable purchases list (SN Traders). --}}
+{{-- Printable purchases list (Sri Lakshmi Traders). --}}
 @extends('layouts.print')
 
 @section('title', 'Purchases')

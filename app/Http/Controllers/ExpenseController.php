@@ -18,8 +18,8 @@ use Illuminate\View\View;
 /**
  * Expenses (Management): business spending paid by the partners. The list
  * opens on this month; date ranges, partner and search narrow it, with
- * totals by partner, print and PDF. The same screens serve SN Chit Funds
- * (expenses table), SN Traders (trader_expenses, routes traders.*) and Sri
+ * totals by partner, print and PDF. The same screens serve Sri Lakshmi Chit Funds
+ * (expenses table), Sri Lakshmi Traders (trader_expenses, routes traders.*) and Sri
  * Lakshmi Micro Finance (finance_expenses, routes finance.*).
  */
 class ExpenseController extends Controller
@@ -32,7 +32,7 @@ class ExpenseController extends Controller
     private const REPORT_LIMIT = 3000;
 
     /**
-     * Expense (chit fund), TraderExpense (SN Traders) or FinanceExpense
+     * Expense (chit fund), TraderExpense (Sri Lakshmi Traders) or FinanceExpense
      * (Micro Finance), set per request.
      *
      * @var class-string<Expense>

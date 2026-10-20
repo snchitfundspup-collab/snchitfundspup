@@ -1,4 +1,4 @@
-{{-- A customer's SN Traders statement as a printable page (same body as
+{{-- A customer's Sri Lakshmi Traders statement as a printable page (same body as
      the PDF). --}}
 @extends('layouts.print', ['companyName' => 'Traders'])
 

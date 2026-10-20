@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Winners Report'.($selectedGroup ? ' – '.$selectedGroup->name : '').' | SN Chit Funds')
+@section('title', 'Winners Report'.($selectedGroup ? ' – '.$selectedGroup->name : '').' | Sri Lakshmi Chit Funds')
 
 @push('styles')
     @vite([
@@ -129,12 +129,12 @@
 
                 <img
                     class="receipt-logo"
-                    src="{{ asset('images/sn-chit-funds-logo.png') }}"
-                    alt="SN Chit Funds"
+                    src="{{ asset('images/sri-lakshmi-logo.png') }}"
+                    alt="Sri Lakshmi Chit Funds"
                 >
 
                 <div>
-                    <strong class="receipt-company"><span>SN</span> Chit Funds</strong>
+                    <strong class="receipt-company"><span>Sri Lakshmi</span> Chit Funds</strong>
                     <span class="receipt-tagline">Trust · Growth · Together</span>
                 </div>
 
