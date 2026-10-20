@@ -48,6 +48,13 @@ document.addEventListener('DOMContentLoaded', function () {
             url.searchParams.set('q', term);
         }
 
+        /* keep the chosen agent while searching */
+        const agent = new URL(window.location.href).searchParams.get('agent');
+
+        if (agent) {
+            url.searchParams.set('agent', agent);
+        }
+
         try {
 
             const response = await fetch(url.toString(), {

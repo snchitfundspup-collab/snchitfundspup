@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\FinanceCollection;
 use App\Models\FinanceExpense;
 use App\Models\FinanceLoan;
+use App\Support\AgentFilter;
 use App\Support\ReportPdf as Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -140,10 +141,13 @@ class ReportController extends Controller
             $filters = ['q' => '', 'from' => $from, 'to' => $to, 'range' => $rangeKey];
         }
 
+        /* agent: loans they brought in, receipts they collected (not on Profit & Loss) */
+        $agent = $report === 'profit' ? null : AgentFilter::selected($request);
+
         $data = match ($report) {
-            'outstanding' => $this->outstanding(),
-            'overdue' => $this->overdue(),
-            'day-book' => $this->dayBook($filters),
+            'outstanding' => $this->outstanding($agent),
+            'overdue' => $this->overdue($agent),
+            'day-book' => $this->dayBook($filters, $agent),
             'profit' => $this->profit($filters),
         };
 
@@ -151,6 +155,8 @@ class ReportController extends Controller
             'companyName' => 'Micro Finance',
             'report' => $report,
             'title' => self::REPORTS[$report]['title'],
+            'agent' => $agent,
+            'agentName' => $agent ? AgentFilter::staff()->get($agent) : null,
             'filters' => $filters,
             'ranges' => ExpenseController::quickRanges(),
             'today' => today(config('app.business_timezone')),
@@ -162,9 +168,9 @@ class ReportController extends Controller
      *
      * @return array<string, mixed>
      */
-    private function outstanding(): array
+    private function outstanding(?int $agent = null): array
     {
-        $rows = CollectionController::runningLoans()
+        $rows = CollectionController::runningLoans($agent)
             ->sortBy([
                 fn (array $a, array $b) => strcmp($a['loan']->customer->name, $b['loan']->customer->name),
                 fn (array $a, array $b) => $a['loan']->id <=> $b['loan']->id,
@@ -190,9 +196,9 @@ class ReportController extends Controller
      *
      * @return array<string, mixed>
      */
-    private function overdue(): array
+    private function overdue(?int $agent = null): array
     {
-        $rows = CollectionController::runningLoans()->where('standing.state', 'overdue')->values();
+        $rows = CollectionController::runningLoans($agent)->where('standing.state', 'overdue')->values();
 
         $lastPaid = FinanceCollection::query()->toBase()
             ->whereIn('finance_loan_id', $rows->pluck('loan.id'))
@@ -219,12 +225,16 @@ class ReportController extends Controller
      * @param  array{from: string, to: string}  $filters
      * @return array<string, mixed>
      */
-    private function dayBook(array $filters): array
+    private function dayBook(array $filters, ?int $agent = null): array
     {
         $between = [$filters['from'].' 00:00:00', $filters['to'].' 23:59:59'];
 
-        $loans = FinanceLoan::query()->with('customer')->whereBetween('loaned_on', $between)->orderBy('loaned_on')->orderBy('id')->get();
-        $collections = FinanceCollection::query()->with(['customer', 'loan'])->whereBetween('collected_at', $between)->orderBy('collected_at')->orderBy('id')->get();
+        $loans = FinanceLoan::query()->with('customer')->whereBetween('loaned_on', $between)
+            ->when($agent, fn ($query) => $query->where('agent_id', $agent))
+            ->orderBy('loaned_on')->orderBy('id')->get();
+        $collections = FinanceCollection::query()->with(['customer', 'loan'])->whereBetween('collected_at', $between)
+            ->when($agent, fn ($query) => $query->where('collected_by', $agent))
+            ->orderBy('collected_at')->orderBy('id')->get();
 
         $entries = $loans->map(fn (FinanceLoan $loan) => [
             'date' => $loan->loaned_on->toDateString(),

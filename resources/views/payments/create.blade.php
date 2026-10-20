@@ -116,6 +116,13 @@
 
             </form>
 
+            <form method="GET" action="{{ route('payments.create') }}" class="payment-filters collect-agent-filter">
+                @if ($tab === 'due')
+                    <input type="hidden" name="tab" value="due">
+                @endif
+                @include('components.partials.agent-filter', ['agentFilterSubmit' => true])
+            </form>
+
 
             <div
                 class="member-search-results"
@@ -134,7 +141,7 @@
                         ] as $tabName => [$tabKey, $tabLabel])
 
                             <a
-                                href="{{ route('payments.create', $tabName === 'due' ? ['tab' => 'due'] : []) }}"
+                                href="{{ route('payments.create', array_filter(['tab' => $tabName === 'due' ? 'due' : null, 'agent' => request('agent')])) }}"
                                 @class(['status-tab', 'collect-tab-'.$tabName, 'active' => $tab === $tabName])
                                 @if ($tab === $tabName) aria-current="page" @endif
                             >

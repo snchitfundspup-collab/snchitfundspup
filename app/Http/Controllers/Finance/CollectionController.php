@@ -7,6 +7,7 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Requests\Finance\StoreCollectionRequest;
 use App\Models\FinanceCollection;
 use App\Models\FinanceLoan;
+use App\Support\AgentFilter;
 use App\Support\ReportPdf as Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,7 +36,7 @@ class CollectionController extends Controller
         $tab = in_array($request->input('tab'), self::TABS, true) ? $request->input('tab') : null;
         $search = trim((string) $request->input('q', ''));
 
-        $rows = self::runningLoans()
+        $rows = self::runningLoans(AgentFilter::selected($request))
             ->when($search !== '', function (Collection $rows) use ($search) {
                 $needle = mb_strtolower($search);
 
@@ -81,8 +82,11 @@ class CollectionController extends Controller
         [$from, $to, $range] = ExpenseController::dateRange($request, 'today');
         $search = trim((string) $request->input('q', ''));
 
+        $agent = AgentFilter::selected($request);
+
         $query = FinanceCollection::query()
             ->whereBetween('collected_at', [$from.' 00:00:00', $to.' 23:59:59'])
+            ->when($agent, fn ($query) => $query->where('collected_by', $agent))
             ->when($search !== '', fn ($query) => $query->where(function ($query) use ($search) {
                 $query->where('receipt_number', 'like', "%{$search}%")
                     ->orWhereHas('loan', fn ($loan) => $loan->where('loan_number', 'like', "%{$search}%"))
@@ -128,16 +132,18 @@ class CollectionController extends Controller
 
     /**
      * Every running loan with its customer and where it stands today, the
-     * longest overdue first, then due today, then the rest.
+     * longest overdue first, then due today, then the rest — only the
+     * agent's loans when $agentId is given.
      *
      * @return Collection<int, array{loan: FinanceLoan, standing: array<string, mixed>}>
      */
-    public static function runningLoans(): Collection
+    public static function runningLoans(?int $agentId = null): Collection
     {
         $order = ['overdue' => 0, 'due' => 1, 'on_track' => 2, 'not_started' => 3, 'closed' => 4];
 
         return FinanceLoan::query()
             ->active()
+            ->when($agentId, fn ($query) => $query->where('agent_id', $agentId))
             ->with('customer')
             ->withSum('collections as collected_total', 'amount')
             ->get()

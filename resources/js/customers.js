@@ -1725,3 +1725,26 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 });
+
+/* Agent filter: reload the list for the chosen agent (page 1). */
+document.addEventListener('DOMContentLoaded', function () {
+    const agent = document.getElementById('customerAgent');
+
+    if (!agent) {
+        return;
+    }
+
+    agent.addEventListener('change', function () {
+        const url = new URL(window.location.href);
+
+        url.searchParams.delete('page');
+
+        if (agent.value) {
+            url.searchParams.set('agent', agent.value);
+        } else {
+            url.searchParams.delete('agent');
+        }
+
+        window.location.href = url.toString();
+    });
+});
