@@ -10,12 +10,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * A Sri Lakshmi Micro Finance loan. From the loan amount ("principal") a
  * processing fee (1%) and GST on that fee (18%) are cut when the money is
- * given, so the customer receives principal − fee − GST. Interest per annum
- * (26%) for the loan period — the days, or weeks × 7 — is added, and the
+ * given, so the customer receives principal âˆ’ fee âˆ’ GST. Interest per annum
+ * (26%) for the loan period â€” the days, or weeks Ã— 7 â€” is added, and the
  * total ("loan_amount") is repaid in that many daily or weekly instalments,
  * starting on the first due date. The instalment is worked out (rounded up,
  * the last one smaller) and the office may change it. All rates and the
@@ -36,9 +37,9 @@ class FinanceLoan extends Model
      */
     public const FREQUENCIES = [self::DAILY => 'Daily', self::WEEKLY => 'Weekly'];
 
-    public const DEFAULT_PROCESSING_FEE_RATE = 1.0;
+    public const DEFAULT_PROCESSING_FEE_RATE = 2.0;
 
-    public const DEFAULT_GST_RATE = 18.0;
+    public const DEFAULT_GST_RATE = 0.0;
 
     public const DEFAULT_INTEREST_RATE = 26.0;
 
@@ -101,21 +102,21 @@ class FinanceLoan extends Model
     }
 
     /**
-     * Give a loan and number it (L000001 …), working out the fee, GST,
-     * interest, total and (unless the office typed one) the instalment.
+     * Give a loan and number it (L000001 â€¦): the office types the
+     * instalment; the fee, GST, total, interest and its yearly rate are
+     * worked out from it (termsFromInstallment()).
      *
-     * @param  array{customer_id: int, loaned_on: string, principal: int, processing_fee_rate: float, gst_rate: float, interest_rate: float, frequency: string, installments: int, installment_amount?: ?int, first_due_on: string, notes?: ?string}  $details
+     * @param  array{customer_id: int, loaned_on: string, principal: int, processing_fee_rate: float, gst_rate: float, frequency: string, installments: int, installment_amount: int, first_due_on: string, notes?: ?string, agent_id?: ?int}  $details
      */
     public static function give(array $details, ?User $recordedBy = null): self
     {
-        $terms = self::terms(
+        $terms = self::termsFromInstallment(
             (int) $details['principal'],
             (float) $details['processing_fee_rate'],
             (float) $details['gst_rate'],
-            (float) $details['interest_rate'],
             $details['frequency'],
             (int) $details['installments'],
-            isset($details['installment_amount']) ? (int) $details['installment_amount'] : null,
+            (int) $details['installment_amount'],
         );
 
         $loan = self::create([
@@ -136,9 +137,9 @@ class FinanceLoan extends Model
     }
 
     /**
-     * Work out a loan: fee = principal × fee %, GST = fee × GST %, interest =
-     * principal × interest % × days / 365 (weeks count 7 days), total =
-     * principal + interest, instalment = total ÷ instalments rounded up
+     * Work out a loan: fee = principal Ã— fee %, GST = fee Ã— GST %, interest =
+     * principal Ã— interest % Ã— days / 365 (weeks count 7 days), total =
+     * principal + interest, instalment = total Ã· instalments rounded up
      * (or the office's own amount). Rupees are rounded to whole rupees.
      *
      * @return array{principal: int, processing_fee_rate: float, processing_fee: int, gst_rate: float, gst: int, interest_rate: float, interest: int, term_days: int, loan_amount: int, installments: int, installment_amount: int}
@@ -163,6 +164,79 @@ class FinanceLoan extends Model
             'installments' => $installments,
             'installment_amount' => $installmentAmount ?: self::autoInstallment($total, $installments),
         ];
+    }
+
+    /**
+     * Save changes to a loan (Edit Loan): terms worked out again from the
+     * instalment; its receipts follow a change of customer, and the loan
+     * closes or reopens to match what is collected.
+     *
+     * @param  array{customer_id: int, loaned_on: string, principal: int, processing_fee_rate: float, gst_rate: float, frequency: string, installments: int, installment_amount: int, first_due_on: string, notes?: ?string, agent_id?: ?int}  $details
+     */
+    public function revise(array $details): void
+    {
+        $terms = self::termsFromInstallment(
+            (int) $details['principal'],
+            (float) $details['processing_fee_rate'],
+            (float) $details['gst_rate'],
+            $details['frequency'],
+            (int) $details['installments'],
+            (int) $details['installment_amount'],
+        );
+
+        DB::transaction(function () use ($details, $terms) {
+            $this->update([
+                'customer_id' => $details['customer_id'],
+                'loaned_on' => $details['loaned_on'],
+                'frequency' => $details['frequency'],
+                'first_due_on' => $details['first_due_on'],
+                'notes' => $details['notes'] ?? null,
+                'agent_id' => $details['agent_id'] ?? $this->agent_id,
+                ...$terms,
+            ]);
+
+            $this->collections()->update(['customer_id' => $this->customer_id]);
+
+            $this->refreshStatus();
+        });
+    }
+
+    /**
+     * Work out a loan from the instalment the office typed: fee = principal
+     * Ã— fee %, GST = fee Ã— GST %, total = instalment Ã— instalments (all the
+     * same), interest = total âˆ’ principal, and the yearly interest rate
+     * that comes to (interest Ã· principal Ã— 365 Ã· days; weeks count 7 days).
+     *
+     * @return array{principal: int, processing_fee_rate: float, processing_fee: int, gst_rate: float, gst: int, interest_rate: float, interest: int, term_days: int, loan_amount: int, installments: int, installment_amount: int}
+     */
+    public static function termsFromInstallment(int $principal, float $feeRate, float $gstRate, string $frequency, int $installments, int $installmentAmount): array
+    {
+        $fee = (int) round($principal * $feeRate / 100);
+        $termDays = $frequency === self::WEEKLY ? $installments * 7 : $installments;
+        $total = $installmentAmount * $installments;
+        $interest = $total - $principal;
+
+        return [
+            'principal' => $principal,
+            'processing_fee_rate' => $feeRate,
+            'processing_fee' => $fee,
+            'gst_rate' => $gstRate,
+            'gst' => (int) round($fee * $gstRate / 100),
+            'interest_rate' => self::yearlyRate($principal, $interest, $termDays),
+            'interest' => $interest,
+            'term_days' => $termDays,
+            'loan_amount' => $total,
+            'installments' => $installments,
+            'installment_amount' => $installmentAmount,
+        ];
+    }
+
+    /**
+     * Interest as a yearly % of the loan, to two decimals.
+     */
+    public static function yearlyRate(int $principal, int $interest, int $termDays): float
+    {
+        return $principal > 0 && $termDays > 0 ? round($interest / $principal * 365 / $termDays * 100, 2) : 0.0;
     }
 
     /**
@@ -227,7 +301,7 @@ class FinanceLoan extends Model
     }
 
     /**
-     * "26% a year", "1%" — rates without needless decimals.
+     * "26% a year", "1%" â€” rates without needless decimals.
      */
     public static function rate(float $rate): string
     {
@@ -304,8 +378,8 @@ class FinanceLoan extends Model
     }
 
     /**
-     * Where the loan stands today: overdue (red) — instalments whose date
-     * has passed, not yet collected; due (orange) — today's instalment;
+     * Where the loan stands today: overdue (red) â€” instalments whose date
+     * has passed, not yet collected; due (orange) â€” today's instalment;
      * on track; not started (first due date still ahead); or closed.
      *
      * @return array{state: string, overdue: int, due_today: int, to_collect: int, installments_paid: int, next_due: ?Carbon, overdue_since: ?Carbon, days_overdue: int}
@@ -349,7 +423,7 @@ class FinanceLoan extends Model
      * smaller), how much of it is paid and the dates that money was
      * collected (collections pay the earliest instalments first, so the
      * collection date can differ from the due date), the balance left after
-     * it is paid as planned, and its state — paid, part paid, overdue (red),
+     * it is paid as planned, and its state â€” paid, part paid, overdue (red),
      * due today (orange) or upcoming.
      *
      * @return Collection<int, array{number: int, due_on: Carbon, amount: int, paid: int, paid_on: list<Carbon>, paid_by: ?User, balance_after: int, state: string}>

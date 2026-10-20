@@ -517,6 +517,8 @@ Route::middleware('auth:web')->group(function () {
         Route::get('/loans/new', [Finance\LoanController::class, 'create'])->name('loans.create');
         Route::post('/loans', [Finance\LoanController::class, 'store'])->name('loans.store');
         Route::get('/loans/{loan}', [Finance\LoanController::class, 'show'])->name('loans.show');
+        Route::get('/loans/{loan}/edit', [Finance\LoanController::class, 'edit'])->name('loans.edit')->middleware('can:edit-loans');
+        Route::put('/loans/{loan}', [Finance\LoanController::class, 'update'])->name('loans.update')->middleware('can:edit-loans');
         Route::get('/loans/{loan}/acknowledgement', [Finance\LoanController::class, 'acknowledgement'])->name('loans.acknowledgement');
         Route::get('/loans/{loan}/acknowledgement.pdf', [Finance\LoanController::class, 'acknowledgementPdf'])->name('loans.acknowledgement.pdf');
         Route::get('/loans/{loan}/kfs', [Finance\LoanController::class, 'kfs'])->name('loans.kfs');
