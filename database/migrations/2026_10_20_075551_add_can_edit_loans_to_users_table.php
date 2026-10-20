@@ -15,9 +15,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->boolean('can_edit_loans')->default(false)->after('can_view_usage');
-        });
+        /* safe to run again: an earlier attempt may have added the column already */
+        if (! Schema::hasColumn('users', 'can_edit_loans')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->boolean('can_edit_loans')->default(false)->after('can_view_usage');
+            });
+        }
 
         DB::table('users')->where('username', 'sathiya')->update(['can_edit_loans' => true]);
     }
