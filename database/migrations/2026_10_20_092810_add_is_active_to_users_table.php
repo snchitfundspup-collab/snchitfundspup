@@ -17,14 +17,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_active')->default(true)->after('can_edit_loans');
-        });
+        /* safe to run again: an earlier attempt may have added the column already */
+        if (! Schema::hasColumn('users', 'is_active')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->boolean('is_active')->default(true);
+            });
+        }
 
         $narayanan = DB::table('users')->where('username', 'narayanan')->value('id');
 
         if ($narayanan) {
-            DB::table('users')->whereKey($narayanan)->update(['is_active' => false, 'remember_token' => null]);
+            DB::table('users')->where('id', $narayanan)->update(['is_active' => false, 'remember_token' => null]);
 
             if (Schema::hasTable('sessions')) {
                 DB::table('sessions')->where('user_id', $narayanan)->delete();
@@ -37,8 +40,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('is_active');
-        });
+        if (Schema::hasColumn('users', 'is_active')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropColumn('is_active');
+            });
+        }
     }
 };
