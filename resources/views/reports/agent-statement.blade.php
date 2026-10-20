@@ -57,6 +57,12 @@
                     · <x-rupees :amount="$summary['joined_amount']" />
                 </span>
             </div>
+            @if ($isFinance)
+                <div class="payment-summary-main">
+                    <span class="payment-summary-range" data-i18n="processing_fee_income">Processing fee (income)</span>
+                    <strong class="payment-summary-total"><x-rupees :amount="$summary['fee']" /></strong>
+                </div>
+            @endif
             <div class="payment-summary-actions">
                 <a href="{{ route($routePrefix.'.print', $query) }}" class="group-action" target="_blank" rel="noopener">
                     <x-icon name="printer" />
@@ -92,6 +98,7 @@
                                     <th data-i18n="customer_word">Customer</th>
                                     <th data-i18n="{{ $isFinance ? 'loan_no' : 'group_seat' }}">{{ $isFinance ? 'Loan No.' : 'Group · Seat' }}</th>
                                     <th class="ledger-col-total" data-i18n="{{ $isFinance ? 'loan_amount_word' : 'chit_value' }}">{{ $isFinance ? 'Loan amount' : 'Chit value' }}</th>
+                                    @if ($isFinance)<th class="ledger-col-total" data-i18n="processing_fee_income">Processing fee (income)</th>@endif
                                     <th class="ledger-col-total" data-i18n="collected_word">Collected</th>
                                     <th class="ledger-col-total" data-i18n="{{ $isFinance ? 'balance_word' : 'due_now' }}">{{ $isFinance ? 'Balance' : 'Due now' }}</th>
                                     <th data-i18n="status">Status</th>
@@ -104,6 +111,9 @@
                                         <td data-label="Customer"><x-customer-name :customer="$row['customer']" /> <small>{{ $row['customer']->customer_code }}</small></td>
                                         <td data-label="{{ $isFinance ? 'Loan No.' : 'Group · Seat' }}"><a href="{{ $row['link'] }}">{{ $row['reference'] }}</a></td>
                                         <td class="ledger-col-total" data-label="{{ $isFinance ? 'Loan amount' : 'Chit value' }}"><x-rupees :amount="$row['amount']" /></td>
+                                        @if ($isFinance)
+                                            <td class="ledger-col-total ledger-total-paid" data-label="Processing fee (income)"><x-rupees :amount="$row['fee']" /></td>
+                                        @endif
                                         <td class="ledger-col-total ledger-total-paid" data-label="Collected"><x-rupees :amount="$row['collected']" /></td>
                                         <td @class(['ledger-col-total', 'ledger-total-due' => $row['left'] > 0]) data-label="{{ $isFinance ? 'Balance' : 'Due now' }}"><x-rupees :amount="$row['left']" /></td>
                                         <td data-label="Status">@include('reports.partials.agent-state-badge', ['state' => $row['state']])</td>
@@ -114,6 +124,9 @@
                                 <tr>
                                     <th colspan="3" data-i18n="total">Total</th>
                                     <td class="ledger-col-total"><x-rupees :amount="$summary['joined_amount']" /></td>
+                                    @if ($isFinance)
+                                        <td class="ledger-col-total"><x-rupees :amount="$summary['fee']" /></td>
+                                    @endif
                                     <td class="ledger-col-total"><x-rupees :amount="$summary['joined_collected']" /></td>
                                     <td class="ledger-col-total"><x-rupees :amount="$summary['left']" /></td>
                                     <td></td>
@@ -136,6 +149,7 @@
                                 <th data-i18n="month_heading">Month</th>
                                 <th class="ledger-col-total" data-i18n="joined_word">Joined</th>
                                 <th class="ledger-col-total" data-i18n="{{ $isFinance ? 'loan_amount_word' : 'chit_value' }}">{{ $isFinance ? 'Loan amount' : 'Chit value' }}</th>
+                                @if ($isFinance)<th class="ledger-col-total" data-i18n="processing_fee_income">Processing fee (income)</th>@endif
                                 <th class="ledger-col-total" data-i18n="receipt_count">Receipts</th>
                                 <th class="ledger-col-total" data-i18n="collected_word">Collected</th>
                             </tr>
@@ -146,6 +160,9 @@
                                     <td class="nowrap" data-label="Month">{{ $month['month']->format('F Y') }}</td>
                                     <td class="ledger-col-total" data-label="Joined">{{ $month['joined'] ?: '—' }}</td>
                                     <td class="ledger-col-total" data-label="{{ $isFinance ? 'Loan amount' : 'Chit value' }}">@if ($month['joined_amount'] > 0)<x-rupees :amount="$month['joined_amount']" />@else — @endif</td>
+                                    @if ($isFinance)
+                                        <td class="ledger-col-total ledger-total-paid" data-label="Processing fee (income)">@if ($month['fee'] > 0)<x-rupees :amount="$month['fee']" />@else — @endif</td>
+                                    @endif
                                     <td class="ledger-col-total" data-label="Receipts">{{ $month['receipts'] ?: '—' }}</td>
                                     <td class="ledger-col-total ledger-total-paid" data-label="Collected">@if ($month['collected'] > 0)<x-rupees :amount="$month['collected']" />@else — @endif</td>
                                 </tr>
@@ -156,6 +173,9 @@
                                 <th data-i18n="total">Total</th>
                                 <td class="ledger-col-total">{{ $summary['joined'] }}</td>
                                 <td class="ledger-col-total"><x-rupees :amount="$summary['joined_amount']" /></td>
+                                @if ($isFinance)
+                                    <td class="ledger-col-total"><x-rupees :amount="$summary['fee']" /></td>
+                                @endif
                                 <td class="ledger-col-total">{{ $summary['receipts'] }}</td>
                                 <td class="ledger-col-total"><strong><x-rupees :amount="$summary['collected']" /></strong></td>
                             </tr>

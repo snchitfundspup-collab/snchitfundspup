@@ -14,6 +14,9 @@
         <td><span class="label">{{ __('Agent') }}</span><strong>{{ $agent->name }}</strong></td>
         <td><span class="label">{{ __('Period') }}</span><strong>@include('traders.reports.partials.period-text')</strong></td>
         <td><span class="label">{{ __('Customers brought in') }}</span><strong>{{ $summary['customers'] }} ({{ $summary['joined'] }}) · <x-rupees :amount="$summary['joined_amount']" /></strong></td>
+        @if ($isFinance)
+            <td><span class="label">{{ __('Processing fee (income)') }}</span><strong><x-rupees :amount="$summary['fee']" /></strong></td>
+        @endif
         <td><span class="label">{{ __('Collected') }}</span><strong><x-rupees :amount="$summary['collected']" /> ({{ $summary['receipts'] }})</strong></td>
     </tr>
 </table>
@@ -27,6 +30,9 @@
             <th>{{ __('Customer') }}</th>
             <th>{{ $referenceHeading }}</th>
             <th class="amount">{{ $amountHeading }}</th>
+            @if ($isFinance)
+                <th class="amount">{{ __('Processing fee (income)') }}</th>
+            @endif
             <th class="amount">{{ __('Collected') }}</th>
             <th class="amount">{{ $isFinance ? __('Balance') : __('Due now') }}</th>
             <th>{{ __('Status') }}</th>
@@ -39,6 +45,9 @@
                 <td>{{ $row['customer']->name }}@if (filled($row['customer']->remarks)) ({{ $row['customer']->remarks }})@endif · {{ $row['customer']->customer_code }}</td>
                 <td>{{ $row['reference'] }}</td>
                 <td class="amount"><x-rupees :amount="$row['amount']" /></td>
+                @if ($isFinance)
+                    <td class="amount"><x-rupees :amount="$row['fee']" /></td>
+                @endif
                 <td class="amount"><x-rupees :amount="$row['collected']" /></td>
                 <td class="amount"><x-rupees :amount="$row['left']" /></td>
                 <td class="{{ $stateLabels[$row['state']][1] ?? '' }}">{{ $stateLabels[$row['state']][0] ?? $row['state'] }}</td>
@@ -52,6 +61,9 @@
             <tr>
                 <th colspan="3">{{ __('Total') }}</th>
                 <td class="amount"><x-rupees :amount="$summary['joined_amount']" /></td>
+                @if ($isFinance)
+                    <td class="amount"><x-rupees :amount="$summary['fee']" /></td>
+                @endif
                 <td class="amount"><x-rupees :amount="$summary['joined_collected']" /></td>
                 <td class="amount"><x-rupees :amount="$summary['left']" /></td>
                 <td></td>
@@ -68,6 +80,9 @@
             <th>{{ __('Month') }}</th>
             <th class="amount">{{ __('Joined') }}</th>
             <th class="amount">{{ $amountHeading }}</th>
+            @if ($isFinance)
+                <th class="amount">{{ __('Processing fee (income)') }}</th>
+            @endif
             <th class="amount">{{ __('Receipts') }}</th>
             <th class="amount">{{ __('Collected') }}</th>
         </tr>
@@ -78,6 +93,9 @@
                 <td>{{ $month['month']->format('F Y') }}</td>
                 <td class="amount">{{ $month['joined'] ?: '—' }}</td>
                 <td class="amount">@if ($month['joined_amount'] > 0)<x-rupees :amount="$month['joined_amount']" />@else — @endif</td>
+                @if ($isFinance)
+                    <td class="amount">@if ($month['fee'] > 0)<x-rupees :amount="$month['fee']" />@else — @endif</td>
+                @endif
                 <td class="amount">{{ $month['receipts'] ?: '—' }}</td>
                 <td class="amount">@if ($month['collected'] > 0)<x-rupees :amount="$month['collected']" />@else — @endif</td>
             </tr>
@@ -91,6 +109,9 @@
                 <th>{{ __('Total') }}</th>
                 <td class="amount">{{ $summary['joined'] }}</td>
                 <td class="amount"><x-rupees :amount="$summary['joined_amount']" /></td>
+                @if ($isFinance)
+                    <td class="amount"><x-rupees :amount="$summary['fee']" /></td>
+                @endif
                 <td class="amount">{{ $summary['receipts'] }}</td>
                 <td class="amount"><strong><x-rupees :amount="$summary['collected']" /></strong></td>
             </tr>

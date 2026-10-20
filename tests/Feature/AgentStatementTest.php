@@ -70,6 +70,8 @@ test('the Micro Finance agent statement shows the agent\'s customers, collection
         ->assertOk()
         ->assertSeeText('Kavitha (Tailor)')
         ->assertSeeText('L000001')
+        ->assertSeeText('Processing fee (income)')
+        ->assertSeeText('₹'.number_format($loan->processing_fee))
         ->assertSeeText('September 2026')
         ->assertSeeText('October 2026')
         ->assertSeeText('Mon, 21 Sep 2026')
@@ -111,6 +113,7 @@ test('chit seats and payments carry the agent into the chit agent statement', fu
     $this->get(route('reports.agent', ['agent' => $this->ranjith->id]))
         ->assertOk()
         ->assertSeeText('Two Lakh Oct')
+        ->assertDontSeeText('Processing fee (income)')
         ->assertSeeText('Forming Group')
         ->assertSeeText($payment->receipt_number)
         ->assertSeeText('₹10,000');
