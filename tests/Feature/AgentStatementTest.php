@@ -34,9 +34,9 @@ test('a loan and its collections save the agent chosen, or whoever is signed in'
         'principal' => '10,000',
         'processing_fee_rate' => '1',
         'gst_rate' => '18',
-        'interest_rate' => '26',
         'frequency' => 'daily',
         'installments' => '100',
+        'installment_amount' => '108',
         'first_due_on' => '2026-10-02',
         'agent_id' => $this->ranjith->id,
     ])->assertSessionHasNoErrors();

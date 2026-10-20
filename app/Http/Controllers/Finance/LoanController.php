@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Finance;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Finance\StoreLoanRequest;
+use App\Http\Requests\Finance\UpdateLoanRequest;
 use App\Models\Customer;
 use App\Models\FinanceCapital;
 use App\Models\FinanceLoan;
@@ -62,10 +63,39 @@ class LoanController extends Controller
 
     public function create(Request $request): View
     {
+        return view('finance.loans.create', $this->formData($request));
+    }
+
+    /**
+     * Edit Loan (Sathiya only): the New Loan form filled with the loan.
+     */
+    public function edit(Request $request, FinanceLoan $loan): View
+    {
+        return view('finance.loans.create', $this->formData($request, $loan));
+    }
+
+    public function update(UpdateLoanRequest $request, FinanceLoan $loan): RedirectResponse
+    {
+        $loan->revise($request->validated());
+
+        return redirect()
+            ->route('finance.loans.show', $loan)
+            ->with('success', "Loan {$loan->loan_number} updated.");
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function formData(Request $request, ?FinanceLoan $loan = null): array
+    {
         $today = today(config('app.business_timezone'));
 
-        return view('finance.loans.create', [
-            'customers' => Customer::query()->where('is_active', true)->orderBy('name')->get(['id', 'customer_code', 'name', 'phone', 'remarks']),
+        return [
+            'loan' => $loan,
+            'customers' => Customer::query()
+                ->where(fn ($query) => $query->where('is_active', true)->when($loan, fn ($query) => $query->orWhereKey($loan->customer_id)))
+                ->orderBy('name')
+                ->get(['id', 'customer_code', 'name', 'phone', 'remarks']),
             'selectedCustomerId' => $request->integer('customer') ?: null,
             'today' => $today,
             'defaultFirstDue' => [
@@ -79,7 +109,7 @@ class LoanController extends Controller
                 'interest_rate' => FinanceLoan::DEFAULT_INTEREST_RATE,
                 'installments' => FinanceLoan::DEFAULT_INSTALLMENTS,
             ],
-        ]);
+        ];
     }
 
     public function store(StoreLoanRequest $request): RedirectResponse

@@ -2,13 +2,14 @@
 |--------------------------------------------------------------------------
 | SRI LAKSHMI MICRO FINANCE — PAGE-SPECIFIC JAVASCRIPT
 |--------------------------------------------------------------------------
-| New Loan, worked out live (the server works it out the same way again —
-| FinanceLoan::terms()):
+| New Loan / Edit Loan, worked out live (the server works it out the same
+| way again — FinanceLoan::termsFromInstallment()):
 |   fee = loan × fee %, GST = fee × GST %, in hand = loan − fee − GST
-|   interest = loan × interest % × days ÷ 365 (weeks count 7 days)
-|   total = loan + interest; instalment = total ÷ days / weeks, rounded up
-| The instalment and the number of days / weeks can be changed; changing
-| daily / weekly suggests 100 days or 14 weeks and the first due date.
+|   total = instalment × weeks / days (the office types the instalment)
+|   interest = total − loan; yearly % = interest ÷ loan × 365 ÷ days
+|   (weeks count 7 days)
+| Changing weekly / daily suggests 14 weeks or 100 days and the first due
+| date (not on Edit Loan, which keeps what was saved).
 */
 
 const form = document.getElementById('loanForm');
@@ -55,7 +56,6 @@ if (form) {
     const installment = field('installment_amount');
     const firstDue = field('first_due_on');
     const loanedOn = field('loaned_on');
-    const autoButton = document.getElementById('installmentAuto');
     const plan = document.getElementById('loanPlan');
     const show = (id, text) => {
         const element = document.getElementById(id);
@@ -65,23 +65,25 @@ if (form) {
         }
     };
 
-    const frequency = () => form.querySelector('input[name="frequency"]:checked')?.value || 'daily';
+    const frequency = () => form.querySelector('input[name="frequency"]:checked')?.value || 'weekly';
 
-    let firstDueTouched = false;
-    let countTouched = false;
-    let manual = installment.dataset.manual === '1';
+    /* Edit Loan keeps the saved dates and number of instalments */
+    const editing = form.dataset.editing === '1';
+    let firstDueTouched = editing;
+    let countTouched = editing;
 
     const update = () => {
         const loan = whole(principal);
         const count = whole(installments);
+        const each = whole(installment);
         const weekly = frequency() === 'weekly';
 
         const fee = Math.round(loan * decimal(feeRate) / 100);
         const gst = Math.round(fee * decimal(gstRate) / 100);
         const days = weekly ? count * 7 : count;
-        const interest = Math.round(loan * decimal(interestRate) / 100 * days / 365);
-        const total = loan + interest;
-        const auto = count > 0 ? Math.ceil(total / count) : total;
+        const total = each * count;
+        const interest = total - loan;
+        const ready = loan > 0 && count > 0 && each > 0;
 
         /* more than the money available to lend? */
         const availableBox = document.getElementById('loanAvailable');
@@ -96,40 +98,33 @@ if (form) {
         show('loanFee', rupees(fee));
         show('loanGst', rupees(gst));
         show('loanInHand', rupees(Math.max(0, loan - fee - gst)));
-        show('loanInterest', rupees(interest));
-        show('loanInterestNote', decimal(interestRate) + '% × ' + days + ' ' + translate('days_word', 'days'));
-        show('loanTotal', rupees(total));
+        show('loanInterest', ready ? rupees(interest) : '₹0');
+        show('loanInterestNote', ready && days > 0 ? days + ' ' + translate('days_word', 'days') : '');
+        show('loanTotal', rupees(ready ? total : 0));
+
+        interestRate.value = ready && days > 0
+            ? (Math.round(interest / loan * 365 / days * 100 * 100) / 100) + '%'
+            : '—';
 
         document.getElementById('installmentsDaysLabel').hidden = weekly;
         document.getElementById('installmentsWeeksLabel').hidden = !weekly;
 
-        if (!manual) {
-            installment.value = loan > 0 && count > 0 ? String(auto) : '';
-        }
-
-        autoButton.hidden = !manual || whole(installment) === auto;
-
-        const each = whole(installment);
-
-        if (loan <= 0 || count <= 0 || each <= 0 || !firstDue.value) {
+        if (!ready || !firstDue.value) {
             plan.hidden = true;
 
             return;
         }
 
-        const last = total - (count - 1) * each;
-        const fits = each * count >= total && last > 0;
+        const fits = total >= loan;
         const lastDate = addDays(firstDue.value, (count - 1) * (weekly ? 7 : 1));
 
         plan.hidden = false;
         plan.classList.toggle('is-wrong', !fits);
         plan.textContent = fits
-            ? count + ' × ' + rupees(each)
-                + (last !== each ? ' (' + translate('last_one', 'last one') + ' ' + rupees(last) + ')' : '')
-                + ' = ' + rupees(total)
+            ? count + ' × ' + rupees(each) + ' = ' + rupees(total)
                 + ' — ' + translate('last_instalment_on', 'last instalment on') + ' ' + formatDate(lastDate)
-            : count + ' × ' + rupees(each) + ' ≠ ' + rupees(total) + ' — '
-                + translate('installment_does_not_fit', 'this instalment does not repay the total; use about') + ' ' + rupees(auto);
+            : count + ' × ' + rupees(each) + ' = ' + rupees(total) + ' — '
+                + translate('installment_below_loan', 'the instalments come to less than the loan; use at least') + ' ' + rupees(Math.ceil(loan / count));
     };
 
     const suggestFirstDue = () => {
@@ -154,16 +149,6 @@ if (form) {
         update();
     });
 
-    installment.addEventListener('input', () => {
-        manual = installment.value.trim() !== '';
-        update();
-    });
-
-    autoButton.addEventListener('click', () => {
-        manual = false;
-        update();
-    });
-
     firstDue.addEventListener('input', () => {
         firstDueTouched = true;
         update();
@@ -174,7 +159,7 @@ if (form) {
         update();
     });
 
-    [principal, feeRate, gstRate, interestRate].forEach((input) => input.addEventListener('input', update));
+    [principal, feeRate, gstRate, installment].forEach((input) => input.addEventListener('input', update));
 
     update();
 }
