@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 /**
- * Agent Statement (SN Chit Funds and Sri Lakshmi Micro Finance): for one
+ * Agent Statement (Sri Lakshmi Chit Funds and Sri Lakshmi Micro Finance): for one
  * staff member and a period, the customers they brought in (chit seats /
  * loans, with what is collected and left), every receipt they collected,
  * the day-by-day totals and the month-by-month totals. The business comes
@@ -49,7 +49,7 @@ class AgentStatementController extends Controller
     private function build(Request $request): array
     {
         $isFinance = $request->routeIs('finance.*');
-        $staff = User::query()->orderBy('name')->get(['id', 'name']);
+        $staff = User::query()->active()->orderBy('name')->get(['id', 'name']);
         $agent = $staff->firstWhere('id', $request->integer('agent')) ?? $staff->firstWhere('id', $request->user()->id) ?? $staff->first();
 
         [$from, $to, $rangeKey] = ExpenseController::dateRange($request, 'month');
@@ -80,6 +80,7 @@ class AgentStatementController extends Controller
             'month' => Carbon::parse($month.'-01'),
             'joined' => $joined->filter(fn (array $row) => $row['date']->format('Y-m') === $month)->count(),
             'joined_amount' => (int) $joined->filter(fn (array $row) => $row['date']->format('Y-m') === $month)->sum('amount'),
+            'fee' => (int) $joined->filter(fn (array $row) => $row['date']->format('Y-m') === $month)->sum('fee'),
             'receipts' => $collections->filter(fn (array $row) => $row['at']->format('Y-m') === $month)->count(),
             'collected' => (int) $collections->filter(fn (array $row) => $row['at']->format('Y-m') === $month)->sum('amount'),
         ]);
@@ -101,6 +102,7 @@ class AgentStatementController extends Controller
                 'joined' => $joined->count(),
                 'customers' => $joined->pluck('customer.id')->unique()->count(),
                 'joined_amount' => (int) $joined->sum('amount'),
+                'fee' => (int) $joined->sum('fee'),
                 'given' => (int) $joined->sum('given'),
                 'joined_collected' => (int) $joined->sum('collected'),
                 'left' => (int) $joined->sum('left'),
@@ -131,6 +133,7 @@ class AgentStatementController extends Controller
                 'reference' => $loan->loan_number,
                 'link' => route('finance.loans.show', $loan),
                 'amount' => $loan->principal,
+                'fee' => $loan->processing_fee,
                 'given' => $loan->amountGiven(),
                 'collected' => $loan->collected(),
                 'left' => $loan->balance(),
@@ -193,6 +196,7 @@ class AgentStatementController extends Controller
                     'reference' => $member->chitGroup->name.' · '.$member->member_code,
                     'link' => route('groups.show', $member->chitGroup),
                     'amount' => $member->chitGroup->amount,
+                    'fee' => 0,
                     'given' => 0,
                     'collected' => $member->totalPaid(),
                     'left' => $status ? $member->balanceDue() : 0,

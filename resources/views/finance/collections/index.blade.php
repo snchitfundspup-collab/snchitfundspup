@@ -34,8 +34,9 @@
 
     @include('traders.partials.list-filters', [
         'route' => 'finance.collections.index',
-        'keep' => [],
+        'keep' => array_filter(['agent' => request('agent')]),
         'searchPlaceholder' => 'Search name, ID, phone, receipt or loan number',
+        'extra' => view('components.partials.agent-filter')->render(),
     ])
 
     <div id="paymentsResults">

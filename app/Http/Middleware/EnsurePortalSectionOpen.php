@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * The customer pages show only the businesses that are open to customers
- * (PORTAL_SECTIONS: chit, traders, finance). SN Chit Funds and SN Traders
+ * (PORTAL_SECTIONS: chit, traders, finance). Sri Lakshmi Chit Funds and Sri Lakshmi Traders
  * are paused for now, so their customer pages go back to My Home.
  */
 class EnsurePortalSectionOpen

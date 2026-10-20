@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Account – '.$customer->name.' | SN Traders')
+@section('title', 'Account – '.$customer->name.' | Sri Lakshmi Traders')
 
 @push('styles')
     @vite([
@@ -81,9 +81,9 @@
     <section class="ledger-sheet statement-sheet glass">
 
         <header class="ledger-print-head">
-            <img class="receipt-logo" src="{{ asset('images/sn-chit-funds-logo.png') }}" alt="SN Traders">
+            <img class="receipt-logo" src="{{ asset('images/sri-lakshmi-logo.png') }}" alt="Sri Lakshmi Traders">
             <div>
-                <strong class="receipt-company"><span>SN</span> Traders</strong>
+                <strong class="receipt-company"><span>Sri Lakshmi</span> Traders</strong>
                 <span class="receipt-tagline">Quality Rice · Fair Price</span>
             </div>
             <div class="ledger-print-title">

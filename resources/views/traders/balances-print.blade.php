@@ -1,4 +1,4 @@
-{{-- Printable customer balances list (SN Traders). --}}
+{{-- Printable customer balances list (Sri Lakshmi Traders). --}}
 @extends('layouts.print')
 
 @section('title', 'Customer Balances')

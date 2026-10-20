@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureStaffIsActive;
 use App\Http\Middleware\RecordUsage;
 use App\Http\Middleware\SetBusinessContext;
 use App\Http\Middleware\SetLanguage;
@@ -15,9 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        /* which business (SN Chit Funds / SN Traders) the page belongs to,
+        /* sign out removed staff, then which business the page belongs to,
            then log the page for the Usage dashboard */
         $middleware->web(append: [
+            EnsureStaffIsActive::class,
             SetLanguage::class,
             SetBusinessContext::class,
             RecordUsage::class,

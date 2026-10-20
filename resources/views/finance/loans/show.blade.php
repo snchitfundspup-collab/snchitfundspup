@@ -48,6 +48,12 @@
                 </p>
             </div>
             <div class="group-hero-actions">
+                @can('edit-loans')
+                    <a href="{{ route('finance.loans.edit', $loan) }}" class="group-action">
+                        <x-icon name="edit" />
+                        <span data-i18n="edit_loan">Edit Loan</span>
+                    </a>
+                @endcan
                 <a href="{{ route('finance.loans.acknowledgement', $loan) }}" class="group-action" target="_blank" rel="noopener">
                     <x-icon name="printer" />
                     <span data-i18n="print_acknowledgement">Print acknowledgement</span>

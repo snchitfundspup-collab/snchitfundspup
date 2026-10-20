@@ -13,7 +13,7 @@ use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 /**
- * Customer Credit (SN Traders): who owes how much (sales minus money
+ * Customer Credit (Sri Lakshmi Traders): who owes how much (sales minus money
  * received) and each customer's account statement — every invoice and
  * receipt with a running balance. Printable and downloadable.
  */

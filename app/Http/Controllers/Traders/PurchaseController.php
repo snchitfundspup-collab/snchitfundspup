@@ -18,7 +18,7 @@ use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 /**
- * Purchases (SN Traders): rice bought from suppliers. The list opens on
+ * Purchases (Sri Lakshmi Traders): rice bought from suppliers. The list opens on
  * this month; each bill has one or more variety lines and prints / downloads.
  */
 class PurchaseController extends Controller

@@ -64,7 +64,7 @@ Route::redirect('/admin', '/finance')->name('admin.home');
 
 Route::middleware('auth:web')->group(function () {
 
-    /* SN Chit Funds dashboard */
+    /* Sri Lakshmi Chit Funds dashboard */
     Route::get(
         '/admin/chit-funds',
         [DashboardController::class, 'index']
@@ -417,7 +417,7 @@ Route::middleware('auth:web')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | SN TRADERS (rice purchase & sales) — its own pages, customers shared
+    | SRI LAKSHMI TRADERS (rice purchase & sales) — its own pages, customers shared
     |--------------------------------------------------------------------------
     */
 
@@ -517,6 +517,8 @@ Route::middleware('auth:web')->group(function () {
         Route::get('/loans/new', [Finance\LoanController::class, 'create'])->name('loans.create');
         Route::post('/loans', [Finance\LoanController::class, 'store'])->name('loans.store');
         Route::get('/loans/{loan}', [Finance\LoanController::class, 'show'])->name('loans.show');
+        Route::get('/loans/{loan}/edit', [Finance\LoanController::class, 'edit'])->name('loans.edit')->middleware('can:edit-loans');
+        Route::put('/loans/{loan}', [Finance\LoanController::class, 'update'])->name('loans.update')->middleware('can:edit-loans');
         Route::get('/loans/{loan}/acknowledgement', [Finance\LoanController::class, 'acknowledgement'])->name('loans.acknowledgement');
         Route::get('/loans/{loan}/acknowledgement.pdf', [Finance\LoanController::class, 'acknowledgementPdf'])->name('loans.acknowledgement.pdf');
         Route::get('/loans/{loan}/kfs', [Finance\LoanController::class, 'kfs'])->name('loans.kfs');
@@ -586,7 +588,7 @@ Route::prefix('my')->name('portal.')->group(function () {
         Route::middleware(EnsureCustomerChoseOwnPassword::class)->group(function () {
             Route::get('/', [Portal\DashboardController::class, 'index'])->name('dashboard');
 
-            /* SN Chit Funds (paused for customers unless PORTAL_SECTIONS has "chit") */
+            /* Sri Lakshmi Chit Funds (paused for customers unless PORTAL_SECTIONS has "chit") */
             Route::middleware(EnsurePortalSectionOpen::class.':'.EnsurePortalSectionOpen::CHIT)->group(function () {
                 Route::get('/groups', [Portal\ChitController::class, 'groups'])->name('groups');
                 Route::get('/groups/{member}', [Portal\ChitController::class, 'seat'])->name('groups.show');
@@ -599,7 +601,7 @@ Route::prefix('my')->name('portal.')->group(function () {
                 Route::post('/join-requests/{joinRequest}/withdraw', [Portal\ChitController::class, 'withdrawInterest'])->name('upcoming.withdraw');
             });
 
-            /* SN Traders (paused for customers unless PORTAL_SECTIONS has "traders") */
+            /* Sri Lakshmi Traders (paused for customers unless PORTAL_SECTIONS has "traders") */
             Route::middleware(EnsurePortalSectionOpen::class.':'.EnsurePortalSectionOpen::TRADERS)->group(function () {
                 Route::get('/rice', [Portal\TradersController::class, 'rice'])->name('rice');
                 Route::get('/orders', [Portal\TradersController::class, 'orders'])->name('orders');

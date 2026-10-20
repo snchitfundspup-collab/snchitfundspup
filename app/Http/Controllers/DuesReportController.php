@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ChitGroup;
 use App\Models\ChitGroupMember;
+use App\Support\AgentFilter;
 use App\Support\ReportPdf as Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -58,10 +59,13 @@ class DuesReportController extends Controller
             ->get(['id', 'name']);
 
         $group = $groups->firstWhere('id', $request->integer('group'));
+        $agent = AgentFilter::selected($request);
+        $agentName = $agent ? AgentFilter::staff()->get($agent) : null;
 
         $rows = ChitGroupMember::query()
             ->whereHas('chitGroup', fn ($query) => $query->where('status', ChitGroup::STATUS_RUNNING))
             ->when($group, fn ($query) => $query->where('chit_group_id', $group->id))
+            ->when($agent, fn ($query) => $query->where('agent_id', $agent))
             ->with([
                 'customer',
                 'chitGroup',
@@ -92,7 +96,7 @@ class DuesReportController extends Controller
             ->sortBy('name')
             ->values();
 
-        return compact('type', 'group', 'groups', 'pending', 'due', 'byGroup', 'today');
+        return compact('type', 'group', 'groups', 'pending', 'due', 'byGroup', 'today', 'agent', 'agentName');
     }
 
     /**

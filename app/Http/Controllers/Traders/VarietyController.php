@@ -10,7 +10,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
- * Rice Varieties (SN Traders → Masters): the rice kinds bought and sold,
+ * Rice Varieties (Sri Lakshmi Traders → Masters): the rice kinds bought and sold,
  * each with its usual bag weight.
  */
 class VarietyController extends Controller

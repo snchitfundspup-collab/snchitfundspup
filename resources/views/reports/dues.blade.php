@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Pending & Due | SN Chit Funds')
+@section('title', 'Pending & Due | Sri Lakshmi Chit Funds')
 
 @push('styles')
     @vite([
@@ -10,7 +10,7 @@
 @endpush
 
 @php
-    $query = array_filter(['type' => $type === 'all' ? null : $type, 'group' => $group?->id]);
+    $query = array_filter(['type' => $type === 'all' ? null : $type, 'group' => $group?->id, 'agent' => $agent]);
 @endphp
 
 @section('content')
@@ -80,7 +80,7 @@
                 'due' => ['collect_state_due', 'Due', $due->count()],
             ] as $tabType => [$tabKey, $tabLabel, $tabCount])
                 <a
-                    href="{{ route('reports.dues', array_filter(['type' => $tabType === 'all' ? null : $tabType, 'group' => $group?->id])) }}"
+                    href="{{ route('reports.dues', array_filter(['type' => $tabType === 'all' ? null : $tabType, 'group' => $group?->id, 'agent' => $agent])) }}"
                     @class(['status-tab', 'collect-tab-'.$tabType, 'active' => $type === $tabType])
                     @if ($type === $tabType) aria-current="page" @endif
                 >
@@ -112,6 +112,8 @@
                 @endforeach
             </select>
         </label>
+
+        @include('components.partials.agent-filter', ['agentFilterSubmit' => true])
 
     </form>
 

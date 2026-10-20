@@ -10,7 +10,7 @@ use Illuminate\View\View;
 
 /**
  * A customer's home page: their chit groups first (months done / left and
- * what is due), the groups that are forming, then SN Traders — their rice
+ * what is due), the groups that are forming, then Sri Lakshmi Traders — their rice
  * balance and orders, and the rice to buy. Family members sharing the phone
  * are included, each seat under its own name and ID.
  */

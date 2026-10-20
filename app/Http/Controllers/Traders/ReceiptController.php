@@ -14,7 +14,7 @@ use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 /**
- * Customer receipts (SN Traders → Customer Credit): money received from a
+ * Customer receipts (Sri Lakshmi Traders → Customer Credit): money received from a
  * customer against what they owe, with a printable receipt.
  */
 class ReceiptController extends Controller

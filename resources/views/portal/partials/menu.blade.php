@@ -1,6 +1,6 @@
 {{-- Side menu for the customer pages: Home, then each business open to
-     customers (PORTAL_SECTIONS) with a few simple items. SN Chit Funds and
-     SN Traders are paused for now. --}}
+     customers (PORTAL_SECTIONS) with a few simple items. Sri Lakshmi Chit Funds and
+     Sri Lakshmi Traders are paused for now. --}}
 
 @php
     $open = fn (string $section) => \App\Http\Middleware\EnsurePortalSectionOpen::isOpen($section);
@@ -21,14 +21,14 @@
     }
 
     if ($open('chit')) {
-        $sections[] = ['menu_chit_funds', 'SN Chit Funds', [
+        $sections[] = ['menu_chit_funds', 'Sri Lakshmi Chit Funds', [
             ['portal.groups', 'layers', 'blue', 'my_groups', 'My Groups', 'portal.groups*'],
             ['portal.upcoming', 'calendar', 'purple', 'upcoming_groups', 'Upcoming Groups', 'portal.upcoming*'],
         ]];
     }
 
     if ($open('traders')) {
-        $sections[] = ['menu_traders', 'SN Traders', [
+        $sections[] = ['menu_traders', 'Sri Lakshmi Traders', [
             ['portal.rice', 'package', 'green', 'rice_and_order', 'Rice & Order', 'portal.rice'],
             ['portal.orders', 'check', 'orange', 'my_orders', 'My Orders', 'portal.orders*'],
             ['portal.bills', 'rupee', 'purple', 'my_bills', 'Bills & Statement', 'portal.bills*'],

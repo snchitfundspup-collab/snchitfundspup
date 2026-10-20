@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * A mill / wholesaler SN Traders buys rice from.
+ * A mill / wholesaler Sri Lakshmi Traders buys rice from.
  */
 class Supplier extends Model
 {

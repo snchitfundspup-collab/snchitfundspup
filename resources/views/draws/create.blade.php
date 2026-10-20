@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Run Draw | SN Chit Funds')
+@section('title', 'Run Draw | Sri Lakshmi Chit Funds')
 
 @push('styles')
     @vite([

@@ -4,7 +4,7 @@
      $agentSelected (optional), $agentClass (optional wrapper class) —
      prefixed so they never clash with the including page's variables. --}}
 @php
-    $agentStaff = \App\Models\User::query()->orderBy('name')->get(['id', 'name']);
+    $agentStaff = \App\Models\User::query()->active()->orderBy('name')->get(['id', 'name']);
     $agentChosen = (string) old($agentName, $agentSelected ?? auth()->id());
 @endphp
 

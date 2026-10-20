@@ -34,9 +34,9 @@ test('a loan and its collections save the agent chosen, or whoever is signed in'
         'principal' => '10,000',
         'processing_fee_rate' => '1',
         'gst_rate' => '18',
-        'interest_rate' => '26',
         'frequency' => 'daily',
         'installments' => '100',
+        'installment_amount' => '108',
         'first_due_on' => '2026-10-02',
         'agent_id' => $this->ranjith->id,
     ])->assertSessionHasNoErrors();
@@ -70,6 +70,8 @@ test('the Micro Finance agent statement shows the agent\'s customers, collection
         ->assertOk()
         ->assertSeeText('Kavitha (Tailor)')
         ->assertSeeText('L000001')
+        ->assertSeeText('Processing fee (income)')
+        ->assertSeeText('₹'.number_format($loan->processing_fee))
         ->assertSeeText('September 2026')
         ->assertSeeText('October 2026')
         ->assertSeeText('Mon, 21 Sep 2026')
@@ -111,6 +113,7 @@ test('chit seats and payments carry the agent into the chit agent statement', fu
     $this->get(route('reports.agent', ['agent' => $this->ranjith->id]))
         ->assertOk()
         ->assertSeeText('Two Lakh Oct')
+        ->assertDontSeeText('Processing fee (income)')
         ->assertSeeText('Forming Group')
         ->assertSeeText($payment->receipt_number)
         ->assertSeeText('₹10,000');

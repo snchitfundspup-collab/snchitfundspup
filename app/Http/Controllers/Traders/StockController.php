@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 /**
- * Stock (SN Traders): rice on hand per variety — everything purchased minus
+ * Stock (Sri Lakshmi Traders): rice on hand per variety — everything purchased minus
  * everything sold, in bags.
  */
 class StockController extends Controller

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * A rice variety SN Traders buys and sells (e.g. Ponni 26 kg bag), with
+ * A rice variety Sri Lakshmi Traders buys and sells (e.g. Ponni 26 kg bag), with
  * its purchase and selling price per bag. The purchase price follows the
  * latest purchase bill.
  */

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard | SN Traders')
+@section('title', 'Dashboard | Sri Lakshmi Traders')
 
 @push('styles')
     @vite([
@@ -46,7 +46,7 @@
             </h1>
 
             <p class="dashboard-subtitle" data-i18n="traders_dashboard_subtitle">
-                Here's what's happening with SN Traders today.
+                Here's what's happening with Sri Lakshmi Traders today.
             </p>
         </div>
 

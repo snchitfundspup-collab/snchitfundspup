@@ -1,4 +1,4 @@
-{{-- Printable SN Traders report (rice sales, profit & loss, dues, day book). --}}
+{{-- Printable Sri Lakshmi Traders report (rice sales, profit & loss, dues, day book). --}}
 @extends('layouts.print')
 
 @section('title', $title)

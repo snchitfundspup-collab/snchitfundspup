@@ -18,8 +18,8 @@ uses(RefreshDatabase::class);
  * Today is 5 Oct 2026 (10:00). Narayanan gives Kavitha (identification
  * "Tailor") a ₹10,000 loan on 1 Oct on the standard terms: 1% processing
  * fee (₹100) and 18% GST on it (₹18) are cut, so she receives ₹9,882;
- * 26% a year for 100 days adds ₹712, and she repays ₹10,712 at ₹108 a day
- * from 2 Oct (the last day ₹20).
+ * the office types ₹108 a day for 100 days from 2 Oct, so she repays
+ * ₹10,800 — ₹800 interest, 29.2% a year.
  */
 beforeEach(function () {
     $this->travelTo(Carbon::parse('2026-10-05 10:00:00'));
@@ -38,10 +38,9 @@ function giveLoan(array $overrides = []): FinanceLoan
         'principal' => '10,000',
         'processing_fee_rate' => '1',
         'gst_rate' => '18',
-        'interest_rate' => '26',
         'frequency' => 'daily',
         'installments' => '100',
-        'installment_amount' => '',
+        'installment_amount' => '108',
         'first_due_on' => '2026-10-02',
         ...$overrides,
     ])->assertSessionHasNoErrors();
@@ -49,19 +48,20 @@ function giveLoan(array $overrides = []): FinanceLoan
     return FinanceLoan::latest('id')->firstOrFail();
 }
 
-test('a loan cuts the fee and GST, adds interest for the period and works out the instalment', function () {
+test('a loan cuts the fee and GST, and works out the interest from the instalment typed', function () {
     $loan = giveLoan();
 
     expect($loan->loan_number)->toBe('L'.str_pad((string) $loan->id, 6, '0', STR_PAD_LEFT))
         ->and($loan->processing_fee)->toBe(100)
         ->and($loan->gst)->toBe(18)
         ->and($loan->amountGiven())->toBe(9882)
-        ->and($loan->interest)->toBe(712)
+        ->and($loan->interest)->toBe(800)
+        ->and($loan->interest_rate)->toBe(29.2)
         ->and($loan->term_days)->toBe(100)
-        ->and($loan->loan_amount)->toBe(10712)
+        ->and($loan->loan_amount)->toBe(10800)
         ->and($loan->installments)->toBe(100)
         ->and($loan->installment_amount)->toBe(108)
-        ->and($loan->lastInstallment())->toBe(20)
+        ->and($loan->lastInstallment())->toBe(108)
         ->and($loan->recorded_by)->toBe($this->admin->id)
         ->and($loan->lastDueDate()->toDateString())->toBe('2027-01-09');
 
@@ -69,7 +69,7 @@ test('a loan cuts the fee and GST, adds interest for the period and works out th
         ->assertOk()
         ->assertSeeText('Kavitha (Tailor)')
         ->assertSeeText('₹9,882')
-        ->assertSeeText('₹10,712')
+        ->assertSeeText('₹10,800')
         ->assertSeeText('Record collection');
 
     $this->get(route('finance.loans.acknowledgement', $loan))
@@ -82,39 +82,71 @@ test('a loan cuts the fee and GST, adds interest for the period and works out th
         ->assertDontSeeText('processing fee')
         ->assertDontSeeText('GST')
         ->assertDontSeeText('Total to repay')
-        ->assertDontSeeText('₹10,712');
+        ->assertDontSeeText('₹10,800');
 
     $this->get(route('finance.loans.acknowledgement.pdf', $loan))->assertOk()->assertHeader('content-type', 'application/pdf');
 });
 
-test('weeks, rates, the number of days and the instalment can all be changed', function () {
-    /* weekly: 14 weeks = 98 days of interest */
-    $weekly = giveLoan(['frequency' => 'weekly', 'installments' => '14', 'first_due_on' => '2026-10-08']);
+test('weekly with the default 2% fee and no GST; the instalment must be typed and repay at least the loan', function () {
+    /* weekly: 14 weeks of ₹800 = ₹11,200 over 98 days */
+    $weekly = giveLoan(['frequency' => 'weekly', 'installments' => '14', 'installment_amount' => '800', 'first_due_on' => '2026-10-08', 'processing_fee_rate' => '2', 'gst_rate' => '0']);
 
     expect($weekly->term_days)->toBe(98)
-        ->and($weekly->interest)->toBe(698)
-        ->and($weekly->loan_amount)->toBe(10698)
-        ->and($weekly->installment_amount)->toBe(765);
+        ->and($weekly->processing_fee)->toBe(200)
+        ->and($weekly->gst)->toBe(0)
+        ->and($weekly->amountGiven())->toBe(9800)
+        ->and($weekly->loan_amount)->toBe(11200)
+        ->and($weekly->interest)->toBe(1200)
+        ->and($weekly->interest_rate)->toBe(44.69);
 
-    /* the office's own rates */
-    $cheaper = giveLoan(['processing_fee_rate' => '2', 'gst_rate' => '0', 'interest_rate' => '24.5']);
-
-    expect($cheaper->processing_fee)->toBe(200)
-        ->and($cheaper->gst)->toBe(0)
-        ->and($cheaper->amountGiven())->toBe(9800)
-        ->and($cheaper->interest)->toBe(671);
-
-    /* the office's own instalment, if it repays the total exactly */
     $this->post(route('finance.loans.store'), [
-        'customer_id' => $this->customer->id, 'loaned_on' => '2026-10-01', 'principal' => '10000', 'processing_fee_rate' => '1', 'gst_rate' => '18',
-        'interest_rate' => '26', 'frequency' => 'daily', 'installments' => '100', 'installment_amount' => '110', 'first_due_on' => '2026-10-02',
+        'customer_id' => $this->customer->id, 'loaned_on' => '2026-10-01', 'principal' => '10000', 'processing_fee_rate' => '2', 'gst_rate' => '0',
+        'frequency' => 'weekly', 'installments' => '14', 'installment_amount' => '', 'first_due_on' => '2026-10-08',
     ])->assertSessionHasErrors('installment_amount');
 
-    $own = giveLoan(['installments' => '98', 'installment_amount' => '110']);
+    /* 14 × ₹700 = ₹9,800, less than the loan */
+    $this->post(route('finance.loans.store'), [
+        'customer_id' => $this->customer->id, 'loaned_on' => '2026-10-01', 'principal' => '10000', 'processing_fee_rate' => '2', 'gst_rate' => '0',
+        'frequency' => 'weekly', 'installments' => '14', 'installment_amount' => '700', 'first_due_on' => '2026-10-08',
+    ])->assertSessionHasErrors('installment_amount');
 
-    expect($own->loan_amount)->toBe(10698)
-        ->and($own->installment_amount)->toBe(110)
-        ->and($own->lastInstallment())->toBe(28);
+    $this->get(route('finance.loans.create'))
+        ->assertOk()
+        ->assertSee('name="frequency" value="weekly" data-installments="14" checked', false)
+        ->assertSee('id="processing_fee_rate" name="processing_fee_rate" class="input" inputmode="decimal" required autocomplete="off"
+                            value="2"', false);
+});
+
+test('only Sathiya can edit a loan; the terms are worked out again and never below what is collected', function () {
+    $loan = giveLoan();
+    FinanceCollection::record($loan, ['amount' => 5000, 'collected_at' => '2026-10-02 09:00:00', 'method' => 'cash']);
+
+    $this->get(route('finance.loans.show', $loan))->assertDontSeeText('Edit Loan');
+    $this->get(route('finance.loans.edit', $loan))->assertForbidden();
+
+    $sathiya = User::factory()->create(['name' => 'Sathiya', 'can_edit_loans' => true]);
+    $this->actingAs($sathiya, 'web');
+    $other = Customer::factory()->create(['name' => 'Ravi']);
+
+    $this->get(route('finance.loans.show', $loan))->assertSeeText('Edit Loan');
+    $this->get(route('finance.loans.edit', $loan))->assertOk()->assertSee('value="108"', false);
+
+    $input = [
+        'customer_id' => $other->id, 'loaned_on' => '2026-10-01', 'principal' => '10000', 'processing_fee_rate' => '2', 'gst_rate' => '0',
+        'frequency' => 'weekly', 'installments' => '14', 'installment_amount' => '800', 'first_due_on' => '2026-10-08',
+    ];
+
+    /* 14 × ₹300 = ₹4,200 is less than the ₹5,000 collected */
+    $this->put(route('finance.loans.update', $loan), ['installment_amount' => '300'] + $input)->assertSessionHasErrors('installment_amount');
+
+    $this->put(route('finance.loans.update', $loan), $input)->assertRedirect(route('finance.loans.show', $loan));
+
+    $loan->refresh();
+    expect($loan->customer_id)->toBe($other->id)
+        ->and($loan->frequency)->toBe('weekly')
+        ->and($loan->loan_amount)->toBe(11200)
+        ->and($loan->processing_fee)->toBe(200)
+        ->and($loan->collections()->value('customer_id'))->toBe($other->id);
 });
 
 test('missed instalments are overdue (red) and today\'s is due (orange)', function () {
@@ -143,15 +175,15 @@ test('missed instalments are overdue (red) and today\'s is due (orange)', functi
 });
 
 test('a collection never exceeds the balance; full payment closes the loan and cancelling opens it again', function () {
-    /* ₹1,000 for 2 days: ₹1 interest, ₹1,001 to repay */
-    $loan = giveLoan(['principal' => '1000', 'installments' => '2']);
+    /* ₹1,000 in 2 days of ₹501: ₹1,002 to repay */
+    $loan = giveLoan(['principal' => '1000', 'installments' => '2', 'installment_amount' => '501']);
 
-    expect($loan->loan_amount)->toBe(1001);
+    expect($loan->loan_amount)->toBe(1002);
 
     $this->post(route('finance.collections.store', $loan), ['amount' => '1,200', 'collected_at' => '2026-10-05T09:30', 'method' => 'cash'])
-        ->assertSessionHasErrors(['amount' => 'The amount cannot be more than the balance of ₹1,001.']);
+        ->assertSessionHasErrors(['amount' => 'The amount cannot be more than the balance of ₹1,002.']);
 
-    $this->post(route('finance.collections.store', $loan), ['amount' => '1001', 'collected_at' => '2026-10-05T09:30', 'method' => 'upi', 'reference' => 'UPI123'])
+    $this->post(route('finance.collections.store', $loan), ['amount' => '1002', 'collected_at' => '2026-10-05T09:30', 'method' => 'upi', 'reference' => 'UPI123'])
         ->assertRedirect();
 
     $collection = FinanceCollection::sole();
@@ -160,7 +192,7 @@ test('a collection never exceeds the balance; full payment closes the loan and c
         ->and($loan->refresh()->isClosed())->toBeTrue()
         ->and($loan->closed_on->toDateString())->toBe('2026-10-05');
 
-    $this->get(route('finance.collections.show', $collection))->assertOk()->assertSeeText('₹1,001')->assertSeeText('Kavitha (Tailor)');
+    $this->get(route('finance.collections.show', $collection))->assertOk()->assertSeeText('₹1,002')->assertSeeText('Kavitha (Tailor)');
     $this->get(route('finance.collections.pdf', $collection))->assertOk()->assertHeader('content-type', 'application/pdf');
 
     /* a loan with collections cannot be deleted */
@@ -168,7 +200,7 @@ test('a collection never exceeds the balance; full payment closes the loan and c
 
     $this->delete(route('finance.collections.destroy', $collection))->assertRedirect(route('finance.loans.show', $loan));
 
-    expect($loan->refresh()->isClosed())->toBeFalse()->and($loan->balance())->toBe(1001);
+    expect($loan->refresh()->isClosed())->toBeFalse()->and($loan->balance())->toBe(1002);
 
     $this->delete(route('finance.loans.destroy', $loan))->assertRedirect(route('finance.loans.index'));
     expect(FinanceLoan::count())->toBe(0);
@@ -199,8 +231,8 @@ test('reports show, print and download; profit is the fee plus the interest coll
     $partner = User::factory()->create(['name' => 'Sathiya', 'is_partner' => true]);
     $loan = giveLoan();
 
-    /* ₹1,071 collected holds ₹71 interest (712 / 10,712 of it) */
-    FinanceCollection::record($loan, ['amount' => 1071, 'collected_at' => '2026-10-04 09:00:00', 'method' => 'cash']);
+    /* ₹1,080 collected holds ₹80 interest (800 / 10,800 of it) */
+    FinanceCollection::record($loan, ['amount' => 1080, 'collected_at' => '2026-10-04 09:00:00', 'method' => 'cash']);
 
     $this->post(route('finance.expenses.store'), [
         'spent_on' => '2026-10-03', 'description' => 'Collection bike petrol', 'amount' => 250, 'paid_by' => $partner->id, 'method' => 'cash',
@@ -212,11 +244,11 @@ test('reports show, print and download; profit is the fee plus the interest coll
     $this->get(route('finance.reports.show', ['report' => 'profit']))
         ->assertOk()
         ->assertViewHas('summary', fn (array $summary) => $summary['fees'] === 100
-            && $summary['interest'] === 71
-            && $summary['income'] === 171
+            && $summary['interest'] === 80
+            && $summary['income'] === 180
             && $summary['gst'] === 18
             && $summary['expenses'] === 250
-            && $summary['net'] === -79
+            && $summary['net'] === -70
             && $summary['lent'] === 9882);
 
     foreach (array_keys(ReportController::REPORTS) as $report) {
@@ -225,7 +257,7 @@ test('reports show, print and download; profit is the fee plus the interest coll
         $this->get(route('finance.reports.pdf', ['report' => $report]))->assertOk()->assertHeader('content-type', 'application/pdf');
     }
 
-    $this->get(route('finance.reports.show', ['report' => 'outstanding']))->assertSeeText('Kavitha (Tailor)')->assertSeeText('₹10,712');
+    $this->get(route('finance.reports.show', ['report' => 'outstanding']))->assertSeeText('Kavitha (Tailor)')->assertSeeText('₹10,800');
 
     $this->get(route('finance.reports.customer'))->assertOk()->assertSeeText('Kavitha');
     $this->get(route('finance.accounts.show', $this->customer))->assertOk()->assertSeeText('₹10,000');
@@ -261,7 +293,7 @@ test('customers see their own loans with receipts, never other customers loans',
 
     $this->get(route('portal.dashboard'))->assertOk()->assertSeeText('Micro Finance')->assertSeeText($loan->loan_number)->assertSeeText('My Loans');
     $this->get(route('portal.loans'))->assertOk()->assertSeeText($loan->loan_number)->assertDontSeeText($otherLoan->loan_number);
-    $this->get(route('portal.loans.show', $loan))->assertOk()->assertSeeText($collection->receipt_number)->assertSeeText('₹10,604');
+    $this->get(route('portal.loans.show', $loan))->assertOk()->assertSeeText($collection->receipt_number)->assertSeeText('₹10,692');
     $this->get(route('portal.loans.receipt.pdf', $collection))->assertOk()->assertHeader('content-type', 'application/pdf');
 
     $this->get(route('portal.loans.show', $otherLoan))->assertNotFound();
@@ -329,7 +361,7 @@ test('the loan plans show what a customer receives and repays, without an APR', 
     $this->actingAs($this->customer->refresh(), 'customer')
         ->get(route('portal.loan-plans'))
         ->assertOk()
-        ->assertSeeText('₹9,882')
+        ->assertSeeText('₹9,800')
         ->assertSeeText('₹10,712')
         ->assertSeeText('₹108')
         ->assertSeeText('₹765')
@@ -352,8 +384,8 @@ test('customers see their loan day by day — paid and left — and can print or
         ->and($schedule[0]['paid_on'][0]->toDateString())->toBe('2026-10-04')
         ->and($schedule[3]['paid_by'])->toBeNull()
         ->and($schedule[3]['paid_on'])->toBe([])
-        ->and($schedule[0]['balance_after'])->toBe(10604)
-        ->and($schedule->last()['amount'])->toBe(20)
+        ->and($schedule[0]['balance_after'])->toBe(10692)
+        ->and($schedule->last()['amount'])->toBe(108)
         ->and($schedule->last()['balance_after'])->toBe(0);
 
     $this->get(route('portal.loans.show', $loan))
@@ -362,7 +394,7 @@ test('customers see their loan day by day — paid and left — and can print or
         ->assertSeeText('Collected on')
         ->assertSeeText('04 Oct')
         ->assertSeeText('Left to pay')
-        ->assertSeeText('₹10,442');
+        ->assertSeeText('₹10,530');
 
     $this->get(route('portal.loans.passbook', $loan))
         ->assertOk()
@@ -412,9 +444,9 @@ test('on its own domain, staff land on Micro Finance and customers see its name'
     $this->get('http://snchitfunds.com/')->assertOk()->assertSeeText('See your chit groups');
 });
 
-test('Micro Finance pages and the customer pages use the Sri Lakshmi tab icon; SN pages keep theirs', function () {
+test('every business and the customer pages use the Sri Lakshmi tab icon', function () {
     $this->get(route('finance.dashboard'))->assertSee('favicon-sl.ico', false);
-    $this->get(route('dashboard'))->assertSee('favicon.ico', false)->assertDontSee('favicon-sl.ico', false);
+    $this->get(route('dashboard'))->assertSee('favicon-sl.ico', false)->assertDontSee('/favicon.ico', false);
 
     auth('web')->logout();
     $this->get(route('portal.login'))->assertSee('favicon-sl.ico', false)->assertSee('apple-touch-icon-sl.png', false);
@@ -431,7 +463,7 @@ test('in Micro Finance the customer list shows running loans instead of chit gro
         ->assertViewHas('inFinance', true)
         ->assertSeeText('Manage your customers and their loans')
         ->assertSeeText('1 loan')
-        ->assertSeeText('₹10,712')
+        ->assertSeeText('₹10,800')
         ->assertSee(route('finance.accounts.show', $this->customer), false)
         ->assertSee(route('finance.loans.create', ['customer' => Customer::where('name', 'Ravi')->value('id')]), false)
         ->assertDontSeeText('View Groups');
@@ -488,7 +520,7 @@ test('the passbook carries the signature of whoever collected each instalment', 
     $this->get(route('finance.loans.kfs', $loan))
         ->assertOk()
         ->assertSee('alt="Signature of Sathiya"', false)
-        ->assertSeeText('Ranjith');
+        ->assertSee('alt="Signature of Ranjith"', false);
 
     $this->get(route('finance.loans.kfs.pdf', $loan))->assertOk()->assertHeader('content-type', 'application/pdf');
 });

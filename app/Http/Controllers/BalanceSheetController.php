@@ -22,7 +22,7 @@ use Illuminate\View\View;
  * spending equally. For each partner: what they paid, their equal share,
  * settlements given / received, and the balance — then who should pay whom
  * to square up. Settlements are recorded here. Print and PDF. Serves SN
- * Chit Funds, SN Traders (routes traders.*) and Sri Lakshmi Micro Finance
+ * Chit Funds, Sri Lakshmi Traders (routes traders.*) and Sri Lakshmi Micro Finance
  * (routes finance.*), each with its own tables.
  */
 class BalanceSheetController extends Controller

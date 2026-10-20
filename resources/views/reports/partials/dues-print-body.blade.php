@@ -5,6 +5,9 @@
     <tr>
         <td><span class="label">{{ __('As on') }}</span><strong>{{ $today->format('D, d M Y') }}</strong></td>
         <td><span class="label">{{ __('Group') }}</span><strong>{{ $group?->name ?? __('All running groups') }}</strong></td>
+        @if ($agentName ?? null)
+            <td><span class="label">{{ __('Agent') }}</span><strong>{{ $agentName }}</strong></td>
+        @endif
         @if ($type !== 'due')
             <td><span class="label">{{ __('Pending') }}</span><strong class="pending"><x-rupees :amount="$pending->sum('amount')" /></strong> <span class="muted">({{ $pending->count() }})</span></td>
         @endif

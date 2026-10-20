@@ -23,7 +23,8 @@
         'profit' => ['profit_loss', 'Profit & Loss', 'finance_profit_subtitle', 'Processing fees and the interest collected, less expenses — the business keeps the profit. GST is kept apart.'],
     ];
     [$titleKey, $titleText, $subtitleKey, $subtitleText] = $headings[$report];
-    $query = $filters ? ($filters['range'] !== '' ? ['range' => $filters['range']] : ['from' => $filters['from'], 'to' => $filters['to']]) : [];
+    $query = ($filters ? ($filters['range'] !== '' ? ['range' => $filters['range']] : ['from' => $filters['from'], 'to' => $filters['to']]) : [])
+        + array_filter(['agent' => $agent]);
 @endphp
 
 @section('content')
@@ -41,9 +42,14 @@
         @include('traders.partials.list-filters', [
             'route' => 'finance.reports.show',
             'routeParams' => ['report' => $report],
-            'keep' => [],
+            'keep' => array_filter(['agent' => $agent]),
             'searchPlaceholder' => null,
+            'extra' => $report === 'profit' ? '' : view('components.partials.agent-filter')->render(),
         ])
+    @else
+        <form method="GET" action="{{ route('finance.reports.show', ['report' => $report]) }}" class="payment-filters">
+            @include('components.partials.agent-filter', ['agentFilterSubmit' => true])
+        </form>
     @endif
 
     <div id="paymentsResults">

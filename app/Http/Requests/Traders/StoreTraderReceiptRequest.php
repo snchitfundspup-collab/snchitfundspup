@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * Money received from a customer against their SN Traders credit.
+ * Money received from a customer against their Sri Lakshmi Traders credit.
  */
 class StoreTraderReceiptRequest extends FormRequest
 {

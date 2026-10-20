@@ -11,7 +11,7 @@ use Illuminate\Validation\Validator;
 /**
  * A rice purchase bill (from a supplier) or sale invoice (to a customer):
  * the header plus one or more variety lines — bags and the rate per bag
- * (SN Traders deals in whole bags). A sale may also take money now.
+ * (Sri Lakshmi Traders deals in whole bags). A sale may also take money now.
  */
 class StoreRiceBillRequest extends FormRequest
 {

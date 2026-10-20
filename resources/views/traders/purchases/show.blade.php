@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Purchase '.$purchase->purchase_number.' | SN Traders')
+@section('title', 'Purchase '.$purchase->purchase_number.' | Sri Lakshmi Traders')
 
 @push('styles')
     @vite([
@@ -70,7 +70,7 @@
         'extraRows' => [],
         'recordedBy' => $purchase->recorder?->name,
         'signer' => $purchase->recorder,
-        'thanks' => 'Purchase record — SN Traders',
+        'thanks' => 'Purchase record — Sri Lakshmi Traders',
     ])
 
 </div>

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'username', 'email', 'password', 'is_partner', 'can_view_usage'])]
+#[Fillable(['name', 'username', 'email', 'password', 'is_partner', 'can_view_usage', 'can_edit_loans', 'is_active'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -30,7 +30,19 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_partner' => 'boolean',
             'can_view_usage' => 'boolean',
+            'can_edit_loans' => 'boolean',
+            'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * Staff who may still sign in (removed staff keep their records).
+     *
+     * @param  Builder<User>  $query
+     */
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('is_active', true);
     }
 
     /**

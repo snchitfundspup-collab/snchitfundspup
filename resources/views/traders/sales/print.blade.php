@@ -1,4 +1,4 @@
-{{-- Printable sales list (SN Traders). --}}
+{{-- Printable sales list (Sri Lakshmi Traders). --}}
 @extends('layouts.print')
 
 @section('title', 'Sales')

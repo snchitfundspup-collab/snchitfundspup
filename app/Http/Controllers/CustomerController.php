@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Support\AgentFilter;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -47,9 +48,17 @@ class CustomerController extends Controller
         /* in Sri Lakshmi Micro Finance the list shows each customer's running loans instead of chit groups */
         $inFinance = (view()->shared('business')['key'] ?? null) === 'finance';
 
+        /* agent: customers with a loan (Micro Finance) or a chit seat (Chit Funds) they brought in */
+        $agentFilter = in_array(view()->shared('business')['key'] ?? null, ['finance', 'chit'], true);
+        $agent = $agentFilter ? AgentFilter::selected($request) : null;
+
         $customers = Customer::query()
 
             ->search($search)
+
+            ->when($agent && $inFinance, fn (Builder $query) => $query->whereHas('financeLoans', fn (Builder $loans) => $loans->where('agent_id', $agent)))
+
+            ->when($agent && ! $inFinance, fn (Builder $query) => $query->whereHas('memberships', fn (Builder $seats) => $seats->where('agent_id', $agent)))
 
             ->when($inFinance, fn (Builder $query) => $query->with([
                 'financeLoans' => fn ($loans) => $loans->active()->withSum('collections as collected_total', 'amount'),
@@ -67,7 +76,8 @@ class CustomerController extends Controller
                 'customers',
                 'search',
                 'sort',
-                'inFinance'
+                'inFinance',
+                'agentFilter'
             )
         );
     }

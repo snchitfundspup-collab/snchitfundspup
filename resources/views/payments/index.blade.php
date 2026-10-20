@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Payments | SN Chit Funds')
+@section('title', 'Payments | Sri Lakshmi Chit Funds')
 
 @push('styles')
     @vite([
@@ -15,6 +15,7 @@
         'q' => $filters['q'],
         'method' => $filters['method'],
         'group' => $filters['group'],
+        'agent' => $filters['agent'],
     ]);
 
     $dates = ['from' => $filters['from'], 'to' => $filters['to']];
@@ -147,6 +148,8 @@
                 @endforeach
             </select>
         </label>
+
+        @include('components.partials.agent-filter')
 
         <div class="member-search payment-filter-search">
 

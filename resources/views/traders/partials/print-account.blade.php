@@ -1,4 +1,4 @@
-{{-- A customer's SN Traders account for the PDF: every invoice and
+{{-- A customer's Sri Lakshmi Traders account for the PDF: every invoice and
      receipt with a running balance. --}}
 
 <table class="info">

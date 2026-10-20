@@ -10,7 +10,7 @@
     [$titleKey, $titleText] = $titles[$status];
 @endphp
 
-@section('title', $titleText.' | SN Chit Funds')
+@section('title', $titleText.' | Sri Lakshmi Chit Funds')
 
 @push('styles')
     @vite([

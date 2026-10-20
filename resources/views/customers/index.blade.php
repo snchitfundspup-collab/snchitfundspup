@@ -98,6 +98,22 @@
 
             <div class="customers-controls-right">
 
+                {{-- AGENT (Micro Finance: loans, Chit Funds: seats they brought in) --}}
+
+                @if ($agentFilter)
+                    <label class="customer-sort">
+                        <span class="customer-sort-icon">
+                            <x-icon name="user-check" />
+                        </span>
+                        <select id="customerAgent" class="customer-sort-select" aria-label="Agent">
+                            <option value="" data-i18n="all_agents">All agents</option>
+                            @foreach (\App\Support\AgentFilter::staff() as $agentId => $agentName)
+                                <option value="{{ $agentId }}" @selected((string) request('agent') === (string) $agentId)>{{ $agentName }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+                @endif
+
                 {{-- SORT --}}
 
                 <label class="customer-sort">

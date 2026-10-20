@@ -45,29 +45,104 @@
                     <th data-i18n="capital_withdrawn">Capital taken out</th>
                     <td class="ledger-col-total">− <x-rupees :amount="$position['withdrawn']" /></td>
                 </tr>
-                <tr>
-                    <th>
-                        <span data-i18n="lent_in_hand">Lent (in hand)</span>
-                        <small class="dues-part-paid" data-i18n="lent_in_hand_note">Loan amount less the fee and GST kept</small>
-                    </th>
-                    <td class="ledger-col-total">− <x-rupees :amount="$position['lent']" /></td>
-                </tr>
-                <tr>
-                    <th data-i18n="collected_word">Collected</th>
-                    <td class="ledger-col-total ledger-total-paid">+ <x-rupees :amount="$position['collected']" /></td>
-                </tr>
+                {{-- money given out, by the agent who brought the customers in --}}
+                @foreach ($agents as $row)
+                    <tr>
+                        <th>
+                            <span data-i18n="given_to_customers_of">Given to customers of</span> {{ $row['agent'] }}
+                            <small class="dues-part-paid">
+                                {{ $row['loans'] }} <span data-i18n="loans_word">loans</span> · <x-rupees :amount="$row['principal']" />
+                                − <span data-i18n="processing_fee">Processing fee</span> <x-rupees :amount="$row['fee'] + $row['gst']" />
+                            </small>
+                        </th>
+                        <td class="ledger-col-total">− <x-rupees :amount="$row['in_hand']" /></td>
+                    </tr>
+                @endforeach
+                @if ($agents->isEmpty())
+                    <tr>
+                        <th data-i18n="lent_in_hand">Lent (in hand)</th>
+                        <td class="ledger-col-total">− <x-rupees :amount="0" /></td>
+                    </tr>
+                @endif
+
+                {{-- money that came back --}}
+                @foreach ($agents as $row)
+                    <tr>
+                        <th><span data-i18n="collected_from_customers_of">Collected back from customers of</span> {{ $row['agent'] }}</th>
+                        <td class="ledger-col-total ledger-total-paid">+ <x-rupees :amount="$row['collected']" /></td>
+                    </tr>
+                @endforeach
                 <tr>
                     <th data-i18n="menu_expenses">Expenses</th>
                     <td class="ledger-col-total">− <x-rupees :amount="$position['expenses']" /></td>
                 </tr>
                 <tr class="profit-total">
-                    <th data-i18n="available_to_lend">Available to lend</th>
+                    <th data-i18n="money_in_hand_to_lend">Money in hand to lend again</th>
                     <td @class(['ledger-col-total', 'ledger-total-paid' => $position['available'] >= 0, 'ledger-total-due' => $position['available'] < 0])><strong><x-rupees :amount="$position['available']" /></strong></td>
                 </tr>
             </tbody>
         </table>
 
+        {{-- for reference: what stayed with the business, and what is still out --}}
+        <div class="finance-breakdown">
+            <span><small data-i18n="processing_fee_profit">Processing fee kept (profit)</small><strong class="ledger-total-paid"><x-rupees :amount="(int) $agents->sum('fee')" /></strong></span>
+            @if ($agents->sum('gst') > 0)
+                <span><small data-i18n="gst_kept">GST kept (owed to the government)</small><strong><x-rupees :amount="(int) $agents->sum('gst')" /></strong></span>
+            @endif
+            <span><small data-i18n="still_with_customers">Still with customers (to collect)</small><strong class="finance-due-value"><x-rupees :amount="(int) $agents->sum('to_collect')" /></strong></span>
+        </div>
+
     </section>
+
+
+    {{-- BY AGENT --}}
+
+    @if ($agents->isNotEmpty())
+        <section class="group-panel glass payment-step">
+            <div class="group-panel-header">
+                <h2 data-i18n="money_by_agent">Money by agent</h2>
+            </div>
+            <div class="ledger-table-wrapper">
+                <table class="ledger-table statement-table portal-table">
+                    <thead>
+                        <tr>
+                            <th data-i18n="agent_word">Agent</th>
+                            <th class="ledger-col-total" data-i18n="loans_heading">Loans</th>
+                            <th class="ledger-col-total" data-i18n="loan_amount_word">Loan amount</th>
+                            <th class="ledger-col-total" data-i18n="processing_fee">Processing fee</th>
+                            <th class="ledger-col-total" data-i18n="given_in_hand">Given in hand</th>
+                            <th class="ledger-col-total" data-i18n="collected_word">Collected</th>
+                            <th class="ledger-col-total" data-i18n="still_to_collect">Still to collect</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($agents as $row)
+                            <tr>
+                                <td data-label="Agent"><strong>{{ $row['agent'] }}</strong></td>
+                                <td class="ledger-col-total" data-label="Loans">{{ $row['loans'] }}</td>
+                                <td class="ledger-col-total" data-label="Loan amount"><x-rupees :amount="$row['principal']" /></td>
+                                <td class="ledger-col-total" data-label="Processing fee"><x-rupees :amount="$row['fee'] + $row['gst']" /></td>
+                                <td class="ledger-col-total" data-label="Given in hand"><x-rupees :amount="$row['in_hand']" /></td>
+                                <td class="ledger-col-total ledger-total-paid" data-label="Collected"><x-rupees :amount="$row['collected']" /></td>
+                                <td @class(['ledger-col-total', 'ledger-total-due' => $row['to_collect'] > 0]) data-label="Still to collect"><x-rupees :amount="$row['to_collect']" /></td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th data-i18n="total">Total</th>
+                            <td class="ledger-col-total">{{ $agents->sum('loans') }}</td>
+                            <td class="ledger-col-total"><x-rupees :amount="(int) $agents->sum('principal')" /></td>
+                            <td class="ledger-col-total"><x-rupees :amount="(int) ($agents->sum('fee') + $agents->sum('gst'))" /></td>
+                            <td class="ledger-col-total"><x-rupees :amount="(int) $agents->sum('in_hand')" /></td>
+                            <td class="ledger-col-total"><x-rupees :amount="(int) $agents->sum('collected')" /></td>
+                            <td class="ledger-col-total"><x-rupees :amount="(int) $agents->sum('to_collect')" /></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+    @endif
 
 
     {{-- ADD --}}

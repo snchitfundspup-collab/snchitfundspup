@@ -10,7 +10,7 @@
     $startDateValue = old('start_date', $group->start_date?->format('Y-m-d'));
 @endphp
 
-@section('title', ($isEditing ? 'Edit Group' : 'Add Group').' | SN Chit Funds')
+@section('title', ($isEditing ? 'Edit Group' : 'Add Group').' | Sri Lakshmi Chit Funds')
 
 @push('styles')
     @vite([
