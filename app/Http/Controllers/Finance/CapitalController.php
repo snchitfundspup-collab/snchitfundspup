@@ -20,6 +20,7 @@ class CapitalController extends Controller
     {
         return view('finance.capital', [
             'position' => FinanceCapital::position(),
+            'agents' => FinanceCapital::byAgent(),
             'entries' => FinanceCapital::query()->with('recorder')->latest('entry_on')->latest('id')->paginate(20),
             'today' => today(config('app.business_timezone')),
         ]);
