@@ -156,6 +156,24 @@ test('page detail is kept for a month, while the daily counts keep the charts fo
         ->and($response->viewData('people')->firstWhere(fn ($person) => $person['person']->is($this->narayanan))['total'])->toBe(3);
 });
 
+test('a staff sign-in removes old usage detail once a day, as the scheduler is off', function () {
+    $old = usageOn('2026-08-10', $this->narayanan);
+    $recent = usageOn('2026-09-01', $this->narayanan);
+    $this->sathiya->update(['password' => 'secret-pass-123']);
+
+    $this->post(route('login.store'), ['username' => $this->sathiya->username, 'password' => 'secret-pass-123'])->assertRedirect();
+
+    expect(UsageLog::whereKey($old->id)->exists())->toBeFalse()
+        ->and(UsageLog::whereKey($recent->id)->exists())->toBeTrue();
+
+    /* once a day: a second sign-in the same day does not prune again */
+    $again = usageOn('2026-08-11', $this->narayanan);
+    auth('web')->logout();
+    $this->post(route('login.store'), ['username' => $this->sathiya->username, 'password' => 'secret-pass-123']);
+
+    expect(UsageLog::whereKey($again->id)->exists())->toBeTrue();
+});
+
 test('someone seen only before the last month still shows, without page detail', function () {
     usageOn('2026-07-01', $this->narayanan);
     UsageLog::query()->delete();
