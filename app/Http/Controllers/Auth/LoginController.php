@@ -30,6 +30,7 @@ class LoginController extends Controller
         $request->session()->regenerate();
 
         UsageLog::record($request, $request->user(), event: 'login');
+        UsageLog::pruneOldOncePerDay();
 
         return redirect()->intended(route('finance.dashboard'));
     }
