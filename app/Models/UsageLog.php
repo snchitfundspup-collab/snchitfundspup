@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 /**
@@ -160,6 +161,21 @@ class UsageLog extends Model
     public function personName(): string
     {
         return $this->user?->name ?? $this->customer?->name ?? 'Unknown';
+    }
+
+    /**
+     * Remove old usage detail (and old daily counts) at most once a day —
+     * called when staff sign in, because the scheduler is off so the app can
+     * scale to zero on Laravel Cloud. `model:prune` still does the same job.
+     */
+    public static function pruneOldOncePerDay(): void
+    {
+        if (! Cache::add('usage-pruned:'.today(config('app.business_timezone'))->toDateString(), true, now()->addDay())) {
+            return;
+        }
+
+        (new self)->prunable()->delete();
+        (new UsageDaily)->prunable()->delete();
     }
 
     /**
