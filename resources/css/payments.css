@@ -3214,3 +3214,70 @@ html.light .balance-transfer-amount {
 
     height: 20px;
 }
+
+/* =========================================================
+   FILTER BOXES ON PHONES (iPhone too)
+   - In a one-line filter bar (search + Agent), the Agent heading is
+     read aloud but not shown, so the dropdown lines up with the search
+     box at the same height.
+   - Safari's engine (all iPhone browsers) sizes date and select boxes
+     to their text: make them fill their column like every other box.
+========================================================= */
+
+.payment-filters:not(.payment-filters-grid) .payment-filter > span {
+    position: absolute;
+
+    width: 1px;
+
+    height: 1px;
+
+    overflow: hidden;
+
+    clip: rect(0 0 0 0);
+
+    white-space: nowrap;
+}
+
+.payment-filters:not(.payment-filters-grid) .payment-filter-select {
+    height: 48px;
+
+    box-sizing: border-box;
+}
+
+.payment-filter {
+    min-width: 0;
+}
+
+.payment-filters-grid .payment-filter input,
+.payment-filters-grid .payment-filter select {
+    display: block;
+
+    width: 100% !important;
+
+    min-width: 0;
+
+    box-sizing: border-box;
+}
+
+.payment-filters-grid input[type="date"] {
+    -webkit-appearance: none;
+
+    appearance: none;
+
+    line-height: 46px;
+
+    text-align: left;
+}
+
+.payment-filters-grid input[type="date"]::-webkit-date-and-time-value {
+    text-align: left;
+}
+
+@media (max-width: 560px) {
+
+    /* From / To side by side; every other filter takes the whole row */
+    .payment-filters-grid .payment-filter:has(select) {
+        flex: 1 1 100%;
+    }
+
+}
