@@ -306,6 +306,17 @@ html.light .finance-due-value {
         overflow: visible;
     }
 
+    /* the cards stand on their own: no second frame around the list */
+    .finance-page .ledger-table-wrapper:has(.portal-table) {
+        border: 0;
+
+        border-radius: 0;
+    }
+
+    .finance-page .portal-table tbody tr:last-child {
+        margin-bottom: 0;
+    }
+
 }
 
 @media (max-width: 640px) {
@@ -593,4 +604,14 @@ html.light .finance-due-value {
 
         font-weight: 700;
     }
+}
+
+/* Collect: a gap between the loan cards */
+.finance-page .collect-row + .collect-row {
+    margin-top: 10px;
+}
+
+/* summary bars: the figures start on the same line */
+.finance-page .payment-summary-bar {
+    align-items: flex-start;
 }
