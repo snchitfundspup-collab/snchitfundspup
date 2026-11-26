@@ -24,7 +24,7 @@ class EnsureFinanceAccess
      *
      * @var list<string>
      */
-    private const OWNER_ONLY = ['finance.capital.*', 'finance.expenses.*'];
+    private const OWNER_ONLY = ['finance.capital.*', 'finance.expenses.*', 'finance.holidays.*'];
 
     /**
      * Handle an incoming request.

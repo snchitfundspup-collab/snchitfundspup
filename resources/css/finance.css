@@ -708,3 +708,22 @@ html.light .finance-due-value {
 
     margin-top: auto;
 }
+
+/* an instalment moved later for a holiday */
+.finance-holiday-mark {
+    display: inline-block;
+
+    margin-left: 6px;
+
+    padding: 1px 8px;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    color: #7c3aed;
+
+    background: rgba(124, 58, 237, 0.14);
+}

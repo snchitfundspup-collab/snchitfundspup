@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Finance;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ExpenseController;
 use App\Models\Customer;
+use App\Models\FinanceAgentCash;
 use App\Models\FinanceCollection;
 use App\Models\FinanceExpense;
 use App\Models\FinanceLoan;
@@ -312,8 +313,18 @@ class ReportController extends Controller
         $net = $income - $expenseTotal;
 
         $running = CollectionController::runningLoans();
+        $cash = FinanceAgentCash::overview();
+        $withCustomers = (int) $running->sum(fn (array $row) => $row['loan']->balance());
 
         return [
+            /* what the company holds now: still to collect + with agents + in the treasury */
+            'worth' => [
+                'customers' => $withCustomers,
+                'agents' => $cash['agents'],
+                'with_agents' => $cash['with_agents'],
+                'treasury' => $cash['treasury'],
+                'total' => $withCustomers + $cash['with_agents'] + $cash['treasury'],
+            ],
             'summary' => [
                 'fees' => $fees,
                 'interest' => $interest,

@@ -136,7 +136,7 @@
             </span>
             <span>
                 <small data-i18n="first_due_on">First instalment on</small>
-                <strong>{{ $loan->first_due_on->format('d M Y') }}</strong>
+                <strong>{{ $loan->dueDateFor(1)->format('d M Y') }}</strong>
             </span>
             <span>
                 <small data-i18n="last_due_on">Last instalment on</small>
