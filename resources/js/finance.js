@@ -211,3 +211,53 @@ if (calculator) {
 
     update();
 }
+
+
+/*
+| Collect: ticking a customer opens a small box to confirm the collection
+| (date and amount — one instalment to start); Submit saves it and comes
+| back to the list, Cancel clears the tick.
+*/
+
+const quickBox = document.getElementById('financeQuickCollect');
+
+if (quickBox) {
+    const quickForm = document.getElementById('financeQuickForm');
+    let ticked = null;
+
+    const closeQuick = () => {
+        quickBox.hidden = true;
+
+        if (ticked) {
+            ticked.checked = false;
+            ticked = null;
+        }
+    };
+
+    document.querySelectorAll('[data-quick-collect]').forEach((box) => box.addEventListener('change', () => {
+        if (!box.checked) {
+            return;
+        }
+
+        ticked = box;
+        quickForm.action = box.dataset.action;
+        document.getElementById('financeQuickName').textContent = box.dataset.name;
+        document.getElementById('financeQuickCode').textContent = box.dataset.code;
+        document.getElementById('financeQuickBalance').textContent = box.dataset.balance;
+        document.getElementById('financeQuickAmount').value = box.dataset.amount;
+        quickBox.hidden = false;
+        document.getElementById('financeQuickAmount').focus();
+    }));
+
+    quickBox.querySelectorAll('[data-cancel-quick-collect]').forEach((button) => button.addEventListener('click', closeQuick));
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !quickBox.hidden) {
+            closeQuick();
+        }
+    });
+
+    quickForm.addEventListener('submit', () => {
+        ticked = null;
+    });
+}

@@ -333,5 +333,18 @@
     "Nothing for this agent in this period": "இந்தக் காலத்தில் இந்த முகவருக்கு எதுவும் இல்லை",
     "Nothing collected in this period.": "இந்தக் காலத்தில் வசூல் இல்லை.",
     "No agent": "முகவர் இல்லை",
-    "Processing fee (income)": "செயலாக்கக் கட்டணம் (வருமானம்)"
+    "Processing fee (income)": "செயலாக்கக் கட்டணம் (வருமானம்)",
+    "Opening balance": "தொடக்க இருப்பு",
+    "Taken from treasury": "கருவூலத்திலிருந்து எடுத்தது",
+    "Returned to treasury": "கருவூலத்திற்குத் திருப்பியது",
+    "Given to another agent": "வேறு முகவருக்குக் கொடுத்தது",
+    "Given to": "கொடுத்தது —",
+    "Loan given": "கொடுத்த கடன்",
+    "Agent Balance Sheet": "முகவர் இருப்புநிலை",
+    "Given to treasury": "கருவூலத்திற்குக் கொடுத்தது",
+    "Agent to agent": "முகவருக்கு முகவர்",
+    "In hand at the start": "தொடக்கத்தில் கையில்",
+    "In hand at the end": "முடிவில் கையில்",
+    "In hand": "கையில்",
+    "Nothing in or out in this period.": "இந்தக் காலத்தில் வரவு செலவு இல்லை."
 }

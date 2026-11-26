@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Finance;
 
 use App\Models\FinanceLoan;
+use App\Support\AgentFilter;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -29,6 +30,11 @@ class StoreLoanRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $clean = fn ($value) => is_string($value) ? str_replace([',', ' ', '₹', '%'], '', $value) : $value;
+
+        /* an agent (not the owner) always records under their own name */
+        if (AgentFilter::heldToOwn($this)) {
+            $this->merge(['agent_id' => $this->user()->id]);
+        }
 
         $this->merge([
             'principal' => $clean($this->input('principal')),

@@ -20,9 +20,10 @@
         ['finance.reports.show', 'wallet', 'outstanding_loans', 'Outstanding Loans', ['report' => 'outstanding']],
         ['finance.reports.show', 'info', 'overdue_loans', 'Overdue Loans', ['report' => 'overdue']],
         ['finance.reports.show', 'calendar', 'day_book', 'Day Book', ['report' => 'day-book']],
-        ['finance.reports.show', 'scale', 'profit_loss', 'Profit & Loss', ['report' => 'profit']],
+        ...(Gate::allows('finance-owner') ? [['finance.reports.show', 'scale', 'profit_loss', 'Profit & Loss', ['report' => 'profit']]] : []),
         ['finance.reports.customer', 'users', 'customer_statement', 'Customer Statement'],
         ['finance.reports.agent', 'user-check', 'agent_statement', 'Agent Statement'],
+        ['finance.reports.agent-balance', 'wallet', 'agent_balance_sheet', 'Agent Balance Sheet'],
     ], 'finance.reports.*');
 
     $management = $menuGroup('financeExpensesSubmenu', 'wallet', 'green', 'menu_expenses', 'Expenses', [
@@ -48,6 +49,7 @@
 </a>
 
 
+@can('finance-owner')
 <a
     href="{{ route('finance.capital.index') }}"
     @class(['menu-item', 'active' => request()->routeIs('finance.capital.*')])
@@ -56,6 +58,18 @@
         <x-icon name="scale" />
     </span>
     <span class="menu-item-text" data-i18n="capital_cash">Capital &amp; Cash</span>
+</a>
+@endcan
+
+
+<a
+    href="{{ route('finance.agent-cash.index') }}"
+    @class(['menu-item', 'active' => request()->routeIs('finance.agent-cash.*')])
+>
+    <span class="menu-item-icon icon-3d icon-3d-green">
+        <x-icon name="wallet" />
+    </span>
+    <span class="menu-item-text" data-i18n="agent_cash">Agent Cash</span>
 </a>
 
 
@@ -85,7 +99,9 @@
 </div>
 
 
-@include('components.partials.menu-group', ['group' => $management])
+@can('finance-owner')
+    @include('components.partials.menu-group', ['group' => $management])
+@endcan
 
 
 <a

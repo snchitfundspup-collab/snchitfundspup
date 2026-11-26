@@ -615,3 +615,96 @@ html.light .finance-due-value {
 .finance-page .payment-summary-bar {
     align-items: flex-start;
 }
+
+/* Collect: the tick box at the start of each customer row */
+.finance-page .collect-row {
+    align-items: center;
+}
+
+.collect-tick {
+    flex: 0 0 auto;
+
+    display: inline-flex;
+
+    cursor: pointer;
+}
+
+.collect-tick input {
+    position: absolute;
+
+    opacity: 0;
+
+    pointer-events: none;
+}
+
+.collect-tick-box {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 34px;
+
+    height: 34px;
+
+    border-radius: 10px;
+
+    border: 2px solid var(--input-border);
+
+    background: var(--input-bg);
+
+    color: transparent;
+
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.collect-tick-box svg {
+    width: 20px;
+
+    height: 20px;
+}
+
+.collect-tick:hover .collect-tick-box,
+.collect-tick input:focus-visible + .collect-tick-box {
+    border-color: #22c55e;
+}
+
+.collect-tick input:checked + .collect-tick-box {
+    background: #22c55e;
+
+    border-color: #22c55e;
+
+    color: #fff;
+}
+
+/* Agent Cash: the three small forms side by side (one column on phones) */
+.agent-cash-forms {
+    display: grid;
+
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+
+    gap: 16px;
+
+    margin-bottom: 20px;
+}
+
+.agent-cash-form {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+    margin: 0;
+}
+
+.agent-cash-form .group-panel-header {
+    margin-bottom: 0;
+}
+
+.agent-cash-form .save-button {
+    justify-content: center;
+
+    margin-top: auto;
+}

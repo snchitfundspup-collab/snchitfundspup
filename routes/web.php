@@ -17,9 +17,11 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentLedgerController;
 use App\Http\Controllers\Portal;
 use App\Http\Controllers\Settings\PasswordController;
+use App\Http\Controllers\Settings\StaffPasswordController;
 use App\Http\Controllers\Traders;
 use App\Http\Controllers\UsageController;
 use App\Http\Middleware\EnsureCustomerChoseOwnPassword;
+use App\Http\Middleware\EnsureFinanceAccess;
 use App\Http\Middleware\EnsurePortalSectionOpen;
 use Illuminate\Support\Facades\Route;
 
@@ -415,6 +417,10 @@ Route::middleware('auth:web')->group(function () {
         [PasswordController::class, 'update']
     )->name('password.update');
 
+    /* the owner sets a new password for an agent */
+    Route::get('/settings/staff-passwords', [StaffPasswordController::class, 'edit'])->name('password.staff')->middleware('can:finance-owner');
+    Route::put('/settings/staff-passwords', [StaffPasswordController::class, 'update'])->name('password.staff.update')->middleware('can:finance-owner');
+
     /*
     |--------------------------------------------------------------------------
     | SRI LAKSHMI TRADERS (rice purchase & sales) — its own pages, customers shared
@@ -508,7 +514,7 @@ Route::middleware('auth:web')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::prefix('finance')->name('finance.')->group(function () {
+    Route::prefix('finance')->name('finance.')->middleware(EnsureFinanceAccess::class)->group(function () {
 
         Route::get('/', [Finance\DashboardController::class, 'index'])->name('dashboard');
 
@@ -530,6 +536,11 @@ Route::middleware('auth:web')->group(function () {
         Route::post('/capital', [Finance\CapitalController::class, 'store'])->name('capital.store');
         Route::delete('/capital/{capital}', [Finance\CapitalController::class, 'destroy'])->name('capital.destroy');
 
+        /* money in each agent's hand */
+        Route::get('/agent-cash', [Finance\AgentCashController::class, 'index'])->name('agent-cash.index');
+        Route::post('/agent-cash', [Finance\AgentCashController::class, 'store'])->name('agent-cash.store')->middleware('can:finance-owner');
+        Route::delete('/agent-cash/{entry}', [Finance\AgentCashController::class, 'destroy'])->name('agent-cash.destroy')->middleware('can:finance-owner');
+
         /* collections */
         Route::get('/collect', [Finance\CollectionController::class, 'collect'])->name('collect');
         Route::post('/loans/{loan}/collections', [Finance\CollectionController::class, 'store'])->name('collections.store');
@@ -548,6 +559,9 @@ Route::middleware('auth:web')->group(function () {
         Route::get('/reports/agent-statement', [AgentStatementController::class, 'show'])->name('reports.agent');
         Route::get('/reports/agent-statement/print', [AgentStatementController::class, 'printReport'])->name('reports.agent.print');
         Route::get('/reports/agent-statement.pdf', [AgentStatementController::class, 'pdf'])->name('reports.agent.pdf');
+        Route::get('/reports/agent-balance-sheet', [Finance\AgentCashController::class, 'balanceSheet'])->name('reports.agent-balance');
+        Route::get('/reports/agent-balance-sheet/print', [Finance\AgentCashController::class, 'balanceSheetPrint'])->name('reports.agent-balance.print');
+        Route::get('/reports/agent-balance-sheet.pdf', [Finance\AgentCashController::class, 'balanceSheetPdf'])->name('reports.agent-balance.pdf');
         Route::get('/reports/{report}', [Finance\ReportController::class, 'show'])->name('reports.show')->whereIn('report', array_keys(Finance\ReportController::REPORTS));
         Route::get('/reports/{report}/print', [Finance\ReportController::class, 'printReport'])->name('reports.print')->whereIn('report', array_keys(Finance\ReportController::REPORTS));
         Route::get('/reports/{report}/pdf', [Finance\ReportController::class, 'pdf'])->name('reports.pdf')->whereIn('report', array_keys(Finance\ReportController::REPORTS));

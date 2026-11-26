@@ -70,8 +70,10 @@ class ReportController extends Controller
     {
         $search = trim((string) $request->input('q', ''));
 
+        $agent = AgentFilter::heldToOwn($request) ? $request->user()->id : null;
+
         $customers = Customer::query()
-            ->whereHas('financeLoans')
+            ->whereHas('financeLoans', fn ($loans) => $loans->when($agent, fn ($loans) => $loans->where('agent_id', $agent)))
             ->when($search !== '', fn ($query) => $query->search($search))
             ->withMax('financeLoans as last_loan', 'loaned_on')
             ->withCount(['financeLoans as running_loans' => fn ($query) => $query->active()])

@@ -1,6 +1,7 @@
 {{-- "Agent" dropdown for list / report filters (name="agent", "All agents"
-     first). $agentFilterSubmit: submit the form on change (forms that are
+     first) — not shown to an agent in Micro Finance, who sees only their own. $agentFilterSubmit: submit the form on change (forms that are
      not live-filtered by payments.js). --}}
+@if (\App\Support\AgentFilter::seesAll(request()))
 <label class="payment-filter">
     <span data-i18n="agent_word">Agent</span>
     <select name="agent" class="input payment-filter-select" @if ($agentFilterSubmit ?? false) onchange="this.form.submit()" @endif>
@@ -10,3 +11,4 @@
         @endforeach
     </select>
 </label>
+@endif

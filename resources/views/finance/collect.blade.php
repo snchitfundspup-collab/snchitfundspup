@@ -4,11 +4,16 @@
 
 @push('styles')
     @vite([
+        'resources/css/create.css',
         'resources/css/groups.css',
         'resources/css/payments.css',
         'resources/css/traders.css',
         'resources/css/finance.css'
     ])
+@endpush
+
+@push('scripts')
+    @vite('resources/js/finance.js')
 @endpush
 
 @section('content')
@@ -90,6 +95,21 @@
 
                 <div class="member-result payment-customer-result collect-row">
 
+                    {{-- tick to confirm a collection in a small box (date and amount) --}}
+                    <label class="collect-tick" title="Collect">
+                        <input
+                            type="checkbox"
+                            data-quick-collect
+                            data-action="{{ route('finance.collections.store', $loan) }}"
+                            data-name="{{ $loan->customer->name }}{{ $loan->customer->remarks ? ' ('.$loan->customer->remarks.')' : '' }}"
+                            data-code="{{ $loan->loan_number }} · {{ $loan->customer->customer_code }}"
+                            data-amount="{{ min($loan->installment_amount, $loan->balance()) }}"
+                            data-balance="₹{{ number_format($loan->balance()) }}"
+                            aria-label="Collect from {{ $loan->customer->name }}"
+                        >
+                        <span class="collect-tick-box" aria-hidden="true"><x-icon name="check" /></span>
+                    </label>
+
                     <a href="{{ route('finance.loans.show', $loan) }}#collect" class="collect-row-link">
 
                         <x-customer-avatar :customer="$loan->customer" />
@@ -108,6 +128,7 @@
 
                         <span class="collect-status">
                             @include('finance.partials.state-badge', ['state' => $standing['state']])
+                            {{-- the whole overdue (and today's) amount; the loan page and the tick box start at one instalment --}}
                             <strong class="collect-amount">
                                 <x-rupees :amount="$standing['to_collect'] > 0 ? $standing['to_collect'] : min($loan->installment_amount, $loan->balance())" />
                             </strong>
@@ -135,6 +156,8 @@
         @endif
 
     </section>
+
+    @include('finance.partials.quick-collect')
 
 </div>
 

@@ -144,6 +144,20 @@
                 </a>
 
 
+                @can('finance-owner')
+                    <a
+                        href="{{ route('password.staff') }}"
+                        class="admin-menu-item"
+                        role="menuitem"
+                    >
+                        <span class="admin-menu-icon icon-3d icon-3d-orange">
+                            <x-icon name="key" />
+                        </span>
+                        <span data-i18n="staff_passwords">Staff Passwords</span>
+                    </a>
+                @endcan
+
+
                 @can('view-usage')
                     <a
                         href="{{ route('usage.index') }}"

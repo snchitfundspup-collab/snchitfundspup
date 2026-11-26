@@ -32,7 +32,17 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
             'is_active' => true,
+            /* tests see everything by default; ->agent() for a Micro Finance agent */
+            'is_owner' => true,
         ];
+    }
+
+    /**
+     * A staff member who is an agent: in Micro Finance they see only their own.
+     */
+    public function agent(): static
+    {
+        return $this->state(fn (array $attributes) => ['is_owner' => false]);
     }
 
     /**

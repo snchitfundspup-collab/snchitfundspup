@@ -4,6 +4,7 @@ namespace App\Http\Requests\Finance;
 
 use App\Models\FinanceLoan;
 use App\Models\Payment;
+use App\Support\AgentFilter;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -27,6 +28,11 @@ class StoreCollectionRequest extends FormRequest
     {
         $amount = $this->input('amount');
         $collectedAt = $this->input('collected_at');
+
+        /* an agent (not the owner) always records under their own name */
+        if (AgentFilter::heldToOwn($this)) {
+            $this->merge(['collected_by' => $this->user()->id]);
+        }
 
         $this->merge([
             'amount' => is_string($amount) ? str_replace([',', ' ', '₹'], '', $amount) : $amount,
