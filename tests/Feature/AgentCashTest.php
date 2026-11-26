@@ -166,6 +166,7 @@ test('Collect shows the whole overdue; ticking a customer confirms one collectio
         ->assertOk()
         ->assertSee('data-quick-collect', false)
         ->assertSee('data-amount="800"', false)
+        ->assertSeeText('5 instalments overdue')
         ->assertSeeText('₹'.number_format($overdue));
 
     $this->from(route('finance.collect'))

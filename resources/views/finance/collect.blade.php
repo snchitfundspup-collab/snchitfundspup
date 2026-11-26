@@ -122,6 +122,7 @@
                                 · <span data-i18n="balance_word">Balance</span> <x-rupees :amount="$loan->balance()" />
                                 @if ($standing['days_overdue'] > 0)
                                     · {{ $standing['days_overdue'] }} <span data-i18n="days_late">days late</span>
+                                    · <strong class="ledger-total-due">{{ $standing['overdue_count'] }} <span data-i18n="{{ $standing['overdue_count'] === 1 ? 'instalment_overdue_one' : 'instalments_overdue_many' }}">{{ $standing['overdue_count'] === 1 ? 'instalment overdue' : 'instalments overdue' }}</span></strong>
                                 @endif
                             </span>
                         </div>
