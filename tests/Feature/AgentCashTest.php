@@ -89,8 +89,9 @@ test('the Agent Balance Sheet lists every rupee in and out of one agent, with th
 
     $this->get(route('finance.reports.agent-balance', ['agent' => $this->dinesh->id, 'range' => 'today']))
         ->assertOk()
-        ->assertViewHas('summary', fn (array $summary) => $summary['opening'] === 0 && $summary['in'] === 10200 && $summary['out'] === 6100 && $summary['closing'] === 4100)
+        ->assertViewHas('summary', fn (array $summary) => $summary['opening'] === 0 && $summary['in'] === 10300 && $summary['out'] === 6200 && $summary['closing'] === 4100)
         ->assertSeeText('Loan given L000903')
+        ->assertSeeText('Processing fee kept L000903')
         ->assertSeeText('Collected C000901')
         ->assertSeeText('Kavitha')
         ->assertSeeText('Given to Ranjith')

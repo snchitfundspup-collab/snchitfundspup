@@ -13,8 +13,8 @@ use Illuminate\Support\Collection;
  * Money in an agent's hand (Sri Lakshmi Micro Finance). Entries here are
  * the opening balance, money taken from the treasury, money returned to it
  * and money passed from one agent to another; the loans the agent gives
- * (money in hand to the customer) and the collections they record come
- * from their own tables. An agent's cash book starts at their latest
+ * (the whole loan out, the processing fee cut from it back in) and the
+ * collections they record come from their own tables. An agent's cash book starts at their latest
  * opening balance (or, without one, at their first entry here); loans and
  * collections saved before that do not count.
  */
@@ -135,17 +135,36 @@ class FinanceAgentCash extends Model
             ->where('agent_id', $agent->id)
             ->where('created_at', '>', $savedAfter)
             ->get()
-            ->each(fn (FinanceLoan $loan) => $rows->push([
-                'at' => $loan->created_at->timezone($timezone),
-                'sort' => '2',
-                'kind' => 'loan',
-                'label' => __('Loan given').' '.$loan->loan_number,
-                'detail' => $loan->customer?->name.($loan->customer?->remarks ? ' ('.$loan->customer->remarks.')' : ''),
-                'link' => route('finance.loans.show', $loan),
-                'entry' => null,
-                'in' => 0,
-                'out' => $loan->amountGiven(),
-            ]));
+            ->each(function (FinanceLoan $loan) use ($rows, $timezone) {
+                $customer = $loan->customer?->name.($loan->customer?->remarks ? ' ('.$loan->customer->remarks.')' : '');
+
+                /* the whole loan goes out; the processing fee (and GST) cut from it stays in the agent's hand */
+                $rows->push([
+                    'at' => $loan->created_at->timezone($timezone),
+                    'sort' => '2a',
+                    'kind' => 'loan',
+                    'label' => __('Loan given').' '.$loan->loan_number,
+                    'detail' => $customer,
+                    'link' => route('finance.loans.show', $loan),
+                    'entry' => null,
+                    'in' => 0,
+                    'out' => $loan->principal,
+                ]);
+
+                if ($loan->charges() > 0) {
+                    $rows->push([
+                        'at' => $loan->created_at->timezone($timezone),
+                        'sort' => '2b',
+                        'kind' => 'fee',
+                        'label' => __('Processing fee kept').' '.$loan->loan_number,
+                        'detail' => $customer,
+                        'link' => route('finance.loans.show', $loan),
+                        'entry' => null,
+                        'in' => $loan->charges(),
+                        'out' => 0,
+                    ]);
+                }
+            });
 
         FinanceCollection::query()
             ->with(['customer', 'loan'])
