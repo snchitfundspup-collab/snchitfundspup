@@ -554,6 +554,9 @@ Route::middleware('auth:web')->group(function () {
         Route::get('/reports/agent-statement', [AgentStatementController::class, 'show'])->name('reports.agent');
         Route::get('/reports/agent-statement/print', [AgentStatementController::class, 'printReport'])->name('reports.agent.print');
         Route::get('/reports/agent-statement.pdf', [AgentStatementController::class, 'pdf'])->name('reports.agent.pdf');
+        Route::get('/reports/agent-balance-sheet', [Finance\AgentCashController::class, 'balanceSheet'])->name('reports.agent-balance');
+        Route::get('/reports/agent-balance-sheet/print', [Finance\AgentCashController::class, 'balanceSheetPrint'])->name('reports.agent-balance.print');
+        Route::get('/reports/agent-balance-sheet.pdf', [Finance\AgentCashController::class, 'balanceSheetPdf'])->name('reports.agent-balance.pdf');
         Route::get('/reports/{report}', [Finance\ReportController::class, 'show'])->name('reports.show')->whereIn('report', array_keys(Finance\ReportController::REPORTS));
         Route::get('/reports/{report}/print', [Finance\ReportController::class, 'printReport'])->name('reports.print')->whereIn('report', array_keys(Finance\ReportController::REPORTS));
         Route::get('/reports/{report}/pdf', [Finance\ReportController::class, 'pdf'])->name('reports.pdf')->whereIn('report', array_keys(Finance\ReportController::REPORTS));

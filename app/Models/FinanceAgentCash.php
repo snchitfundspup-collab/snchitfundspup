@@ -38,10 +38,18 @@ class FinanceAgentCash extends Model
      */
     public const TYPES = [
         self::FROM_TREASURY => 'Taken from treasury',
-        self::TO_TREASURY => 'Returned to treasury',
-        self::TRANSFER => 'Given to another agent',
+        self::TO_TREASURY => 'Given to treasury',
+        self::TRANSFER => 'Agent to agent',
         self::OPENING => 'Opening balance',
     ];
+
+    /**
+     * What the office records on the Agent Cash page (opening balances are
+     * no longer entered — an agent's book starts at their first entry).
+     *
+     * @var list<string>
+     */
+    public const RECORDED = [self::FROM_TREASURY, self::TO_TREASURY, self::TRANSFER];
 
     protected $fillable = ['entry_at', 'type', 'agent_id', 'other_agent_id', 'amount', 'notes', 'recorded_by'];
 

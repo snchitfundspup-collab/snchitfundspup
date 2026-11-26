@@ -1,5 +1,6 @@
-{{-- Agent Cash: money in each agent's hand and in the treasury (owner), or
-     the agent's own cash book (agent). --}}
+{{-- Agent Cash: money in each agent's hand and in the treasury, and the
+     three things the owner records (taken from / given to the treasury,
+     agent to agent). An agent sees only their own. --}}
 @extends('layouts.app')
 
 @section('title', 'Agent Cash | Sri Lakshmi Micro Finance')
@@ -7,6 +8,7 @@
 @push('styles')
     @vite([
         'resources/css/create.css',
+        'resources/css/dashboard.css',
         'resources/css/groups.css',
         'resources/css/payments.css',
         'resources/css/traders.css',
@@ -23,15 +25,21 @@
     <div class="groups-list-header">
         <div>
             <h1 class="groups-title" data-i18n="agent_cash">Agent Cash</h1>
-            <p class="groups-subtitle" data-i18n="agent_cash_subtitle">Money in each agent's hand: taken from the treasury, lent to customers, collected back, passed between agents and returned.</p>
+            <p class="groups-subtitle" data-i18n="agent_cash_subtitle_short">How much money is with each agent and in the treasury.</p>
+        </div>
+        <div class="ledger-actions">
+            <a href="{{ route('finance.reports.agent-balance') }}" class="group-action">
+                <x-icon name="chart" />
+                <span data-i18n="agent_balance_sheet">Agent Balance Sheet</span>
+            </a>
         </div>
     </div>
 
 
-    {{-- WHERE THE MONEY IS (owner) --}}
+    {{-- WHERE THE MONEY IS --}}
 
-    @if ($overview)
-        <section class="dashboard-stats collection-stats">
+    <section class="dashboard-stats collection-stats">
+        @if ($overview)
             <div class="stat-tile glass">
                 <span class="stat-icon icon-3d icon-3d-blue"><x-icon name="scale" /></span>
                 <span class="stat-body">
@@ -41,7 +49,7 @@
                 </span>
             </div>
             @foreach ($overview['agents'] as $row)
-                <a href="{{ route('finance.agent-cash.index', ['agent' => $row['agent']->id]) }}" @class(['stat-tile', 'glass', 'stat-tile-active' => $agent?->is($row['agent'])])>
+                <a href="{{ route('finance.reports.agent-balance', ['agent' => $row['agent']->id]) }}" class="stat-tile glass">
                     <span class="stat-icon icon-3d icon-3d-green"><x-icon name="wallet" /></span>
                     <span class="stat-body">
                         <span class="stat-label">{{ $row['agent']->name }}</span>
@@ -50,145 +58,142 @@
                     </span>
                 </a>
             @endforeach
-        </section>
+        @else
+            <a href="{{ route('finance.reports.agent-balance') }}" class="stat-tile glass">
+                <span class="stat-icon icon-3d icon-3d-green"><x-icon name="wallet" /></span>
+                <span class="stat-body">
+                    <span class="stat-label" data-i18n="cash_in_my_hand">Cash in my hand</span>
+                    <span @class(['stat-value', 'ledger-total-due' => $myHand < 0])><x-rupees :amount="$myHand" /></span>
+                </span>
+            </a>
+        @endif
+    </section>
 
 
-        {{-- RECORD (owner) --}}
+    {{-- RECORD (owner): three small forms --}}
 
-        <section class="group-panel glass payment-step">
+    @if ($overview)
+        <section class="agent-cash-forms">
 
-            <div class="group-panel-header">
-                <h2 data-i18n="record_agent_cash">Record money given or taken</h2>
-            </div>
+            @foreach ([
+                'from_treasury' => ['agent_cash_from_treasury', 'Taken from treasury', 'agent_cash_from_note', 'Money the agent takes from the treasury.', 'green'],
+                'to_treasury' => ['agent_cash_to_treasury', 'Given to treasury', 'agent_cash_to_note', 'Money the agent puts back in the treasury.', 'blue'],
+            ] as $typeValue => [$titleKey, $titleText, $noteKey, $noteText, $colour])
+                <form method="POST" action="{{ route('finance.agent-cash.store') }}" class="group-panel glass payment-form agent-cash-form">
+                    @csrf
+                    <input type="hidden" name="type" value="{{ $typeValue }}">
 
-            <form method="POST" action="{{ route('finance.agent-cash.store') }}" class="payment-form">
-
-                @csrf
-
-                <div class="group-form-grid payment-fields">
-
-                    <div class="group-field group-field-full">
-                        <span class="field-label" data-i18n="entry_type">Type</span>
-                        <div class="method-options">
-                            @foreach (\App\Models\FinanceAgentCash::TYPES as $typeValue => $typeLabel)
-                                <label class="method-option">
-                                    <input type="radio" name="type" value="{{ $typeValue }}" @checked(old('type', 'from_treasury') === $typeValue)>
-                                    <span data-i18n="agent_cash_{{ $typeValue }}">{{ $typeLabel }}</span>
-                                </label>
-                            @endforeach
-                        </div>
+                    <div class="group-panel-header">
+                        <h2 data-i18n="{{ $titleKey }}">{{ $titleText }}</h2>
                     </div>
+                    <p class="installment-hint" data-i18n="{{ $noteKey }}">{{ $noteText }}</p>
 
                     <div class="group-field">
-                        <label class="field-label" for="agent_id" data-i18n="agent_word">Agent</label>
-                        <select id="agent_id" name="agent_id" class="input" required>
-                            @foreach ($staff as $person)
-                                <option value="{{ $person->id }}" @selected((string) old('agent_id', $agent?->id) === (string) $person->id)>{{ $person->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="group-field">
-                        <label class="field-label" for="other_agent_id" data-i18n="given_to_agent">Given to (agent to agent only)</label>
-                        <select id="other_agent_id" name="other_agent_id" class="input">
+                        <label class="field-label" for="{{ $typeValue }}_agent" data-i18n="agent_word">Agent</label>
+                        <select id="{{ $typeValue }}_agent" name="agent_id" class="input" required>
                             <option value="">—</option>
                             @foreach ($staff as $person)
-                                <option value="{{ $person->id }}" @selected((string) old('other_agent_id') === (string) $person->id)>{{ $person->name }}</option>
+                                <option value="{{ $person->id }}" @selected(old('type') === $typeValue && (string) old('agent_id') === (string) $person->id)>{{ $person->name }}</option>
                             @endforeach
                         </select>
                     </div>
 
                     <div class="group-field">
-                        <label class="field-label" for="amount" data-i18n="amount_rupees">Amount (₹)</label>
-                        <input type="text" id="amount" name="amount" class="input money-input" inputmode="numeric" required autocomplete="off" value="{{ old('amount') }}" placeholder="e.g. 10000">
+                        <label class="field-label" for="{{ $typeValue }}_amount" data-i18n="amount_rupees">Amount (₹)</label>
+                        <input type="text" id="{{ $typeValue }}_amount" name="amount" class="input money-input" inputmode="numeric" required autocomplete="off" value="{{ old('type') === $typeValue ? old('amount') : '' }}">
                     </div>
 
-                    <div class="group-field">
-                        <label class="field-label" for="entry_at" data-i18n="payment_date_time">Date &amp; time</label>
-                        <input type="datetime-local" id="entry_at" name="entry_at" class="input" required
-                            value="{{ old('entry_at') ? str_replace(' ', 'T', old('entry_at')) : $now->format('Y-m-d\TH:i') }}"
-                            max="{{ $now->format('Y-m-d\TH:i') }}">
-                    </div>
-
-                    <div class="group-field group-field-full">
-                        <label class="field-label" for="notes" data-i18n="notes">Notes</label>
-                        <input type="text" id="notes" name="notes" class="input" maxlength="1000" value="{{ old('notes') }}">
-                    </div>
-
-                    <p class="group-field group-field-full installment-hint" data-i18n="opening_balance_note">Opening balance: the money the agent has in hand right now. Their cash book starts again from it — loans and collections saved after it are counted.</p>
-
-                </div>
-
-                <div class="form-footer payment-form-footer">
                     <button type="submit" class="save-button">
                         <x-icon name="save" />
                         <span data-i18n="save_word">Save</span>
                     </button>
+                </form>
+            @endforeach
+
+            <form method="POST" action="{{ route('finance.agent-cash.store') }}" class="group-panel glass payment-form agent-cash-form">
+                @csrf
+                <input type="hidden" name="type" value="transfer">
+
+                <div class="group-panel-header">
+                    <h2 data-i18n="agent_cash_transfer">Agent to agent</h2>
+                </div>
+                <p class="installment-hint" data-i18n="agent_cash_transfer_note">Money one agent gives to another.</p>
+
+                <div class="group-field">
+                    <label class="field-label" for="transfer_giver" data-i18n="giver_agent">Giver</label>
+                    <select id="transfer_giver" name="agent_id" class="input" required>
+                        <option value="">—</option>
+                        @foreach ($staff as $person)
+                            <option value="{{ $person->id }}" @selected(old('type') === 'transfer' && (string) old('agent_id') === (string) $person->id)>{{ $person->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
 
+                <div class="group-field">
+                    <label class="field-label" for="transfer_receiver" data-i18n="receiver_agent">Receiver</label>
+                    <select id="transfer_receiver" name="other_agent_id" class="input" required>
+                        <option value="">—</option>
+                        @foreach ($staff as $person)
+                            <option value="{{ $person->id }}" @selected(old('type') === 'transfer' && (string) old('other_agent_id') === (string) $person->id)>{{ $person->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="group-field">
+                    <label class="field-label" for="transfer_amount" data-i18n="amount_rupees">Amount (₹)</label>
+                    <input type="text" id="transfer_amount" name="amount" class="input money-input" inputmode="numeric" required autocomplete="off" value="{{ old('type') === 'transfer' ? old('amount') : '' }}">
+                </div>
+
+                <button type="submit" class="save-button">
+                    <x-icon name="save" />
+                    <span data-i18n="save_word">Save</span>
+                </button>
             </form>
 
         </section>
     @endif
 
 
-    {{-- CASH BOOK --}}
+    {{-- RECENT ENTRIES --}}
 
     <section class="group-panel glass">
 
         <div class="group-panel-header">
-            <h2><span data-i18n="cash_book">Cash book</span>@if ($agent) · {{ $agent->name }}@endif</h2>
+            <h2 data-i18n="recent_entries">Recent entries</h2>
         </div>
 
-        @if ($agent)
-            <div class="finance-available">
-                <small data-i18n="in_hand">In hand</small>
-                <strong @class(['ledger-total-paid' => $inHand >= 0, 'ledger-total-due' => $inHand < 0])><x-rupees :amount="$inHand" /></strong>
-            </div>
-        @endif
-
-        @if ($ledger->isEmpty())
-            <p class="members-empty" data-i18n="no_cash_book_yet">No cash book yet. Record an opening balance or money taken from the treasury to start it.</p>
+        @if ($recent->isEmpty())
+            <p class="members-empty" data-i18n="no_agent_cash_yet">Nothing recorded yet.</p>
         @else
             <div class="ledger-table-wrapper">
                 <table class="ledger-table statement-table portal-table">
                     <thead>
                         <tr>
                             <th data-i18n="payment_date_time">Date &amp; time</th>
-                            <th data-i18n="entry_word">Entry</th>
-                            <th data-i18n="details">Details</th>
-                            <th class="ledger-col-total" data-i18n="money_in">In</th>
-                            <th class="ledger-col-total" data-i18n="money_out">Out</th>
-                            <th class="ledger-col-total" data-i18n="in_hand">In hand</th>
+                            <th data-i18n="entry_type">Type</th>
+                            <th data-i18n="agent_word">Agent</th>
+                            <th class="ledger-col-total" data-i18n="amount_word">Amount</th>
                             @can('finance-owner')
                                 <th></th>
                             @endcan
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($ledger as $row)
+                        @foreach ($recent as $entry)
                             <tr>
-                                <td class="nowrap" data-label="Date & time">{{ $row['at']->format('d M Y, h:i A') }}</td>
-                                <td data-label="Entry">
-                                    @if ($row['link'])
-                                        <a href="{{ $row['link'] }}">{{ $row['label'] }}</a>
-                                    @else
-                                        {{ $row['label'] }}
-                                    @endif
+                                <td class="nowrap" data-label="Date & time">{{ $entry->entry_at->format('d M Y, h:i A') }}</td>
+                                <td data-label="Type"><span data-i18n="agent_cash_{{ $entry->type }}">{{ $entry->typeLabel() }}</span></td>
+                                <td data-label="Agent">
+                                    {{ $entry->agent?->name }}@if ($entry->type === 'transfer') → {{ $entry->otherAgent?->name }}@endif
                                 </td>
-                                <td data-label="Details">{{ $row['detail'] ?: '—' }}</td>
-                                <td class="ledger-col-total ledger-total-paid" data-label="In">@if ($row['in'] > 0)+ <x-rupees :amount="$row['in']" />@endif</td>
-                                <td class="ledger-col-total" data-label="Out">@if ($row['out'] > 0)− <x-rupees :amount="$row['out']" />@endif</td>
-                                <td @class(['ledger-col-total', 'ledger-total-due' => $row['balance'] < 0]) data-label="In hand"><strong><x-rupees :amount="$row['balance']" /></strong></td>
+                                <td class="ledger-col-total" data-label="Amount"><x-rupees :amount="$entry->amount" /></td>
                                 @can('finance-owner')
                                     <td>
-                                        @if ($row['entry'])
-                                            <form method="POST" action="{{ route('finance.agent-cash.destroy', $row['entry']) }}" onsubmit="return confirm('Remove this entry?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="group-action receipt-cancel" aria-label="Remove"><x-icon name="trash" /></button>
-                                            </form>
-                                        @endif
+                                        <form method="POST" action="{{ route('finance.agent-cash.destroy', $entry) }}" onsubmit="return confirm('Remove this entry?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="group-action receipt-cancel" aria-label="Remove"><x-icon name="trash" /></button>
+                                        </form>
                                     </td>
                                 @endcan
                             </tr>

@@ -57,35 +57,60 @@ test('money in hand: opening, then loans given, collections, transfers and retur
         ->and($overview['treasury'])->toBe($overview['available'] - 34200);
 });
 
-test('the owner records entries and sees every agent; returning more than in hand is refused', function () {
+test('the owner records taken / given / agent to agent and sees every agent; giving more than in hand is refused', function () {
     $this->actingAs($this->sathiya, 'web');
 
-    $this->get(route('finance.agent-cash.index', ['agent' => $this->dinesh->id]))
+    $this->get(route('finance.agent-cash.index'))
         ->assertOk()
         ->assertSeeText('In the treasury')
         ->assertSeeText('Ranjith')
         ->assertSeeText('₹4,100')
-        ->assertSeeText('Loan given L000903')
-        ->assertDontSeeText('Loan given L000901');
+        ->assertSeeText('Taken from treasury')
+        ->assertSeeText('Given to treasury')
+        ->assertSeeText('Agent to agent')
+        ->assertDontSee('name="entry_at"', false);
 
-    $this->post(route('finance.agent-cash.store'), ['type' => 'to_treasury', 'agent_id' => $this->dinesh->id, 'amount' => '5,000', 'entry_at' => '2026-11-26T10:59'])
+    $this->post(route('finance.agent-cash.store'), ['type' => 'to_treasury', 'agent_id' => $this->dinesh->id, 'amount' => '5,000'])
         ->assertSessionHasErrors('amount');
+    $this->post(route('finance.agent-cash.store'), ['type' => 'opening', 'agent_id' => $this->dinesh->id, 'amount' => '5,000'])
+        ->assertSessionHasErrors('type');
+    $this->post(route('finance.agent-cash.store'), ['type' => 'transfer', 'agent_id' => $this->dinesh->id, 'other_agent_id' => $this->dinesh->id, 'amount' => '100'])
+        ->assertSessionHasErrors('other_agent_id');
 
-    $this->post(route('finance.agent-cash.store'), ['type' => 'from_treasury', 'agent_id' => $this->dinesh->id, 'amount' => '2,000', 'entry_at' => '2026-11-26T10:59'])
-        ->assertRedirect();
+    $this->post(route('finance.agent-cash.store'), ['type' => 'from_treasury', 'agent_id' => $this->dinesh->id, 'amount' => '2,000'])->assertRedirect();
+    $this->post(route('finance.agent-cash.store'), ['type' => 'transfer', 'agent_id' => $this->ranjith->id, 'other_agent_id' => $this->dinesh->id, 'amount' => '500'])->assertRedirect();
 
-    expect(FinanceAgentCash::inHand($this->dinesh))->toBe(6100);
+    expect(FinanceAgentCash::inHand($this->dinesh))->toBe(6600)
+        ->and(FinanceAgentCash::inHand($this->ranjith))->toBe(29600);
+});
+
+test('the Agent Balance Sheet lists every rupee in and out of one agent, with the customers', function () {
+    $this->actingAs($this->sathiya, 'web');
+
+    $this->get(route('finance.reports.agent-balance', ['agent' => $this->dinesh->id, 'range' => 'today']))
+        ->assertOk()
+        ->assertViewHas('summary', fn (array $summary) => $summary['opening'] === 0 && $summary['in'] === 10200 && $summary['out'] === 6100 && $summary['closing'] === 4100)
+        ->assertSeeText('Loan given L000903')
+        ->assertSeeText('Collected C000901')
+        ->assertSeeText('Kavitha')
+        ->assertSeeText('Given to Ranjith')
+        ->assertSeeText('Given to treasury')
+        ->assertDontSeeText('L000901 ·');
+
+    $this->get(route('finance.reports.agent-balance.print', ['agent' => $this->dinesh->id, 'range' => 'today']))->assertOk()->assertSeeText('Dinesh');
+    $this->get(route('finance.reports.agent-balance.pdf', ['agent' => $this->dinesh->id, 'range' => 'today']))->assertOk()->assertHeader('content-type', 'application/pdf');
 });
 
 test('an agent sees only their own cash book, loans, collections, customers and reports', function () {
     $this->actingAs($this->dinesh, 'web');
 
-    $this->get(route('finance.agent-cash.index', ['agent' => $this->ranjith->id]))
+    $this->get(route('finance.agent-cash.index'))
         ->assertOk()
         ->assertSeeText('₹4,100')
         ->assertDontSeeText('In the treasury')
-        ->assertDontSeeText('Record money given or taken');
-    $this->post(route('finance.agent-cash.store'), ['type' => 'from_treasury', 'agent_id' => $this->dinesh->id, 'amount' => '100', 'entry_at' => '2026-11-26T10:59'])->assertForbidden();
+        ->assertDontSee('name="agent_id"', false);
+    $this->post(route('finance.agent-cash.store'), ['type' => 'from_treasury', 'agent_id' => $this->dinesh->id, 'amount' => '100'])->assertForbidden();
+    $this->get(route('finance.reports.agent-balance', ['agent' => $this->ranjith->id]))->assertOk()->assertViewHas('agent', fn ($agent) => $agent->id === $this->dinesh->id);
 
     $this->get(route('finance.loans.index', ['agent' => $this->ranjith->id]))->assertSeeText('L000903')->assertDontSeeText('L000902');
     $this->get(route('finance.loans.show', $this->ranjithLoan))->assertNotFound();
@@ -127,4 +152,24 @@ test('the collection amount starts at one instalment, not the whole overdue amou
     expect($this->ranjithLoan->refresh()->standing()['overdue'])->toBeGreaterThan(800);
 
     $this->get(route('finance.loans.show', $this->ranjithLoan))->assertSeeInOrder(['id="amount" name="amount"', 'value="800"'], false);
+});
+
+test('Collect shows the whole overdue; ticking a customer confirms one collection and comes back', function () {
+    $this->travelTo(Carbon::parse('2026-12-30 10:00:00', 'Asia/Kolkata'));
+    $this->actingAs($this->sathiya, 'web');
+    $this->ranjithLoan->update(['first_due_on' => '2026-11-27', 'frequency' => FinanceLoan::WEEKLY]);
+
+    $overdue = $this->ranjithLoan->refresh()->standing()['to_collect'];
+
+    $this->get(route('finance.collect', ['tab' => 'all']))
+        ->assertOk()
+        ->assertSee('data-quick-collect', false)
+        ->assertSee('data-amount="800"', false)
+        ->assertSeeText('₹'.number_format($overdue));
+
+    $this->from(route('finance.collect'))
+        ->post(route('finance.collections.store', $this->ranjithLoan), ['amount' => '800', 'collected_at' => '2026-12-30T09:30', 'method' => 'cash', 'back' => 'collect'])
+        ->assertRedirect(route('finance.collect'));
+
+    expect($this->ranjithLoan->collections()->sum('amount'))->toBe(800);
 });

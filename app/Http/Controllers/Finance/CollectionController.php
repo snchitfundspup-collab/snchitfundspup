@@ -72,6 +72,13 @@ class CollectionController extends Controller
     {
         $collection = FinanceCollection::record($loan, $request->validated(), $request->user());
 
+        /* from the tick box on Collect: back to the list */
+        if ($request->input('back') === 'collect') {
+            return redirect()
+                ->back()
+                ->with('success', "Receipt {$collection->receipt_number} saved — ₹".number_format($collection->amount).' from '.$loan->customer->name.'.');
+        }
+
         return redirect()
             ->route('finance.collections.show', $collection)
             ->with('success', "Receipt {$collection->receipt_number} saved.".($loan->refresh()->isClosed() ? " Loan {$loan->loan_number} is fully paid and closed." : ''));

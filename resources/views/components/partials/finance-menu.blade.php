@@ -23,6 +23,7 @@
         ...(Gate::allows('finance-owner') ? [['finance.reports.show', 'scale', 'profit_loss', 'Profit & Loss', ['report' => 'profit']]] : []),
         ['finance.reports.customer', 'users', 'customer_statement', 'Customer Statement'],
         ['finance.reports.agent', 'user-check', 'agent_statement', 'Agent Statement'],
+        ['finance.reports.agent-balance', 'wallet', 'agent_balance_sheet', 'Agent Balance Sheet'],
     ], 'finance.reports.*');
 
     $management = $menuGroup('financeExpensesSubmenu', 'wallet', 'green', 'menu_expenses', 'Expenses', [
