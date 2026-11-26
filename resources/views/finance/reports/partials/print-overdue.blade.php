@@ -16,6 +16,7 @@
             <th>{{ __('Loan No.') }}</th>
             <th>{{ __('Instalment') }}</th>
             <th>{{ __('Overdue since') }}</th>
+            <th class="amount">{{ __('Instalments overdue') }}</th>
             <th class="amount">{{ __('days late') }}</th>
             <th>{{ __('Last paid') }}</th>
             <th class="amount">{{ __('Overdue') }}</th>
@@ -30,13 +31,14 @@
                 <td>{{ $loan->loan_number }}</td>
                 <td>{{ $loan->frequencyLabel() }} <x-rupees :amount="$loan->installment_amount" /></td>
                 <td>{{ $standing['overdue_since']->format('d M Y') }}</td>
+                <td class="amount pending"><strong>{{ $standing['overdue_count'] }}</strong></td>
                 <td class="amount pending">{{ $standing['days_overdue'] }}</td>
                 <td>{{ $row['last_paid'] ? \Illuminate\Support\Carbon::parse($row['last_paid'])->format('d M Y') : '—' }}</td>
                 <td class="amount pending"><strong><x-rupees :amount="$standing['overdue']" /></strong></td>
                 <td class="amount"><x-rupees :amount="$loan->balance()" /></td>
             </tr>
         @empty
-            <tr><td colspan="8">{{ __('Nothing is overdue.') }}</td></tr>
+            <tr><td colspan="9">{{ __('Nothing is overdue.') }}</td></tr>
         @endforelse
     </tbody>
 </table>
