@@ -17,6 +17,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentLedgerController;
 use App\Http\Controllers\Portal;
 use App\Http\Controllers\Settings\PasswordController;
+use App\Http\Controllers\Settings\StaffPasswordController;
 use App\Http\Controllers\Traders;
 use App\Http\Controllers\UsageController;
 use App\Http\Middleware\EnsureCustomerChoseOwnPassword;
@@ -415,6 +416,10 @@ Route::middleware('auth:web')->group(function () {
         '/settings/password',
         [PasswordController::class, 'update']
     )->name('password.update');
+
+    /* the owner sets a new password for an agent */
+    Route::get('/settings/staff-passwords', [StaffPasswordController::class, 'edit'])->name('password.staff')->middleware('can:finance-owner');
+    Route::put('/settings/staff-passwords', [StaffPasswordController::class, 'update'])->name('password.staff.update')->middleware('can:finance-owner');
 
     /*
     |--------------------------------------------------------------------------
