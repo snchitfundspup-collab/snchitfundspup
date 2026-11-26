@@ -443,7 +443,10 @@ class FinanceLoan extends Model
      * has passed, not yet collected; due (orange) â€” today's instalment;
      * on track; not started (first due date still ahead); or closed.
      *
-     * @return array{state: string, overdue: int, due_today: int, to_collect: int, installments_paid: int, next_due: ?Carbon, overdue_since: ?Carbon, days_overdue: int}
+     * overdue_count: how many instalments the overdue amount covers (a part-paid
+     * one counts as one).
+     *
+     * @return array{state: string, overdue: int, overdue_count: int, due_today: int, to_collect: int, installments_paid: int, next_due: ?Carbon, overdue_since: ?Carbon, days_overdue: int}
      */
     public function standing(?Carbon $today = null): array
     {
@@ -453,7 +456,7 @@ class FinanceLoan extends Model
 
         if ($collected >= $this->loan_amount) {
             return [
-                'state' => 'closed', 'overdue' => 0, 'due_today' => 0, 'to_collect' => 0,
+                'state' => 'closed', 'overdue' => 0, 'overdue_count' => 0, 'due_today' => 0, 'to_collect' => 0,
                 'installments_paid' => $this->installments, 'next_due' => null, 'overdue_since' => null, 'days_overdue' => 0,
             ];
         }
@@ -470,6 +473,7 @@ class FinanceLoan extends Model
                 default => 'on_track',
             },
             'overdue' => $overdue,
+            'overdue_count' => $overdue > 0 && $this->installment_amount > 0 ? (int) ceil($overdue / $this->installment_amount) : 0,
             'due_today' => $dueToday,
             'to_collect' => $overdue + $dueToday,
             'installments_paid' => $paidInstallments,

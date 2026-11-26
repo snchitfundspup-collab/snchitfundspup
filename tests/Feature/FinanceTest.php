@@ -157,6 +157,7 @@ test('missed instalments are overdue (red) and today\'s is due (orange)', functi
     expect($loan->refresh()->standing())->toMatchArray([
         'state' => 'overdue',
         'overdue' => 216,
+        'overdue_count' => 2,
         'due_today' => 108,
         'to_collect' => 324,
         'installments_paid' => 1,
@@ -165,7 +166,7 @@ test('missed instalments are overdue (red) and today\'s is due (orange)', functi
 
     FinanceCollection::record($loan, ['amount' => 216, 'collected_at' => '2026-10-05 09:00:00', 'method' => 'cash']);
 
-    expect($loan->refresh()->standing())->toMatchArray(['state' => 'due', 'overdue' => 0, 'due_today' => 108]);
+    expect($loan->refresh()->standing())->toMatchArray(['state' => 'due', 'overdue' => 0, 'overdue_count' => 0, 'due_today' => 108]);
 
     $weekly = FinanceLoan::factory()->weekly()->create(['customer_id' => $this->customer->id, 'loaned_on' => '2026-10-01', 'first_due_on' => '2026-10-08']);
 

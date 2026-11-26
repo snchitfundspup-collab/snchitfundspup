@@ -13,6 +13,7 @@
                         <th data-i18n="loan_no">Loan No.</th>
                         <th data-i18n="installment_word">Instalment</th>
                         <th data-i18n="overdue_since">Overdue since</th>
+                        <th class="ledger-col-total" data-i18n="instalments_overdue">Instalments overdue</th>
                         <th class="ledger-col-total" data-i18n="days_late">days late</th>
                         <th data-i18n="last_paid">Last paid</th>
                         <th class="ledger-col-total" data-i18n="overdue_word">Overdue</th>
@@ -31,6 +32,7 @@
                             <td class="nowrap" data-label="Loan">{{ $loan->loan_number }}</td>
                             <td class="nowrap" data-label="Instalment">{{ $loan->frequencyLabel() }} <x-rupees :amount="$loan->installment_amount" /></td>
                             <td class="nowrap" data-label="Overdue since">{{ $standing['overdue_since']->format('d M Y') }}</td>
+                            <td class="ledger-col-total ledger-total-due" data-label="Instalments overdue"><strong>{{ $standing['overdue_count'] }}</strong></td>
                             <td class="ledger-col-total ledger-total-due" data-label="Days late">{{ $standing['days_overdue'] }}</td>
                             <td class="nowrap" data-label="Last paid">{{ $row['last_paid'] ? \Illuminate\Support\Carbon::parse($row['last_paid'])->format('d M Y') : '—' }}</td>
                             <td class="ledger-col-total ledger-total-due" data-label="Overdue"><strong><x-rupees :amount="$standing['overdue']" /></strong></td>
