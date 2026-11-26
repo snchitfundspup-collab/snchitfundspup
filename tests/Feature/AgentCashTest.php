@@ -174,3 +174,23 @@ test('Collect shows the whole overdue; ticking a customer confirms one collectio
 
     expect($this->ranjithLoan->collections()->sum('amount'))->toBe(800);
 });
+
+test('Profit & Loss shows what the company holds now: with customers, in each agent\'s hand and in the treasury', function () {
+    $this->actingAs($this->sathiya, 'web');
+
+    $this->get(route('finance.reports.show', ['report' => 'profit']))
+        ->assertOk()
+        ->assertSeeText('Company worth now')
+        ->assertSeeText('In the hand of')
+        ->assertViewHas('worth', function (array $worth) {
+            $available = FinanceCapital::position()['available'];
+
+            /* 3,300 − 500 + 8,800 + 5,600 still to collect; Dinesh 4,100 + Ranjith 30,100 */
+            return $worth['customers'] === 17200
+                && $worth['with_agents'] === 34200
+                && $worth['treasury'] === $available - 34200
+                && $worth['total'] === 17200 + $available;
+        });
+
+    $this->get(route('finance.reports.pdf', ['report' => 'profit']))->assertOk();
+});

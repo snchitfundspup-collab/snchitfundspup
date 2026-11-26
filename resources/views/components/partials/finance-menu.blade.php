@@ -13,7 +13,8 @@
         $menuGroup('financeCollectionsSubmenu', 'rupee', 'orange', 'menu_collections', 'Collections', [
             ['finance.collect', 'check', 'collect_today', 'Collect'],
             ['finance.collections.index', 'chart', 'all_collections', 'All Collections'],
-        ], ['finance.collect', 'finance.collections.*']),
+            ...(Gate::allows('finance-owner') ? [['finance.holidays.index', 'calendar', 'holidays_word', 'Holidays']] : []),
+        ], ['finance.collect', 'finance.collections.*', 'finance.holidays.*']),
     ];
 
     $reports = $menuGroup('financeReportsSubmenu', 'chart', 'purple', 'menu_reports', 'Reports', [

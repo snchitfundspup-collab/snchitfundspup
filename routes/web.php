@@ -541,6 +541,11 @@ Route::middleware('auth:web')->group(function () {
         Route::post('/agent-cash', [Finance\AgentCashController::class, 'store'])->name('agent-cash.store')->middleware('can:finance-owner');
         Route::delete('/agent-cash/{entry}', [Finance\AgentCashController::class, 'destroy'])->name('agent-cash.destroy')->middleware('can:finance-owner');
 
+        /* holidays: an agent's customers pay nothing on these dates (owner) */
+        Route::get('/holidays', [Finance\HolidayController::class, 'index'])->name('holidays.index');
+        Route::post('/holidays', [Finance\HolidayController::class, 'store'])->name('holidays.store');
+        Route::delete('/holidays/{holiday}', [Finance\HolidayController::class, 'destroy'])->name('holidays.destroy');
+
         /* collections */
         Route::get('/collect', [Finance\CollectionController::class, 'collect'])->name('collect');
         Route::post('/loans/{loan}/collections', [Finance\CollectionController::class, 'store'])->name('collections.store');

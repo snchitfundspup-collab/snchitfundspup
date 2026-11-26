@@ -61,7 +61,7 @@
 
     <table class="party">
         <tr><th>{{ __('Instalments') }}</th><td>{{ $loan->installments }} {{ $loan->frequency === 'weekly' ? __('weeks') : __('days') }}</td></tr>
-        <tr><th>{{ __('First instalment on') }}</th><td>{{ $loan->first_due_on->format('d M Y') }}</td></tr>
+        <tr><th>{{ __('First instalment on') }}</th><td>{{ $loan->dueDateFor(1)->format('d M Y') }}</td></tr>
         <tr><th>{{ __('Last instalment on') }}</th><td>{{ $lastDue->format('d M Y') }}</td></tr>
         @if ($loan->notes)
             <tr><th>{{ __('Notes') }}</th><td>{{ $loan->notes }}</td></tr>

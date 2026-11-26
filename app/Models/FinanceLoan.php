@@ -337,13 +337,82 @@ class FinanceLoan extends Model
     }
 
     /**
-     * The due date of instalment $number (1 = the first due date).
+     * Due dates worked out once per loan (first due date, frequency,
+     * instalments and agent as the key).
+     *
+     * @var array{key: string, dates: list<array{on: Carbon, moved: bool}>}|null
+     */
+    private ?array $dueDatesCache = null;
+
+    /**
+     * Every instalment's due date: one step (week / day) apart from the first
+     * due date, except that an instalment falling on a holiday of the loan's
+     * agent moves on by whole steps until it is clear — and every later
+     * instalment follows it. 'moved' marks an instalment the holiday pushed.
+     *
+     * @return list<array{on: Carbon, moved: bool}>
+     */
+    public function dueDates(): array
+    {
+        $key = $this->first_due_on?->toDateString().'|'.$this->frequency.'|'.$this->installments.'|'.$this->agent_id;
+
+        if ($this->dueDatesCache !== null && $this->dueDatesCache['key'] === $key) {
+            return $this->dueDatesCache['dates'];
+        }
+
+        $holidays = $this->agent_id
+            ? FinanceHoliday::query()->where('agent_id', $this->agent_id)->get(['starts_on', 'ends_on'])
+                ->map(fn (FinanceHoliday $holiday) => [$holiday->starts_on->toDateString(), $holiday->ends_on->toDateString()])
+                ->all()
+            : [];
+        $onHoliday = function (Carbon $date) use ($holidays): bool {
+            foreach ($holidays as [$from, $to]) {
+                if ($date->toDateString() >= $from && $date->toDateString() <= $to) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+
+        $step = $this->frequency === self::WEEKLY ? 7 : 1;
+        $date = Carbon::parse($this->first_due_on->toDateString());
+        $dates = [];
+
+        foreach (range(1, max(1, $this->installments)) as $number) {
+            if ($number > 1) {
+                $date = $date->copy()->addDays($step);
+            }
+
+            $moved = false;
+
+            while ($onHoliday($date)) {
+                $date = $date->copy()->addDays($step);
+                $moved = true;
+            }
+
+            $dates[] = ['on' => $date->copy(), 'moved' => $moved];
+        }
+
+        $this->dueDatesCache = ['key' => $key, 'dates' => $dates];
+
+        return $dates;
+    }
+
+    /**
+     * The due date of instalment $number (1 = the first due date), holidays
+     * of the loan's agent skipped.
      */
     public function dueDateFor(int $number): Carbon
     {
-        $first = Carbon::parse($this->first_due_on->toDateString());
+        $dates = $this->dueDates();
+        $count = count($dates);
 
-        return $this->frequency === self::WEEKLY ? $first->addWeeks($number - 1) : $first->addDays($number - 1);
+        if ($number <= $count) {
+            return $dates[max(1, $number) - 1]['on']->copy();
+        }
+
+        return $dates[$count - 1]['on']->copy()->addDays(($number - $count) * ($this->frequency === self::WEEKLY ? 7 : 1));
     }
 
     public function lastDueDate(): Carbon
@@ -356,17 +425,9 @@ class FinanceLoan extends Model
      */
     public function installmentsDueBy(Carbon $date): int
     {
-        $first = Carbon::parse($this->first_due_on->toDateString());
-        $day = Carbon::parse($date->toDateString());
+        $day = $date->toDateString();
 
-        if ($day->lt($first)) {
-            return 0;
-        }
-
-        $days = (int) $first->diffInDays($day);
-        $count = $this->frequency === self::WEEKLY ? intdiv($days, 7) + 1 : $days + 1;
-
-        return min($this->installments, $count);
+        return count(array_filter($this->dueDates(), fn (array $due) => $due['on']->toDateString() <= $day));
     }
 
     /**
@@ -426,7 +487,7 @@ class FinanceLoan extends Model
      * it is paid as planned, and its state â€” paid, part paid, overdue (red),
      * due today (orange) or upcoming.
      *
-     * @return Collection<int, array{number: int, due_on: Carbon, amount: int, paid: int, paid_on: list<Carbon>, paid_by: ?User, balance_after: int, state: string}>
+     * @return Collection<int, array{number: int, due_on: Carbon, moved: bool, amount: int, paid: int, paid_on: list<Carbon>, paid_by: ?User, balance_after: int, state: string}>
      */
     public function schedule(?Carbon $today = null): Collection
     {
@@ -471,6 +532,7 @@ class FinanceLoan extends Model
             return [
                 'number' => $number,
                 'due_on' => $dueOn,
+                'moved' => $this->dueDates()[$number - 1]['moved'] ?? false,
                 'amount' => $amount,
                 'paid' => $paid,
                 'paid_on' => $paidOn,

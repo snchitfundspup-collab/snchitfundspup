@@ -50,3 +50,28 @@
         </tr>
     </tbody>
 </table>
+
+<h3 class="list-title">{{ __('Company worth now') }}</h3>
+
+<table class="grid">
+    <tbody>
+        <tr>
+            <td>{{ __('Money with customers') }}</td>
+            <td class="amount"><x-rupees :amount="$worth['customers']" /></td>
+        </tr>
+        @foreach ($worth['agents'] as $row)
+            <tr>
+                <td>{{ __('In the hand of') }} {{ $row['agent']->name }}</td>
+                <td class="amount"><x-rupees :amount="$row['in_hand']" /></td>
+            </tr>
+        @endforeach
+        <tr>
+            <td>{{ __('In the treasury') }}</td>
+            <td class="amount"><x-rupees :amount="$worth['treasury']" /></td>
+        </tr>
+        <tr>
+            <th>{{ __('Total the company holds') }}</th>
+            <td class="amount"><strong><x-rupees :amount="$worth['total']" /></strong></td>
+        </tr>
+    </tbody>
+</table>

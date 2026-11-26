@@ -104,7 +104,7 @@
             <td>{{ $weekly ? __('Fixed instalment per week') : __('Fixed instalment per day') }}@if ($loan->lastInstallment() !== $loan->installment_amount) ({{ __('last one') }} <x-rupees :amount="$loan->lastInstallment()" />)@endif</td>
             <td class="amount"><x-rupees :amount="$loan->installment_amount" /></td>
         </tr>
-        <tr><th>9</th><td>{{ __('First and last instalment dates') }}</td><td class="amount">{{ $loan->first_due_on->format('d M Y') }} – {{ $loan->lastDueDate()->format('d M Y') }}</td></tr>
+        <tr><th>9</th><td>{{ __('First and last instalment dates') }}</td><td class="amount">{{ $loan->dueDateFor(1)->format('d M Y') }} – {{ $loan->lastDueDate()->format('d M Y') }}</td></tr>
         <tr><th>10</th><td>{{ __('Penal charges for late payment') }}</td><td class="amount">{{ __('None') }}</td></tr>
     </table>
 
@@ -182,7 +182,7 @@
                             @if ($half > 0)<td class="gap"></td>@endif
                             @if ($row)
                                 <td class="num {{ $row['state'] === 'paid' ? 'is-paid' : '' }}">{{ $row['number'] }}</td>
-                                <td class="{{ $row['state'] === 'paid' ? 'is-paid' : '' }}">{{ $row['due_on']->format('d M y') }}</td>
+                                <td class="{{ $row['state'] === 'paid' ? 'is-paid' : '' }}">{{ $row['due_on']->format('d M y') }}@if ($row['moved'])*@endif</td>
                                 <td class="num">{{ number_format($row['amount']) }}</td>
                                 <td class="num {{ $row['state'] === 'paid' ? 'is-paid' : ($row['state'] === 'overdue' ? 'is-overdue' : '') }}">{{ $row['paid'] > 0 ? number_format($row['paid']) : '' }}</td>
                                 <td>{{ collect($row['paid_on'])->map(fn ($date) => $date->format('d M'))->implode(', ') }}</td>
@@ -205,6 +205,10 @@
                 @endfor
             </tbody>
         </table>
+
+        @if ($schedule->contains('moved', true))
+            <p class="kfs-holiday-note">* {{ __('Moved later for a holiday — no collection that week; the later instalments move with it.') }}</p>
+        @endif
 
     </div>
 
