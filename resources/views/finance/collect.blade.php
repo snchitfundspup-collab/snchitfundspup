@@ -102,14 +102,16 @@
                                 · <span data-i18n="balance_word">Balance</span> <x-rupees :amount="$loan->balance()" />
                                 @if ($standing['days_overdue'] > 0)
                                     · {{ $standing['days_overdue'] }} <span data-i18n="days_late">days late</span>
+                                    · <span data-i18n="overdue_word">Overdue</span> <x-rupees :amount="$standing['overdue']" />
                                 @endif
                             </span>
                         </div>
 
                         <span class="collect-status">
                             @include('finance.partials.state-badge', ['state' => $standing['state']])
+                            {{-- one instalment to collect now; the whole overdue amount is in the line above --}}
                             <strong class="collect-amount">
-                                <x-rupees :amount="$standing['to_collect'] > 0 ? $standing['to_collect'] : min($loan->installment_amount, $loan->balance())" />
+                                <x-rupees :amount="min($loan->installment_amount, $loan->balance())" />
                             </strong>
                         </span>
 

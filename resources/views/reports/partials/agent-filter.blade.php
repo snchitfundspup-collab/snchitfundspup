@@ -1,4 +1,5 @@
 {{-- Agent dropdown for the Agent Statement filters ($staff, $agent). --}}
+@if ($staff->count() > 1)
 <label class="payment-filter">
     <span data-i18n="agent_word">Agent</span>
     <select name="agent" class="input payment-filter-select">
@@ -7,3 +8,4 @@
         @endforeach
     </select>
 </label>
+@endif

@@ -7,6 +7,7 @@ use App\Models\FinanceCollection;
 use App\Models\FinanceLoan;
 use App\Models\Payment;
 use App\Models\User;
+use App\Support\AgentFilter;
 use App\Support\ReportPdf as Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -49,7 +50,9 @@ class AgentStatementController extends Controller
     private function build(Request $request): array
     {
         $isFinance = $request->routeIs('finance.*');
-        $staff = User::query()->active()->orderBy('name')->get(['id', 'name']);
+        $staff = AgentFilter::heldToOwn($request)
+            ? User::query()->whereKey($request->user()->id)->get(['id', 'name'])
+            : User::query()->active()->orderBy('name')->get(['id', 'name']);
         $agent = $staff->firstWhere('id', $request->integer('agent')) ?? $staff->firstWhere('id', $request->user()->id) ?? $staff->first();
 
         [$from, $to, $rangeKey] = ExpenseController::dateRange($request, 'month');

@@ -56,10 +56,10 @@
 
 
     @unless ($loan)
-    <a href="{{ route('finance.capital.index') }}" class="action-alert glass finance-available-alert" id="loanAvailable" data-available="{{ $available }}">
+    <a href="{{ $isAgent ? route('finance.agent-cash.index') : route('finance.capital.index') }}" class="action-alert glass finance-available-alert" id="loanAvailable" data-available="{{ $available }}">
         <span class="stat-icon icon-3d icon-3d-green"><x-icon name="wallet" /></span>
         <span>
-            <span data-i18n="available_to_lend">Available to lend</span>
+            <span data-i18n="{{ $isAgent ? 'cash_in_my_hand' : 'available_to_lend' }}">{{ $isAgent ? 'Cash in my hand' : 'Available to lend' }}</span>
             <strong @class(['ledger-total-due' => $available < 0])><x-rupees :amount="$available" /></strong>
             <small class="finance-available-warning" id="loanAvailableWarning" hidden data-i18n="not_enough_cash">This loan needs more than the money available.</small>
         </span>

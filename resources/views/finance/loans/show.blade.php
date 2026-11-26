@@ -199,7 +199,7 @@
                     <div class="group-field">
                         <label class="field-label" for="amount" data-i18n="amount_rupees">Amount (₹)</label>
                         <input type="text" id="amount" name="amount" class="input money-input payment-amount-input" inputmode="numeric" required autocomplete="off"
-                            value="{{ old('amount', min($loan->balance(), max($standing['to_collect'], $loan->installment_amount))) }}">
+                            value="{{ old('amount', min($loan->balance(), $loan->installment_amount)) }}">
                         <small class="installment-hint">
                             <span data-i18n="balance_word">Balance</span> <x-rupees :amount="$loan->balance()" />
                         </small>

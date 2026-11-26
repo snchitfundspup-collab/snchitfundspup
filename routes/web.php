@@ -20,6 +20,7 @@ use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Traders;
 use App\Http\Controllers\UsageController;
 use App\Http\Middleware\EnsureCustomerChoseOwnPassword;
+use App\Http\Middleware\EnsureFinanceAccess;
 use App\Http\Middleware\EnsurePortalSectionOpen;
 use Illuminate\Support\Facades\Route;
 
@@ -508,7 +509,7 @@ Route::middleware('auth:web')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::prefix('finance')->name('finance.')->group(function () {
+    Route::prefix('finance')->name('finance.')->middleware(EnsureFinanceAccess::class)->group(function () {
 
         Route::get('/', [Finance\DashboardController::class, 'index'])->name('dashboard');
 
@@ -529,6 +530,11 @@ Route::middleware('auth:web')->group(function () {
         Route::get('/capital', [Finance\CapitalController::class, 'index'])->name('capital.index');
         Route::post('/capital', [Finance\CapitalController::class, 'store'])->name('capital.store');
         Route::delete('/capital/{capital}', [Finance\CapitalController::class, 'destroy'])->name('capital.destroy');
+
+        /* money in each agent's hand */
+        Route::get('/agent-cash', [Finance\AgentCashController::class, 'index'])->name('agent-cash.index');
+        Route::post('/agent-cash', [Finance\AgentCashController::class, 'store'])->name('agent-cash.store')->middleware('can:finance-owner');
+        Route::delete('/agent-cash/{entry}', [Finance\AgentCashController::class, 'destroy'])->name('agent-cash.destroy')->middleware('can:finance-owner');
 
         /* collections */
         Route::get('/collect', [Finance\CollectionController::class, 'collect'])->name('collect');
